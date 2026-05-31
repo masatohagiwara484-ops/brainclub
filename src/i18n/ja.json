@@ -1,0 +1,47 @@
+{
+  "app": {
+    "name": "BrainClub",
+    "tagline": "世界の脳トレが集まるクラブ。毎日、頭を動かそう。"
+  },
+  "nav": { "home": "ホーム", "settings": "設定", "back": "戻る" },
+  "home": {
+    "hero": "世界中の脳トレゲームを、ブラウザで無料で。",
+    "sub": "インストール不要・ログイン不要。タップするだけ。",
+    "playNow": "今すぐ遊ぶ",
+    "comingSoon": "近日公開",
+    "streak": "連続日数",
+    "sections": {
+      "must-have": "毎日の定番",
+      "recommended": "もっと遊ぶ",
+      "innovative": "実験的"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "haptics": "振動（モバイル）",
+    "hapticsNote": "Androidで動作します。iOS Safariはweb振動に非対応のため、iPhoneでは無視されます。"
+  },
+  "cube": {
+    "moves": "手",
+    "scramble": "シャッフル",
+    "undo": "戻す",
+    "reset": "リセット",
+    "view": "視点リセット",
+    "solved": "完成！",
+    "share": "シェア",
+    "again": "もう一度",
+    "help": "背景をドラッグで全体回転。面をなぞるとその段が回ります。"
+  },
+  "share": { "shared": "シェアしました！", "copied": "コピーしました！", "failed": "シェアできませんでした。" },
+  "games": {
+    "cube": { "name": "ルービックキューブ 3D", "tagline": "空間認識 · 2×2〜5×5" },
+    "sudoku": { "name": "ナンプレ", "tagline": "論理 · 無限の問題" },
+    "wordle": { "name": "単語当て", "tagline": "語彙 · 毎日" },
+    "solitaire": { "name": "ソリティア", "tagline": "カード整理 · ゆったり" },
+    "watersort": { "name": "色水ソート", "tagline": "色の論理 · 爽快" },
+    "gomoku": { "name": "五目並べ", "tagline": "五目 · サクッと" },
+    "chess": { "name": "チェス", "tagline": "戦略 · 王道" },
+    "memory": { "name": "神経衰弱", "tagline": "記憶 · 集中" }
+  }
+}

@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #0b1020;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Prevent the page from scrolling/zooming while dragging a game canvas */
+canvas {
+  touch-action: none;
+}

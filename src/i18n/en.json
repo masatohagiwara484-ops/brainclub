@@ -1,0 +1,47 @@
+{
+  "app": {
+    "name": "BrainClub",
+    "tagline": "A worldwide club of brain games. Train your mind, every day."
+  },
+  "nav": { "home": "Home", "settings": "Settings", "back": "Back" },
+  "home": {
+    "hero": "Play the world's best brain games — free, in your browser.",
+    "sub": "No installs. No login. Just one tap to think.",
+    "playNow": "Play now",
+    "comingSoon": "Coming soon",
+    "streak": "Day streak",
+    "sections": {
+      "must-have": "Daily favorites",
+      "recommended": "More to explore",
+      "innovative": "Experimental"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "haptics": "Vibration (mobile)",
+    "hapticsNote": "Works on Android. iOS Safari does not support web vibration, so it is ignored on iPhone."
+  },
+  "cube": {
+    "moves": "moves",
+    "scramble": "Shuffle",
+    "undo": "Undo",
+    "reset": "Reset",
+    "view": "Recenter",
+    "solved": "Solved!",
+    "share": "Share",
+    "again": "Play again",
+    "help": "Drag the background to rotate. Drag across a face to turn that layer."
+  },
+  "share": { "shared": "Shared!", "copied": "Copied to clipboard!", "failed": "Could not share." },
+  "games": {
+    "cube": { "name": "Rubik's Cube 3D", "tagline": "Spatial reasoning · 2×2 to 5×5" },
+    "sudoku": { "name": "Sudoku", "tagline": "Logic · infinite puzzles" },
+    "wordle": { "name": "Word Guess", "tagline": "Vocabulary · daily" },
+    "solitaire": { "name": "Solitaire", "tagline": "Card sorting · relaxing" },
+    "watersort": { "name": "Water Sort", "tagline": "Color logic · satisfying" },
+    "gomoku": { "name": "Gomoku", "tagline": "Five in a row · quick" },
+    "chess": { "name": "Chess", "tagline": "Strategy · classic" },
+    "memory": { "name": "Memory Match", "tagline": "Recall · focus" }
+  }
+}
