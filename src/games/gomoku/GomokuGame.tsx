@@ -10,9 +10,11 @@ import {
   createBoard,
   isWin,
   isBoardFull,
-  bestMove,
+  chooseMove,
 } from './gomokuAI';
 import { haptics } from '../../lib/haptics';
+import DifficultySelector from '../../components/DifficultySelector';
+import type { Difficulty } from '../../lib/difficulty';
 
 type Status = 'playing' | 'black' | 'white' | 'draw';
 
@@ -47,6 +49,7 @@ export default function GomokuGame() {
   const [last, setLast] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
 
   // ---- drawing ----
   const draw = useCallback(() => {
@@ -191,11 +194,11 @@ export default function GomokuGame() {
   useEffect(() => {
     if (status !== 'playing' || turn !== WHITE) return;
     const id = setTimeout(() => {
-      const move = bestMove(board, WHITE, BLACK);
+      const move = chooseMove(board.slice() as Cell[], WHITE, BLACK, difficulty);
       if (move) place(move.x, move.y, WHITE);
     }, 320);
     return () => clearTimeout(id);
-  }, [turn, status, board, place]);
+  }, [turn, status, board, place, difficulty]);
 
   const newGame = () => {
     setBoard(createBoard());
@@ -203,6 +206,11 @@ export default function GomokuGame() {
     setStatus('playing');
     setLast(null);
     setHistory([]);
+  };
+
+  const changeDifficulty = (d: Difficulty) => {
+    setDifficulty(d);
+    newGame();
   };
 
   // Undo a full round (the AI's reply + the player's move).
@@ -262,15 +270,16 @@ export default function GomokuGame() {
         <canvas ref={canvasRef} onClick={onClick} className="block h-full w-full touch-none" />
       </div>
 
-      {/* Turn indicator */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 flex justify-center p-3">
-        <div className="rounded-xl bg-black/30 px-3 py-1.5 text-sm font-semibold text-white backdrop-blur">
+      {/* Difficulty + turn indicator */}
+      <div className="absolute left-0 right-0 top-0 flex flex-col items-center gap-2 p-3">
+        <DifficultySelector value={difficulty} onChange={changeDifficulty} />
+        <div className="rounded-xl bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm">
           {status === 'playing' ? (
             <span>
-              <span className={turn === BLACK ? 'text-white' : 'text-white/50'}>⚫ {t('gomoku.you')}</span>
-              <span className="mx-2 text-white/30">·</span>
-              <span className={turn === WHITE ? 'text-white' : 'text-white/50'}>⚪ {t('gomoku.ai')}</span>
-              <span className="ml-3 text-accent">{turnLabel}</span>
+              <span className={turn === BLACK ? 'text-slate-900' : 'text-slate-400'}>⚫ {t('gomoku.you')}</span>
+              <span className="mx-2 text-slate-300">·</span>
+              <span className={turn === WHITE ? 'text-slate-900' : 'text-slate-400'}>⚪ {t('gomoku.ai')}</span>
+              <span className="ml-3 text-brand">{turnLabel}</span>
             </span>
           ) : (
             <span>{t('gomoku.gameOver')}</span>
@@ -286,17 +295,17 @@ export default function GomokuGame() {
 
       {/* Result modal */}
       {status !== 'playing' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-panel p-6 text-center text-white shadow-2xl">
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
             <div className="text-4xl">{status === 'black' ? '🏆' : status === 'white' ? '🤖' : '🤝'}</div>
             <h2 className="mt-2 text-xl font-bold">
               {status === 'black' ? t('gomoku.youWin') : status === 'white' ? t('gomoku.youLose') : t('gomoku.draw')}
             </h2>
             <div className="mt-5 flex justify-center gap-2">
-              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold">
+              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold text-white">
                 {t('gomoku.share')}
               </button>
-              <button onClick={newGame} className="rounded-xl bg-white/10 px-4 py-2 font-semibold">
+              <button onClick={newGame} className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700">
                 {t('gomoku.again')}
               </button>
             </div>
@@ -329,7 +338,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-xl bg-black/30 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/45 active:scale-95"
+      className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-200 active:scale-95"
     >
       {children}
     </button>

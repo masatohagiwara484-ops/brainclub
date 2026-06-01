@@ -102,20 +102,20 @@ export default function CubeGame() {
 
       {/* Win modal */}
       {win && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-panel p-6 text-center text-white shadow-2xl">
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
             <div className="text-4xl">🎉</div>
             <h2 className="mt-2 text-xl font-bold">{t('cube.solved')}</h2>
-            <p className="mt-1 text-white/70">
+            <p className="mt-1 text-slate-500">
               ⏱ {fmt(win.seconds)} · {win.moves} {t('cube.moves')}
             </p>
             <div className="mt-5 flex justify-center gap-2">
-              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold">
+              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold text-white">
                 {t('cube.share')}
               </button>
               <button
                 onClick={() => { setWin(null); engineRef.current?.scramble(); }}
-                className="rounded-xl bg-white/10 px-4 py-2 font-semibold"
+                className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700"
               >
                 {t('cube.again')}
               </button>

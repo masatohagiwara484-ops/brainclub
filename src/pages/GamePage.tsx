@@ -12,7 +12,7 @@ export default function GamePage() {
 
   const Game = game.component;
   return (
-    <Suspense fallback={<div className="grid h-full place-items-center text-white/40">…</div>}>
+    <Suspense fallback={<div className="grid h-full place-items-center text-slate-400">…</div>}>
       <Game />
     </Suspense>
   );

@@ -159,3 +159,100 @@ export function bestMove(board: Cell[], ai: Cell, human: Cell): { x: number; y: 
 export function isBoardFull(board: Cell[]): boolean {
   return board.every((c) => c !== EMPTY);
 }
+
+// ---- difficulty-aware move selection ----
+import type { Difficulty } from '../../lib/difficulty';
+
+type Scored = { x: number; y: number; mine: number; theirs: number };
+
+function pickMax(scored: Scored[], val: (s: Scored) => number): { x: number; y: number } {
+  let best = scored[0];
+  let bestVal = -Infinity;
+  for (const s of scored) {
+    const v = val(s);
+    if (v > bestVal) {
+      bestVal = v;
+      best = s;
+    }
+  }
+  return { x: best.x, y: best.y };
+}
+
+/**
+ * Choose the AI's move at a given difficulty. Test-play tuning:
+ *  - easy:   weak defense, frequent random moves, sometimes misses a win threat
+ *  - medium: balanced attack/defense (the original heuristic)
+ *  - hard:   prioritizes blocking and pressing threats
+ *  - expert: 1-ply lookahead — avoids moves that hand the opponent a big reply
+ */
+export function chooseMove(
+  board: Cell[],
+  ai: Cell,
+  human: Cell,
+  difficulty: Difficulty,
+): { x: number; y: number } | null {
+  const cells = candidates(board);
+  if (cells.length === 0) {
+    const c = Math.floor(SIZE / 2);
+    return board[idx(c, c)] === EMPTY ? { x: c, y: c } : null;
+  }
+
+  const center = (SIZE - 1) / 2;
+  const centerBonus = (s: Scored) =>
+    -(Math.abs(s.x - center) + Math.abs(s.y - center)) * 0.01;
+
+  const scored: Scored[] = cells.map((i) => {
+    const x = i % SIZE;
+    const y = Math.floor(i / SIZE);
+    return { x, y, mine: scoreFor(board, x, y, ai), theirs: scoreFor(board, x, y, human) };
+  });
+
+  // Always take an immediate win when available.
+  const win = scored.find((s) => s.mine >= WIN_SCORE);
+  if (win) return { x: win.x, y: win.y };
+
+  // Block an immediate losing threat (easy may occasionally miss it).
+  const mustBlock = scored.find((s) => s.theirs >= WIN_SCORE);
+  if (mustBlock && (difficulty !== 'easy' || Math.random() < 0.5)) {
+    return { x: mustBlock.x, y: mustBlock.y };
+  }
+
+  switch (difficulty) {
+    case 'easy': {
+      if (Math.random() < 0.35) {
+        const i = cells[Math.floor(Math.random() * cells.length)];
+        return { x: i % SIZE, y: Math.floor(i / SIZE) };
+      }
+      return pickMax(scored, (s) => s.mine + 0.3 * s.theirs + centerBonus(s));
+    }
+    case 'medium':
+      return pickMax(scored, (s) => s.mine + 0.9 * s.theirs + centerBonus(s));
+    case 'hard':
+      return pickMax(scored, (s) => s.mine + 1.2 * s.theirs + centerBonus(s));
+    case 'expert': {
+      const ranked = [...scored]
+        .sort((a, b) => b.mine + b.theirs - (a.mine + a.theirs))
+        .slice(0, 12);
+      let best = { x: ranked[0].x, y: ranked[0].y };
+      let bestVal = -Infinity;
+      for (const s of ranked) {
+        const i = idx(s.x, s.y);
+        board[i] = ai;
+        let oppBest = 0;
+        for (const j of candidates(board)) {
+          const ox = j % SIZE;
+          const oy = Math.floor(j / SIZE);
+          const v = scoreFor(board, ox, oy, human);
+          if (v > oppBest) oppBest = v;
+        }
+        board[i] = EMPTY;
+        const val = s.mine - 0.95 * oppBest + centerBonus(s);
+        if (val > bestVal) {
+          bestVal = val;
+          best = { x: s.x, y: s.y };
+        }
+      }
+      return best;
+    }
+  }
+}

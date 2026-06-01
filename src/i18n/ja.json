@@ -33,6 +33,22 @@
     "again": "もう一度",
     "help": "背景をドラッグで全体回転。面をなぞるとその段が回ります。"
   },
+  "difficulty": {
+    "label": "難易度",
+    "easy": "EASY",
+    "medium": "MEDIUM",
+    "hard": "HARD",
+    "expert": "EXPERT"
+  },
+  "sudoku": {
+    "newGame": "新しい問題",
+    "erase": "消す",
+    "generating": "生成中…",
+    "solved": "クリア！",
+    "share": "シェア",
+    "again": "次の問題",
+    "help": "マスを選んで数字をタップ。各行・各列・各ブロックに1〜9を入れます。"
+  },
   "gomoku": {
     "newGame": "新しい対局",
     "undo": "戻す",

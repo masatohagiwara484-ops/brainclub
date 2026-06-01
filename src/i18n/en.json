@@ -33,6 +33,22 @@
     "again": "Play again",
     "help": "Drag the background to rotate. Drag across a face to turn that layer."
   },
+  "difficulty": {
+    "label": "Difficulty",
+    "easy": "EASY",
+    "medium": "MEDIUM",
+    "hard": "HARD",
+    "expert": "EXPERT"
+  },
+  "sudoku": {
+    "newGame": "New puzzle",
+    "erase": "Erase",
+    "generating": "Generating…",
+    "solved": "Solved!",
+    "share": "Share",
+    "again": "New puzzle",
+    "help": "Tap a cell, then a number. Fill every row, column and box with 1–9."
+  },
   "gomoku": {
     "newGame": "New game",
     "undo": "Undo",
