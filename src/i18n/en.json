@@ -51,6 +51,16 @@
     "again": "New puzzle",
     "help": "Tap a tube, then another to pour. Pours need matching top colors. Sort each tube to one color."
   },
+  "solitaire": {
+    "newGame": "New",
+    "undo": "Undo",
+    "restart": "Restart",
+    "moves": "moves",
+    "solved": "You won!",
+    "share": "Share",
+    "again": "New game",
+    "help": "Tap a card then a destination to move. Double-tap to send to a foundation. Build foundations A→K by suit."
+  },
   "sudoku": {
     "newGame": "New puzzle",
     "erase": "Erase",
