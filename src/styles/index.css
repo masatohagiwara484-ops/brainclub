@@ -25,3 +25,26 @@ body {
 canvas {
   touch-action: none;
 }
+
+/* Dotted, cyber display font for UI headings. */
+.font-dot {
+  font-family: 'DotGothic16', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+}
+
+/* Metallic "cyber silver" headings with a 3D/embossed feel.
+   Uses a silver gradient clipped to the glyphs plus layered shadows so it still
+   reads clearly on a white background. */
+.font-cyber {
+  font-family: 'DotGothic16', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  background: linear-gradient(180deg, #f4f7fa 0%, #c2c9d2 40%, #7d8794 60%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 0.4px rgba(71, 85, 105, 0.45);
+  text-shadow:
+    0 1px 0 #ffffff,
+    1px 1px 1px rgba(15, 23, 42, 0.25),
+    0 3px 5px rgba(15, 23, 42, 0.3);
+}

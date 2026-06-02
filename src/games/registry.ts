@@ -1,4 +1,5 @@
 import { lazy, type LazyExoticComponent, type ComponentType } from 'react';
+import type { GameProps } from './types';
 
 export type GameCategory = 'must-have' | 'recommended' | 'innovative';
 
@@ -15,7 +16,9 @@ export type GameDef = {
   gradient: string;
   /** Playable now? If false, shows as "Coming soon". */
   available: boolean;
-  component?: LazyExoticComponent<ComponentType>;
+  /** Shows the difficulty-select screen (EASY–EXPERT) before launching. */
+  hasDifficulty?: boolean;
+  component?: LazyExoticComponent<ComponentType<GameProps>>;
 };
 
 // The portfolio. Only the cube is playable today; the rest tease the roadmap
@@ -41,11 +44,23 @@ export const GAMES: GameDef[] = [
     emoji: '🔢',
     gradient: 'from-sky-500 to-indigo-600',
     available: true,
+    hasDifficulty: true,
     component: lazy(() => import('./sudoku/SudokuGame')),
   },
   { id: 'wordle', nameKey: 'games.wordle.name', taglineKey: 'games.wordle.tagline', route: '/play/wordle', category: 'must-have', emoji: '🟩', gradient: 'from-emerald-500 to-teal-600', available: false },
   { id: 'solitaire', nameKey: 'games.solitaire.name', taglineKey: 'games.solitaire.tagline', route: '/play/solitaire', category: 'must-have', emoji: '🃏', gradient: 'from-rose-500 to-red-600', available: false },
-  { id: 'watersort', nameKey: 'games.watersort.name', taglineKey: 'games.watersort.tagline', route: '/play/watersort', category: 'must-have', emoji: '🧪', gradient: 'from-cyan-500 to-blue-600', available: false },
+  {
+    id: 'watersort',
+    nameKey: 'games.watersort.name',
+    taglineKey: 'games.watersort.tagline',
+    route: '/play/watersort',
+    category: 'must-have',
+    emoji: '🧪',
+    gradient: 'from-cyan-500 to-blue-600',
+    available: true,
+    hasDifficulty: true,
+    component: lazy(() => import('./watersort/WaterSortGame')),
+  },
   {
     id: 'gomoku',
     nameKey: 'games.gomoku.name',
@@ -55,6 +70,7 @@ export const GAMES: GameDef[] = [
     emoji: '⚫',
     gradient: 'from-amber-500 to-orange-600',
     available: true,
+    hasDifficulty: true,
     component: lazy(() => import('./gomoku/GomokuGame')),
   },
   { id: 'chess', nameKey: 'games.chess.name', taglineKey: 'games.chess.tagline', route: '/play/chess', category: 'recommended', emoji: '♟️', gradient: 'from-slate-500 to-slate-700', available: false },

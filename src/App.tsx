@@ -10,6 +10,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/play/:id" element={<GamePage />} />
+          <Route path="/play/:id/:difficulty" element={<GamePage />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </Layout>

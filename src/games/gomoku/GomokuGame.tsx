@@ -13,8 +13,8 @@ import {
   chooseMove,
 } from './gomokuAI';
 import { haptics } from '../../lib/haptics';
-import DifficultySelector from '../../components/DifficultySelector';
-import type { Difficulty } from '../../lib/difficulty';
+import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import type { GameProps } from '../types';
 
 type Status = 'playing' | 'black' | 'white' | 'draw';
 
@@ -38,7 +38,7 @@ function geom(w: number, h: number): Geom {
   return { pad, step, ox, oy };
 }
 
-export default function GomokuGame() {
+export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -49,7 +49,6 @@ export default function GomokuGame() {
   const [last, setLast] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
 
   // ---- drawing ----
   const draw = useCallback(() => {
@@ -208,11 +207,6 @@ export default function GomokuGame() {
     setHistory([]);
   };
 
-  const changeDifficulty = (d: Difficulty) => {
-    setDifficulty(d);
-    newGame();
-  };
-
   // Undo a full round (the AI's reply + the player's move).
   const undo = () => {
     if (turn !== BLACK || status !== 'playing' || history.length === 0) return;
@@ -272,7 +266,12 @@ export default function GomokuGame() {
 
       {/* Difficulty + turn indicator */}
       <div className="absolute left-0 right-0 top-0 flex flex-col items-center gap-2 p-3">
-        <DifficultySelector value={difficulty} onChange={changeDifficulty} />
+        <span
+          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
+          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
+        >
+          {t(difficultyKey(difficulty))}
+        </span>
         <div className="rounded-xl bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm">
           {status === 'playing' ? (
             <span>
@@ -298,7 +297,7 @@ export default function GomokuGame() {
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
             <div className="text-4xl">{status === 'black' ? '🏆' : status === 'white' ? '🤖' : '🤝'}</div>
-            <h2 className="mt-2 text-xl font-bold">
+            <h2 className="font-cyber mt-2 text-2xl">
               {status === 'black' ? t('gomoku.youWin') : status === 'white' ? t('gomoku.youLose') : t('gomoku.draw')}
             </h2>
             <div className="mt-5 flex justify-center gap-2">

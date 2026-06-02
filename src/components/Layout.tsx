@@ -30,9 +30,9 @@ export default function Layout({ children }: { children: ReactNode }) {
               ‹
             </button>
           )}
-          <Link to="/" className="flex items-center gap-2 font-bold tracking-tight text-slate-900">
+          <Link to="/" className="flex items-center gap-2 tracking-tight">
             <span className="text-lg">🧠</span>
-            <span>{t('app.name')}</span>
+            <span className="font-cyber text-lg">{t('app.name')}</span>
           </Link>
         </div>
         <button

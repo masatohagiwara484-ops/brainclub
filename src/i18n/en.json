@@ -35,10 +35,21 @@
   },
   "difficulty": {
     "label": "Difficulty",
+    "choose": "Choose your level",
     "easy": "EASY",
     "medium": "MEDIUM",
     "hard": "HARD",
     "expert": "EXPERT"
+  },
+  "watersort": {
+    "newGame": "New",
+    "undo": "Undo",
+    "restart": "Restart",
+    "moves": "moves",
+    "solved": "Solved!",
+    "share": "Share",
+    "again": "New puzzle",
+    "help": "Tap a tube, then another to pour. Pours need matching top colors. Sort each tube to one color."
   },
   "sudoku": {
     "newGame": "New puzzle",

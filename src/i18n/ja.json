@@ -35,10 +35,21 @@
   },
   "difficulty": {
     "label": "難易度",
+    "choose": "難易度をえらぶ",
     "easy": "EASY",
     "medium": "MEDIUM",
     "hard": "HARD",
     "expert": "EXPERT"
+  },
+  "watersort": {
+    "newGame": "新規",
+    "undo": "戻す",
+    "restart": "やり直し",
+    "moves": "手",
+    "solved": "クリア！",
+    "share": "シェア",
+    "again": "次の問題",
+    "help": "試験管をタップし、もう一つをタップで注ぎます。上の色が同じ時だけ注げます。各管を1色にそろえましょう。"
   },
   "sudoku": {
     "newGame": "新しい問題",

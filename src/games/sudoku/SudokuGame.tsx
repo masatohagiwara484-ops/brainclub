@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makePuzzle, cell, N, type Grid, type Puzzle } from './sudokuGen';
-import DifficultySelector from '../../components/DifficultySelector';
-import type { Difficulty } from '../../lib/difficulty';
+import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
+import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
 
@@ -41,10 +41,9 @@ function findConflicts(values: Grid): Set<number> {
   return bad;
 }
 
-export default function SudokuGame() {
+export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const { t } = useTranslation();
 
-  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [data, setData] = useState<Puzzle | null>(null);
   const [values, setValues] = useState<Grid>([]);
   const [selected, setSelected] = useState<number | null>(null);
@@ -150,17 +149,20 @@ export default function SudokuGame() {
   return (
     <div className="flex h-full flex-col items-center overflow-y-auto px-4 py-3">
       {/* Controls header */}
-      <div className="flex w-full max-w-md flex-col items-center gap-2">
-        <DifficultySelector value={difficulty} onChange={setDifficulty} />
-        <div className="flex w-full items-center justify-between text-sm">
-          <span className="font-semibold tabular-nums text-slate-700">⏱ {fmt(seconds)}</span>
-          <button
-            onClick={() => generate(difficulty)}
-            className="rounded-xl bg-slate-100 px-3 py-1.5 font-semibold text-slate-700 shadow-sm hover:bg-slate-200 active:scale-95"
-          >
-            {t('sudoku.newGame')}
-          </button>
-        </div>
+      <div className="flex w-full max-w-md items-center justify-between text-sm">
+        <span
+          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
+          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
+        >
+          {t(difficultyKey(difficulty))}
+        </span>
+        <span className="font-semibold tabular-nums text-slate-700">⏱ {fmt(seconds)}</span>
+        <button
+          onClick={() => generate(difficulty)}
+          className="rounded-xl bg-slate-100 px-3 py-1.5 font-semibold text-slate-700 shadow-sm hover:bg-slate-200 active:scale-95"
+        >
+          {t('sudoku.newGame')}
+        </button>
       </div>
 
       {/* Board */}
@@ -238,7 +240,7 @@ export default function SudokuGame() {
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
             <div className="text-4xl">🎉</div>
-            <h2 className="mt-2 text-xl font-bold">{t('sudoku.solved')}</h2>
+            <h2 className="font-cyber mt-2 text-2xl">{t('sudoku.solved')}</h2>
             <p className="mt-1 text-slate-500">
               {t(`difficulty.${difficulty}`)} · ⏱ {fmt(seconds)}
             </p>

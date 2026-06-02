@@ -105,7 +105,7 @@ export default function CubeGame() {
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
             <div className="text-4xl">🎉</div>
-            <h2 className="mt-2 text-xl font-bold">{t('cube.solved')}</h2>
+            <h2 className="font-cyber mt-2 text-2xl">{t('cube.solved')}</h2>
             <p className="mt-1 text-slate-500">
               ⏱ {fmt(win.seconds)} · {win.moves} {t('cube.moves')}
             </p>
