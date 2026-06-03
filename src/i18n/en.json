@@ -85,6 +85,25 @@
     "again": "Play again",
     "help": "Tap an intersection to place a stone. Get five in a row to win."
   },
+  "wordle": {
+    "daily": "Daily",
+    "practice": "Practice",
+    "newGame": "New word",
+    "enter": "Enter",
+    "won": "Solved!",
+    "lost": "Out of guesses",
+    "answer": "Answer",
+    "share": "Share",
+    "again": "Play again",
+    "practiceMore": "Keep practicing",
+    "played": "Played",
+    "winRate": "Win %",
+    "streak": "Streak",
+    "maxStreak": "Best",
+    "distribution": "Guess distribution",
+    "dailyDone": "Today's word is done. Come back tomorrow, or keep practicing.",
+    "help": "Guess the hidden word. Green = right spot, yellow = wrong spot, gray = not in the word."
+  },
   "share": { "shared": "Shared!", "copied": "Copied to clipboard!", "failed": "Could not share." },
   "games": {
     "cube": { "name": "Rubik's Cube 3D", "tagline": "Spatial reasoning · 2×2 to 5×5" },

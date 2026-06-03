@@ -32,6 +32,41 @@ canvas {
   letter-spacing: 0.04em;
 }
 
+/* ---- Word Guess animations ---- */
+/* Pop when a letter is typed into a tile. */
+@keyframes wg-pop {
+  0% { transform: scale(0.9); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.wg-pop { animation: wg-pop 120ms ease-out; }
+
+/* Flip a tile as it reveals its color, staggered per column via inline delay. */
+@keyframes wg-flip {
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+.wg-flip { animation: wg-flip 500ms ease forwards; }
+
+/* Shake a row when a guess is rejected (too short). */
+@keyframes wg-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.wg-shake { animation: wg-shake 360ms ease-in-out; }
+
+/* Bounce winning tiles, staggered per column via inline delay. */
+@keyframes wg-bounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-14px); }
+  70% { transform: translateY(4px); }
+}
+.wg-bounce { animation: wg-bounce 560ms ease; }
+
 /* Metallic "cyber silver" headings with a 3D/embossed feel.
    Uses a silver gradient clipped to the glyphs plus layered shadows so it still
    reads clearly on a white background. */

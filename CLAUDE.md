@@ -24,13 +24,15 @@
 ## 📐 アーキテクチャ
 ```
 src/
-  games/registry.ts      ゲームカタログ（cubeのみ稼働、他はavailable:falseで"Coming soon"）
+  games/registry.ts      ゲームカタログ（cube/sudoku/solitaire/watersort/gomoku/wordle が稼働、他はavailable:falseで"Coming soon"）
   games/cube/            cubeEngine.ts（Three.js本体＋バグ修正）＋ CubeGame.tsx（React UI）
+  games/wordle/          wordGuess.ts（単語リスト/採点ロジック）＋ WordleGame.tsx（Word Guess本体・難易度＝文字数4〜7・デイリー＋練習）
   components/            Layout（全画面共通の枠＝ユニバーサルレイアウト）, GameCard
   pages/                 Home（ハブのゲームグリッド）, GamePage
   lib/                   haptics（振動）, storage（ベスト記録/ストリーク）, daily（日替わりseed）, share（Wordle型シェア）
   i18n/                  en.json（デフォルト）, ja.json
-scripts/verify-cube.mjs  キューブ崩壊バグの自動検証（node scripts/verify-cube.mjs）
+scripts/verify-cube.mjs    キューブ崩壊バグの自動検証（node scripts/verify-cube.mjs）
+scripts/verify-wordle.mjs  Word Guessの単語リスト＆採点ロジック検証（node scripts/verify-wordle.mjs）
 ```
 
 ## ✅ 決定事項（ユーザーとの合意）
