@@ -1,10 +1,38 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makePuzzle, cell, N, type Grid, type Puzzle } from './sudokuGen';
 import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
-import { haptics } from '../../lib/haptics';
+import { fx } from '../../lib/fx';
+
+// Cells of the row / column / 3×3 box that contain index `i`.
+function rowCells(i: number): number[] {
+  const r = Math.floor(i / N);
+  return [...Array(N).keys()].map((c) => cell(r, c));
+}
+function colCells(i: number): number[] {
+  const c = i % N;
+  return [...Array(N).keys()].map((r) => cell(r, c));
+}
+function boxCells(i: number): number[] {
+  const br = Math.floor(Math.floor(i / N) / 3) * 3;
+  const bc = Math.floor((i % N) / 3) * 3;
+  const out: number[] = [];
+  for (let dr = 0; dr < 3; dr++) for (let dc = 0; dc < 3; dc++) out.push(cell(br + dr, bc + dc));
+  return out;
+}
+
+/** A unit is "incomplete" if any cell is empty or two cells share a value. */
+function unitIncomplete(values: Grid, cells: number[]): boolean {
+  const seen = new Set<number>();
+  for (const i of cells) {
+    const v = values[i];
+    if (v === 0 || seen.has(v)) return true;
+    seen.add(v);
+  }
+  return false;
+}
 
 function fmt(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -50,6 +78,10 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const [seconds, setSeconds] = useState(0);
   const [solved, setSolved] = useState(false);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
+  // Cells that just completed a unit — they briefly glow + pop.
+  const [glow, setGlow] = useState<{ cells: Set<number>; key: number }>({ cells: new Set(), key: 0 });
+  const streakRef = useRef(0); // unit-completions this puzzle (drives the pitch ramp)
+  const glowKeyRef = useRef(0);
 
   const givenMask = useMemo(
     () => (data ? data.puzzle.map((v) => v !== 0) : []),
@@ -67,8 +99,17 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
       setSelected(null);
       setSeconds(0);
       setSolved(false);
+      setGlow({ cells: new Set(), key: 0 });
+      streakRef.current = 0;
     }, 20);
   }, []);
+
+  // Clear the glow highlight shortly after it fires.
+  useEffect(() => {
+    if (glow.cells.size === 0) return;
+    const id = setTimeout(() => setGlow({ cells: new Set(), key: 0 }), 720);
+    return () => clearTimeout(id);
+  }, [glow]);
 
   useEffect(() => {
     generate(difficulty);
@@ -84,15 +125,28 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const place = (v: number) => {
     if (selected == null || !data || solved) return;
     if (givenMask[selected]) return;
+    const idx = selected;
     setValues((prev) => {
       const next = prev.slice();
-      next[selected] = next[selected] === v ? 0 : v;
-      haptics.tick();
+      next[idx] = next[idx] === v ? 0 : v;
 
-      if (next.every((x, i) => x === data.solution[i])) {
+      // Did this move newly complete the row / column / box? (filled + no conflict)
+      const newly: number[] = [];
+      for (const unit of [rowCells(idx), colCells(idx), boxCells(idx)]) {
+        if (!unitIncomplete(next, unit) && unitIncomplete(prev, unit)) newly.push(...unit);
+      }
+      const full = next.every((x, i) => x === data.solution[i]);
+
+      if (full) {
         setSolved(true);
-        haptics.success();
+        fx.win(); // confetti + win chime + success haptic
         saveBest('sudoku', difficulty, { seconds, moves: 0, at: Date.now() });
+      } else if (newly.length) {
+        streakRef.current += 1;
+        fx.correct({ streak: streakRef.current }); // rising chime + escalating haptic
+        setGlow({ cells: new Set(newly), key: ++glowKeyRef.current });
+      } else {
+        fx.tick(); // soft blip on a normal placement
       }
       return next;
     });
@@ -199,13 +253,16 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
                   ? 'text-slate-900'
                   : 'text-brand';
 
+              const glowing = glow.cells.has(i);
+
               return (
                 <button
                   key={i}
                   onClick={() => setSelected(i)}
+                  data-evolve={glowing ? 'unit' : undefined}
                   className={`flex aspect-square items-center justify-center border text-lg font-semibold sm:text-xl ${borders} ${bg} ${text} ${
                     isGiven ? 'font-bold' : ''
-                  }`}
+                  } ${glowing ? 'fx-glow fx-pop z-10' : ''}`}
                 >
                   {v !== 0 ? v : ''}
                 </button>

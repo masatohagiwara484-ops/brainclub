@@ -5,15 +5,19 @@
 // haptics, so these calls are silently ignored on iPhone/iPad (no error,
 // just no buzz). There is currently no reliable web workaround on iOS.
 
+import { getSetting, setSetting } from './storage';
+
 function canVibrate(): boolean {
   return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
 }
 
-let enabled = true;
+// Persisted under setting.haptics (default ON) so the choice survives reloads.
+let enabled = getSetting<boolean>('haptics', true);
 
 export const haptics = {
   setEnabled(v: boolean) {
     enabled = v;
+    setSetting('haptics', v);
   },
   isEnabled() {
     return enabled;

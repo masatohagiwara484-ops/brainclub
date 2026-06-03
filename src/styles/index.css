@@ -67,6 +67,110 @@ canvas {
 }
 .wg-bounce { animation: wg-bounce 560ms ease; }
 
+/* ============================================================
+   FX engine — shared, theme-driven "juice" (Mission 1)
+   ============================================================
+   These power lib/fx.ts → FxLayer.tsx. Intensity is controlled by the
+   [data-theme] tokens below, so Zen and Arcade reskin with ZERO JS changes.
+   Everything is transform/opacity-only so it stays smooth on low-end phones. */
+
+/* Theme intensity tokens. Applied to the Layout root (data-theme). */
+[data-theme='arcade'] {
+  --fx-accent: #f59e0b;
+  --fx-glow: 0 0 12px rgba(245, 158, 11, 0.9), 0 0 26px rgba(245, 158, 11, 0.55);
+  --fx-flash: rgba(239, 68, 68, 0.45);
+  --confetti-count-scale: 1.25;
+  --motion-scale: 1;
+}
+[data-theme='zen'] {
+  --fx-accent: #2563eb;
+  --fx-glow: 0 0 8px rgba(37, 99, 235, 0.45);
+  --fx-flash: rgba(239, 68, 68, 0.28);
+  --confetti-count-scale: 0.55;
+  --motion-scale: 0.7;
+}
+
+/* Confetti: each piece falls from center to a randomized (--x,--y) with spin. */
+@keyframes fx-confetti-fall {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--x, 0)), calc(-50% + var(--y, 60vh)))
+      rotate(var(--rot, 360deg)) scale(0.85);
+    opacity: 0;
+  }
+}
+.fx-confetti-piece {
+  animation: fx-confetti-fall 1100ms cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Full-bleed flash tint (wrong answer / alert). Color from --flash-color. */
+@keyframes fx-flash {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.fx-flash {
+  background: var(--flash-color, var(--fx-flash, rgba(239, 68, 68, 0.4)));
+  animation: fx-flash 400ms ease-out forwards;
+  will-change: opacity;
+}
+
+/* Screen shake — applied to the play area for an invalid move. */
+@keyframes fx-shake-md {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-8px); }
+  30% { transform: translateX(8px); }
+  45% { transform: translateX(-6px); }
+  60% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+  90% { transform: translateX(3px); }
+}
+.fx-shake-md { animation: fx-shake-md 440ms ease-in-out; }
+@keyframes fx-shake-sm {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+.fx-shake-sm { animation: fx-shake-sm 320ms ease-in-out; }
+
+/* Pop — a quick scale punch for a completed cell/unit. */
+@keyframes fx-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.fx-pop { animation: fx-pop 300ms ease-out; }
+
+/* Glow — a brief halo for a completed row/box (color via --fx-glow). */
+@keyframes fx-glow {
+  0% { box-shadow: none; }
+  35% { box-shadow: var(--fx-glow, 0 0 12px rgba(245, 158, 11, 0.8)); }
+  100% { box-shadow: none; }
+}
+.fx-glow { animation: fx-glow 700ms ease-out; }
+
+/* Respect users who ask for less motion: kill all FX motion (sound + haptics
+   still fire — those are gated in fx.ts, not here). */
+@media (prefers-reduced-motion: reduce) {
+  .fx-confetti-piece,
+  .fx-flash,
+  .fx-shake-md,
+  .fx-shake-sm,
+  .fx-pop,
+  .fx-glow,
+  .wg-pop,
+  .wg-flip,
+  .wg-shake,
+  .wg-bounce {
+    animation: none !important;
+  }
+}
+
 /* Metallic "cyber silver" headings with a 3D/embossed feel.
    Uses a silver gradient clipped to the glyphs plus layered shadows so it still
    reads clearly on a white background. */

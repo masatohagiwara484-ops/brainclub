@@ -13,6 +13,7 @@ import {
   chooseMove,
 } from './gomokuAI';
 import { haptics } from '../../lib/haptics';
+import { fx } from '../../lib/fx';
 import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 
@@ -165,7 +166,9 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
 
         if (isWin(next, x, y, color)) {
           setStatus(color === BLACK ? 'black' : 'white');
-          haptics.success();
+          // Celebrate only the player's win — never the loss (non-predatory).
+          if (color === BLACK) fx.win();
+          else haptics.bump();
         } else if (isBoardFull(next)) {
           setStatus('draw');
         } else {

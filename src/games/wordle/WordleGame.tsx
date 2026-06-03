@@ -5,6 +5,7 @@ import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/diff
 import { dailySeed, dayNumber, makeRng } from '../../lib/daily';
 import { bumpStreak, getSetting, setSetting } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
+import { fx } from '../../lib/fx';
 import {
   WORD_CONFIG,
   evaluate,
@@ -180,7 +181,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
     persistDaily(g, st, answer);
 
     if (won) {
-      haptics.success();
+      fx.win();
       recordDaily(true, g.length);
     } else if (lost) {
       haptics.bump();

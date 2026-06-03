@@ -4,6 +4,12 @@
     "tagline": "A worldwide club of brain games. Train your mind, every day."
   },
   "nav": { "home": "Home", "settings": "Settings", "back": "Back" },
+  "controls": {
+    "theme": "Visual style",
+    "zen": "Zen",
+    "arcade": "Arcade",
+    "sound": "Sound"
+  },
   "home": {
     "hero": "Play the world's best brain games — free, in your browser.",
     "sub": "No installs. No login. Just one tap to think.",

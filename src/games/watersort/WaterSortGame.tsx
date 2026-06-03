@@ -12,6 +12,7 @@ import {
 import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { haptics } from '../../lib/haptics';
+import { fx } from '../../lib/fx';
 
 export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
   const { t } = useTranslation();
@@ -76,7 +77,7 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
       haptics.tick();
       if (isSolved(next)) {
         setWon(true);
-        haptics.success();
+        fx.win();
       }
     } else {
       // Re-select the tapped tube if it has liquid, else clear.

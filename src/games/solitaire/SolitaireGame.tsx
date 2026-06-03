@@ -18,6 +18,7 @@ import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
+import { fx } from '../../lib/fx';
 
 function fmt(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -86,7 +87,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
     haptics.tick();
     if (isWon(next)) {
       setWon(true);
-      haptics.success();
+      fx.win();
       saveBest('solitaire', difficulty, { seconds, moves: moves + 1, at: Date.now() });
     }
     return true;
