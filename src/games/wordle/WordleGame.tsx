@@ -6,6 +6,7 @@ import { dailySeed, dayNumber, makeRng } from '../../lib/daily';
 import { bumpStreak, getSetting, setSetting } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
 import { fx } from '../../lib/fx';
+import { useSettings } from '../../lib/settings';
 import {
   WORD_CONFIG,
   evaluate,
@@ -54,6 +55,13 @@ function loadStats(difficulty: Difficulty, maxGuesses: number): Stats {
 
 export default function WordleGame({ difficulty = 'medium' }: GameProps) {
   const { t } = useTranslation();
+  // Color-blind mode swaps green/yellow for a blue/orange palette (clearer for
+  // the most common red-green deficiencies).
+  const cb = useSettings().isColorBlind();
+  const okBg = cb ? 'bg-blue-600' : 'bg-green-500';
+  const okBorder = cb ? 'border-blue-600' : 'border-green-500';
+  const midBg = cb ? 'bg-orange-500' : 'bg-yellow-400';
+  const midBorder = cb ? 'border-orange-500' : 'border-yellow-400';
   const { length, maxGuesses } = WORD_CONFIG[difficulty];
 
   const [mode, setMode] = useState<Mode>('daily');
@@ -264,9 +272,9 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
   // ---- Tile rendering helpers ----
   const tileColor = (s: LetterState): string =>
     s === 'correct'
-      ? 'bg-green-500 border-green-500 text-white'
+      ? `${okBg} ${okBorder} text-white`
       : s === 'present'
-        ? 'bg-yellow-400 border-yellow-400 text-white'
+        ? `${midBg} ${midBorder} text-white`
         : 'bg-slate-400 border-slate-400 text-white';
 
   const winRate = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
@@ -371,8 +379,8 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
               const wide = k === 'enter' || k === 'back';
               const s = keyState[k];
               let bg = 'bg-slate-200 text-slate-800';
-              if (s === 'correct') bg = 'bg-green-500 text-white';
-              else if (s === 'present') bg = 'bg-yellow-400 text-white';
+              if (s === 'correct') bg = `${okBg} text-white`;
+              else if (s === 'present') bg = `${midBg} text-white`;
               else if (s === 'absent') bg = 'bg-slate-400 text-white';
               return (
                 <button
@@ -432,7 +440,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
                         <div className="flex-1">
                           <div
                             className={`flex h-5 items-center justify-end rounded px-1.5 font-bold text-white ${
-                              isThis ? 'bg-green-500' : 'bg-slate-400'
+                              isThis ? okBg : 'bg-slate-400'
                             }`}
                             style={{ width: `${Math.max(8, (count / maxDist) * 100)}%` }}
                           >

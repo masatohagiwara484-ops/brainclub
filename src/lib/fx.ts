@@ -15,6 +15,7 @@
 
 import { haptics } from './haptics';
 import { sound } from './sound';
+import { getSetting } from './storage';
 
 export type FxEvent =
   | { kind: 'confetti'; intensity: number }
@@ -38,6 +39,8 @@ function emit(e: FxEvent): void {
 }
 
 export function prefersReducedMotion(): boolean {
+  // The user's explicit in-app choice wins; otherwise fall back to the OS hint.
+  if (getSetting<boolean>('reduceMotion', false)) return true;
   return (
     typeof window !== 'undefined' &&
     typeof window.matchMedia === 'function' &&

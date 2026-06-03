@@ -25,8 +25,17 @@
   "settings": {
     "title": "設定",
     "language": "言語",
+    "themeNote": "Arcadeは派手で華やか、Zenは静かでシンプル。両方お試しください。",
+    "zenNote": "静かで控えめな演出",
+    "arcadeNote": "明るく派手な演出",
+    "feedback": "フィードバックとアクセシビリティ",
+    "soundNote": "心地よいゲーム内効果音。",
     "haptics": "振動（モバイル）",
-    "hapticsNote": "Androidで動作します。iOS Safariはweb振動に非対応のため、iPhoneでは無視されます。"
+    "hapticsNote": "Androidで動作します。iOS Safariはweb振動に非対応のため、iPhoneでは無視されます。",
+    "reduceMotion": "モーションを減らす",
+    "reduceMotionNote": "紙吹雪・フラッシュ・揺れをオフにします。音と振動は引き続き動作します。",
+    "colorBlind": "色覚サポート",
+    "colorBlindNote": "緑/黄の代わりに青/橙の配色を使い、コントラストを見やすくします。"
   },
   "cube": {
     "moves": "手",

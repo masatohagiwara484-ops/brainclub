@@ -25,8 +25,17 @@
   "settings": {
     "title": "Settings",
     "language": "Language",
+    "themeNote": "Arcade is bright and flashy; Zen is calm and minimal. Try both.",
+    "zenNote": "Calm, minimal effects",
+    "arcadeNote": "Bright, flashy effects",
+    "feedback": "Feedback & accessibility",
+    "soundNote": "Pleasant in-game sound effects.",
     "haptics": "Vibration (mobile)",
-    "hapticsNote": "Works on Android. iOS Safari does not support web vibration, so it is ignored on iPhone."
+    "hapticsNote": "Works on Android. iOS Safari does not support web vibration, so it is ignored on iPhone.",
+    "reduceMotion": "Reduce motion",
+    "reduceMotionNote": "Turn off confetti, flashes and shakes. Sound and vibration still work.",
+    "colorBlind": "Color-blind mode",
+    "colorBlindNote": "Uses a blue/orange palette instead of green/yellow for clearer contrast."
   },
   "cube": {
     "moves": "moves",
