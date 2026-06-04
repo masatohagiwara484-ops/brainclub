@@ -10,6 +10,7 @@ import HowToOverlay from './HowToOverlay';
 import BottomNav from './BottomNav';
 import BgmController from './BgmController';
 import { Icon } from './Icons';
+import Button from './Button';
 
 // Universal layout (chess.com-style shell): a slim header with the profile on
 // the left, brand in the center, and a Premium shortcut on the right, plus a
@@ -48,13 +49,17 @@ export default function Layout({ children }: { children: ReactNode }) {
         {/* Left: profile avatar (or back chevron during a game). Fixed width keeps the brand centered. */}
         <div className="flex w-16 items-center">
           {onPlay ? (
-            <button
+            // Proof of concept for the shared <Button>: ghost variant already
+            // supplies hover:bg-slate-100; the !overrides pin it to the original
+            // round, icon-only header look (h-9 w-9, slate-500, no padding).
+            <Button
               onClick={() => nav('/')}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
+              variant="ghost"
               aria-label={t('nav.back')}
-            >
-              <Icon name="back" className="h-6 w-6" />
-            </button>
+              leftIcon="back"
+              iconClassName="h-6 w-6"
+              className="h-9 w-9 !rounded-full !p-0 !text-slate-500"
+            />
           ) : (
             <Link
               to="/profile"
