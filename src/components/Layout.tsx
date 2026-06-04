@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { setSetting } from '../lib/storage';
 import { useSettings } from '../lib/settings';
 import { useMonetization } from '../lib/monetization';
+import { useHowto } from '../lib/howto';
 import FxLayer from './FxLayer';
 import MonetizationLayer from './MonetizationLayer';
+import HowToOverlay from './HowToOverlay';
 
 // Universal layout: the brand, language toggle and back/settings live in the
 // SAME place on every screen (a core UX requirement from the strategy doc).
@@ -27,6 +29,11 @@ export default function Layout({ children }: { children: ReactNode }) {
   // theme, so it recolors FX/UI with no game-code changes (Mission 8).
   const m = useMonetization();
   const skin = m.getSkin();
+
+  // On a game screen (/play/:id[/:difficulty]) the header shows a "?" that
+  // replays the textless gesture tutorial for that game (Mission 9).
+  const h = useHowto();
+  const playId = loc.pathname.startsWith('/play/') ? loc.pathname.split('/')[2] : null;
 
   const toggleLang = () => {
     const next = i18n.language.startsWith('ja') ? 'en' : 'ja';
@@ -81,6 +88,16 @@ export default function Layout({ children }: { children: ReactNode }) {
           >
             {i18n.language.startsWith('ja') ? '日本語' : 'EN'}
           </button>
+          {playId && (
+            <button
+              onClick={() => h.open(playId)}
+              className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+              aria-label={t('howto.help')}
+              title={t('howto.help')}
+            >
+              ?
+            </button>
+          )}
           <button
             onClick={() => m.openShop()}
             className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
@@ -111,6 +128,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         {children}
         <FxLayer />
         <MonetizationLayer />
+        <HowToOverlay />
       </main>
     </div>
   );

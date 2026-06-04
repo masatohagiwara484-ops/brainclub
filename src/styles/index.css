@@ -180,6 +180,74 @@ canvas {
 }
 .fx-glow { animation: fx-glow 700ms ease-out; }
 
+/* ============================================================
+   How-to gesture tutorial — textless onboarding (Mission 9)
+   ============================================================
+   A looping animated finger demonstrates each game's core gesture over a
+   schematic mini-board (HowToOverlay.tsx). The finger's path comes from CSS
+   vars --ax/--ay (source) and --bx/--by (target) so one keyframe serves every
+   game. Reduced-motion disables these (below) and the scene becomes a static
+   diagram. All run on a shared 3.4s loop so finger + result reveals stay synced. */
+
+/* tap, glide, tap — for two-step "source then target" gestures. */
+@keyframes ht-finger2 {
+  0%   { opacity: 0; left: var(--ax); top: var(--ay); transform: scale(1); }
+  6%   { opacity: 1; }
+  16%  { transform: scale(0.78); }
+  24%  { transform: scale(1); }
+  46%  { left: var(--ax); top: var(--ay); }
+  64%  { left: var(--bx); top: var(--by); }
+  74%  { transform: scale(0.78); }
+  82%  { transform: scale(1); }
+  94%  { opacity: 1; }
+  100% { opacity: 0; left: var(--bx); top: var(--by); }
+}
+.ht-finger2 { animation: ht-finger2 3.4s ease-in-out infinite; }
+
+/* single tap in place (position from inline left/top). */
+@keyframes ht-finger1 {
+  0%   { opacity: 0; transform: scale(1); }
+  10%  { opacity: 1; }
+  30%  { transform: scale(0.76); }
+  42%  { transform: scale(1); }
+  86%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.ht-finger1 { animation: ht-finger1 3.4s ease-in-out infinite; }
+
+/* press and drag — for the cube's layer turn. */
+@keyframes ht-swipe {
+  0%   { opacity: 0; left: var(--ax); top: var(--ay); transform: scale(1); }
+  12%  { opacity: 1; transform: scale(0.82); }
+  22%  { left: var(--ax); top: var(--ay); }
+  64%  { left: var(--bx); top: var(--by); transform: scale(0.82); }
+  76%  { transform: scale(1); opacity: 1; }
+  100% { opacity: 0; left: var(--bx); top: var(--by); }
+}
+.ht-swipe { animation: ht-swipe 3.4s ease-in-out infinite; }
+
+/* result reveals — "late" pops after the second tap, "early" after a single tap. */
+@keyframes ht-reveal-late {
+  0%, 70% { opacity: 0; transform: scale(0.5); }
+  80% { opacity: 1; transform: scale(1.12); }
+  88%, 100% { opacity: 1; transform: scale(1); }
+}
+.ht-reveal-late { animation: ht-reveal-late 3.4s ease-in-out infinite; }
+@keyframes ht-reveal-early {
+  0%, 32% { opacity: 0; transform: scale(0.5); }
+  44% { opacity: 1; transform: scale(1.12); }
+  54%, 100% { opacity: 1; transform: scale(1); }
+}
+.ht-reveal-early { animation: ht-reveal-early 3.4s ease-in-out infinite; }
+
+/* "tap here" ring that expands and fades, hinting the target. */
+@keyframes ht-pulse {
+  0% { transform: scale(0.6); opacity: 0; }
+  30% { opacity: 0.5; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.ht-pulse { animation: ht-pulse 1.7s ease-out infinite; opacity: 0.4; }
+
 /* Respect users who ask for less motion: kill all FX motion (sound + haptics
    still fire — those are gated in fx.ts, not here). */
 @media (prefers-reduced-motion: reduce) {
@@ -192,7 +260,13 @@ canvas {
   .wg-pop,
   .wg-flip,
   .wg-shake,
-  .wg-bounce {
+  .wg-bounce,
+  .ht-finger1,
+  .ht-finger2,
+  .ht-swipe,
+  .ht-reveal-late,
+  .ht-reveal-early,
+  .ht-pulse {
     animation: none !important;
   }
 }

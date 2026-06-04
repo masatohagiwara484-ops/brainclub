@@ -4,6 +4,10 @@
     "tagline": "A worldwide club of brain games. Train your mind, every day."
   },
   "nav": { "home": "Home", "settings": "Settings", "back": "Back", "profile": "Profile" },
+  "howto": {
+    "help": "How to play",
+    "gotIt": "Got it"
+  },
   "monet": {
     "shopTitle": "Skin shop",
     "shopNote": "Cosmetic only — recolors the whole app. Every game stays free.",
