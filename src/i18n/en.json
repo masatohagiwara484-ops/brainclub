@@ -119,11 +119,32 @@
     "dailyDone": "Today's word is done. Come back tomorrow, or keep practicing.",
     "help": "Guess the hidden word. Green = right spot, yellow = wrong spot, gray = not in the word."
   },
+  "colorclash": {
+    "howto": "A color word appears in a different ink. Tap the COLOR it is painted in — not what it spells. Be quick: the timer shrinks every round!",
+    "start": "Start",
+    "prompt": "Tap the ink color, not the word",
+    "score": "Score",
+    "best": "Best",
+    "gameOver": "Game over",
+    "newBest": "New best!",
+    "answerWas": "The answer was",
+    "again": "Play again",
+    "share": "Share",
+    "colors": {
+      "red": "Red",
+      "blue": "Blue",
+      "green": "Green",
+      "yellow": "Yellow",
+      "purple": "Purple",
+      "orange": "Orange"
+    }
+  },
   "share": { "shared": "Shared!", "copied": "Copied to clipboard!", "failed": "Could not share." },
   "games": {
     "cube": { "name": "Rubik's Cube 3D", "tagline": "Spatial reasoning · 2×2 to 5×5" },
     "sudoku": { "name": "Sudoku", "tagline": "Logic · infinite puzzles" },
     "wordle": { "name": "Word Guess", "tagline": "Vocabulary · daily" },
+    "colorclash": { "name": "Color Clash", "tagline": "Reflex · Stroop test" },
     "solitaire": { "name": "Solitaire", "tagline": "Card sorting · relaxing" },
     "watersort": { "name": "Water Sort", "tagline": "Color logic · satisfying" },
     "gomoku": { "name": "Gomoku", "tagline": "Five in a row · quick" },

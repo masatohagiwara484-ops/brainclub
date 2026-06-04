@@ -86,6 +86,17 @@ const ART: Record<string, (className?: string) => React.ReactNode> = {
       </>,
       c,
     ),
+  colorclash: (c) =>
+    base(
+      <>
+        <circle cx="32" cy="32" r="22" />
+        <path d="M32 10a22 22 0 0 1 0 44" fill="currentColor" stroke="none" opacity={0.25} />
+        <circle cx="24" cy="26" r="3.5" fill="currentColor" stroke="none" />
+        <circle cx="40" cy="26" r="3.5" />
+        <path d="M24 42c3 3 13 3 16 0" />
+      </>,
+      c,
+    ),
   memory: (c) =>
     base(
       <>

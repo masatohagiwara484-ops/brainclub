@@ -95,6 +95,18 @@ export const GAMES: GameDef[] = [
     hasDifficulty: true,
     component: lazy(() => import('./gomoku/GomokuGame')),
   },
+  {
+    id: 'colorclash',
+    nameKey: 'games.colorclash.name',
+    taglineKey: 'games.colorclash.tagline',
+    route: '/play/colorclash',
+    category: 'innovative',
+    emoji: '🎨',
+    gradient: 'from-pink-500 via-violet-500 to-orange-400',
+    available: true,
+    hasDifficulty: true,
+    component: lazy(() => import('./colorclash/ColorClashGame')),
+  },
   { id: 'chess', nameKey: 'games.chess.name', taglineKey: 'games.chess.tagline', route: '/play/chess', category: 'recommended', emoji: '♟️', gradient: 'from-slate-500 to-slate-700', available: false },
   { id: 'memory', nameKey: 'games.memory.name', taglineKey: 'games.memory.tagline', route: '/play/memory', category: 'recommended', emoji: '🧠', gradient: 'from-fuchsia-500 to-purple-600', available: false },
 ];
