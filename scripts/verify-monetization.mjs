@@ -65,6 +65,39 @@ if (!gated) fail('premium-only skin applicable to a free user');
 else console.log('  ✓ premium-only skins are gated for free users');
 for (const id of PREMIUM_ONLY) if (!canApply(id, [], true)) fail(`premium-only ${id} not applicable when premium`);
 
+// ---- Plan tiers (F3) — mirrors PLAN_RANK / FEATURE_MIN_RANK in monetization.ts.
+const PLAN_RANK = { free: 0, plus: 1, pro: 2 };
+const FEATURE_MIN_RANK = {
+  noAds: 1,
+  allSkins: 1,
+  themes: 1,
+  proStats: 2,
+  exclusiveThemes: 2,
+  earlyAccess: 2,
+};
+const planHas = (plan, f) => PLAN_RANK[plan] >= FEATURE_MIN_RANK[f];
+const isPaid = (plan) => PLAN_RANK[plan] > 0;
+const FEATURES = Object.keys(FEATURE_MIN_RANK);
+
+// Free unlocks nothing and is not paid.
+if (isPaid('free')) fail('free should not be a paid tier');
+if (FEATURES.some((f) => planHas('free', f))) fail('free tier unlocked a paid feature');
+else console.log('  ✓ free tier unlocks nothing and is unpaid');
+
+// Plus = the rank-1 features only; Pro = everything; both paid.
+if (!isPaid('plus') || !isPaid('pro')) fail('plus/pro should be paid tiers');
+const plusOk = planHas('plus', 'noAds') && planHas('plus', 'allSkins') && planHas('plus', 'themes');
+const plusNot = !planHas('plus', 'proStats') && !planHas('plus', 'earlyAccess');
+if (!plusOk || !plusNot) fail('plus tier feature set is wrong');
+else console.log('  ✓ Plus unlocks ads/skins/themes but not Pro-only features');
+if (!FEATURES.every((f) => planHas('pro', f))) fail('pro tier missing a feature');
+else console.log('  ✓ Pro unlocks every feature');
+
+// Tiers are nested: anything Plus grants, Pro grants too.
+if (!FEATURES.every((f) => !planHas('plus', f) || planHas('pro', f)))
+  fail('Pro is not a superset of Plus');
+else console.log('  ✓ Pro ⊇ Plus (nested tiers)');
+
 if (failures) {
   console.error(`\nFAIL: ${failures} check(s) failed.`);
   process.exit(1);

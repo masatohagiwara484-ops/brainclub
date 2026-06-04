@@ -49,8 +49,20 @@
     "perks": {
       "noAds": "No ads, ever",
       "allSkins": "Every skin unlocked",
-      "proStats": "Detailed Synapse stats",
+      "themes": "Zen & Arcade themes",
+      "proStats": "Detailed Synapse stats & export",
+      "exclusiveThemes": "Exclusive themes",
+      "earlyAccess": "Early access to new games",
       "support": "Support an indie, no-login app"
+    },
+    "popular": "Popular",
+    "currentPlan": "Current plan",
+    "choose": "Choose {{plan}}",
+    "compare": "Compare plans",
+    "feature": "Feature",
+    "plans": {
+      "plus": { "name": "Plus", "price": "$4.99", "per": "per month", "tagline": "Ad-free + every skin" },
+      "pro": { "name": "Pro", "price": "$9.99", "per": "per month", "tagline": "Everything, plus pro stats" }
     },
     "skins": {
       "default": "Classic Blue",

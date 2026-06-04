@@ -1,17 +1,24 @@
-// Paywall / subscription prompt (Mission 8) — UI mock, no billing.
+// Paywall / subscription prompt (F3) — UI mock, no billing.
 //
-// A focused overlay that pitches BrainClub Premium and lets the user "subscribe"
-// (which just flips a local flag, removing ads and unlocking every cosmetic).
-// Opened imperatively via monet.openPaywall() from AdSlots, the Shop, etc.
-// The fuller marketing page lives at /premium; this is the in-the-moment nudge.
+// The in-the-moment nudge (opened via monet.openPaywall() from AdSlots, the
+// Shop, etc.). It pitches the two tiers compactly with quick subscribe buttons
+// and a link to the full comparison at /premium. Plan state flows through
+// useMonetization, so subscribing here removes ads / unlocks cosmetics at once.
 
 import { useTranslation } from 'react-i18next';
-import { useMonetization, PREMIUM_PERK_KEYS } from '../lib/monetization';
+import { useNavigate } from 'react-router-dom';
+import { useMonetization, PLANS } from '../lib/monetization';
 
 export default function PaywallOverlay() {
   const { t } = useTranslation();
+  const nav = useNavigate();
   const m = useMonetization();
   if (!m.isPaywallOpen()) return null;
+
+  const seeAllPlans = () => {
+    m.closePaywall();
+    nav('/premium');
+  };
 
   return (
     <div
@@ -29,27 +36,43 @@ export default function PaywallOverlay() {
         </div>
 
         <div className="px-6 py-5">
-          <ul className="flex flex-col gap-2.5">
-            {PREMIUM_PERK_KEYS.map((k) => (
-              <li key={k} className="flex items-start gap-2 text-sm text-slate-700">
-                <span className="mt-0.5 text-accent">✔</span>
-                <span>{t(`monet.perks.${k}`)}</span>
-              </li>
+          <div className="flex flex-col gap-2.5">
+            {PLANS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => m.subscribe(p.id)}
+                className="flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-left transition hover:bg-slate-50"
+                style={{ borderColor: p.accent }}
+              >
+                <span className="flex items-center gap-2">
+                  <span className="text-sm font-black" style={{ color: p.accent }}>
+                    {t(`${p.i18n}.name`)}
+                  </span>
+                  {p.featured && (
+                    <span
+                      className="rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white"
+                      style={{ background: p.accent }}
+                    >
+                      {t('monet.popular')}
+                    </span>
+                  )}
+                </span>
+                <span className="text-right">
+                  <span className="block text-sm font-black tabular-nums text-slate-900">
+                    {t(`${p.i18n}.price`)}
+                  </span>
+                  <span className="block text-[10px] text-slate-400">{t(`${p.i18n}.per`)}</span>
+                </span>
+              </button>
             ))}
-          </ul>
+          </div>
 
-          <button
-            onClick={() => m.subscribe()}
-            className="mt-5 w-full rounded-2xl bg-gradient-to-r from-amber-400 to-pink-500 px-4 py-3 font-bold text-white shadow"
-          >
-            {t('monet.subscribeCta')}
+          <button onClick={seeAllPlans} className="mt-4 w-full text-xs font-semibold text-brand hover:underline">
+            {t('monet.compare')} ›
           </button>
           <p className="mt-2 text-center text-[11px] text-slate-400">{t('monet.mockNote')}</p>
 
-          <button
-            onClick={() => m.closePaywall()}
-            className="mt-3 w-full text-xs text-slate-400 underline"
-          >
+          <button onClick={() => m.closePaywall()} className="mt-3 w-full text-xs text-slate-400 underline">
             {t('monet.maybeLater')}
           </button>
         </div>

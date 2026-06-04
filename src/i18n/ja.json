@@ -49,8 +49,20 @@
     "perks": {
       "noAds": "広告なし",
       "allSkins": "全スキン解放",
-      "proStats": "シナプス詳細統計",
+      "themes": "Zen / Arcade テーマ",
+      "proStats": "シナプス詳細統計・書き出し",
+      "exclusiveThemes": "限定テーマ",
+      "earlyAccess": "新ゲーム早期アクセス",
       "support": "ログイン不要の個人開発を応援"
+    },
+    "popular": "人気",
+    "currentPlan": "現在のプラン",
+    "choose": "{{plan}}にする",
+    "compare": "プランを比較",
+    "feature": "特典",
+    "plans": {
+      "plus": { "name": "Plus", "price": "¥600", "per": "月額", "tagline": "広告なし＋全スキン" },
+      "pro": { "name": "Pro", "price": "¥1,200", "per": "月額", "tagline": "全部入り＋詳細統計" }
     },
     "skins": {
       "default": "クラシックブルー",

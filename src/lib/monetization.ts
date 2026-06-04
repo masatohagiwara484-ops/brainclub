@@ -49,6 +49,76 @@ const DEFAULT_OWNED: SkinId[] = ['default'];
 // (i18n keys under `monet.perks.*`) so the two never drift apart.
 export const PREMIUM_PERK_KEYS = ['noAds', 'allSkins', 'proStats', 'support'] as const;
 
+// ---- Subscription plans (F3) --------------------------------------------------
+// Two paid tiers stack on top of the free tier. Higher rank ⊇ lower rank, so a
+// feature is granted when your plan's rank meets the feature's minimum. UI mock
+// only — `subscribe(plan)` just records the tier; no billing ever happens.
+
+export type Plan = 'free' | 'plus' | 'pro';
+export const PLAN_RANK: Record<Plan, number> = { free: 0, plus: 1, pro: 2 };
+
+export type PlanFeature =
+  | 'noAds'
+  | 'allSkins'
+  | 'themes'
+  | 'proStats'
+  | 'exclusiveThemes'
+  | 'earlyAccess';
+
+// Minimum plan rank that unlocks each feature (1 = Plus+, 2 = Pro only).
+export const FEATURE_MIN_RANK: Record<PlanFeature, number> = {
+  noAds: 1,
+  allSkins: 1,
+  themes: 1,
+  proStats: 2,
+  exclusiveThemes: 2,
+  earlyAccess: 2,
+};
+
+/** Does a plan grant a feature? (pure — mirrored by verify-monetization.mjs) */
+export function planHas(plan: Plan, feature: PlanFeature): boolean {
+  return PLAN_RANK[plan] >= FEATURE_MIN_RANK[feature];
+}
+/** Any paid tier (drives ad removal + cosmetic unlocks). */
+export function isPaid(plan: Plan): boolean {
+  return PLAN_RANK[plan] > 0;
+}
+
+export type PlanId = Exclude<Plan, 'free'>;
+export type PlanDef = {
+  id: PlanId;
+  /** i18n key prefix, e.g. monet.plans.plus.{name,price,per,tagline} */
+  i18n: string;
+  /** Perks listed on the card (in order). */
+  perks: PlanFeature[];
+  /** Accent color for the card border / CTA. */
+  accent: string;
+  /** The headline tier gets a "popular" ribbon. */
+  featured?: boolean;
+};
+
+// Plus (entry) on the left, Pro (featured) on the right.
+export const PLANS: PlanDef[] = [
+  { id: 'plus', i18n: 'monet.plans.plus', perks: ['noAds', 'allSkins', 'themes'], accent: '#3b82f6' },
+  {
+    id: 'pro',
+    i18n: 'monet.plans.pro',
+    perks: ['noAds', 'allSkins', 'themes', 'proStats', 'exclusiveThemes', 'earlyAccess'],
+    accent: '#a855f7',
+    featured: true,
+  },
+];
+
+// All features in display order for the comparison table.
+export const ALL_FEATURES: PlanFeature[] = [
+  'noAds',
+  'allSkins',
+  'themes',
+  'proStats',
+  'exclusiveThemes',
+  'earlyAccess',
+];
+
 // ---- Pure rules (mirrored by verify-monetization.mjs) -------------------------
 
 /** Skins a user effectively owns = explicitly bought ∪ (all, if premium). */
@@ -87,18 +157,34 @@ let shopOpen = false;
 let paywallOpen = false;
 
 export const monet = {
-  // --- Premium subscription (mock) ---
-  isPremium(): boolean {
-    return getSetting<boolean>('premium', false);
+  // --- Subscription plan (mock) ---
+  /** The active tier. Falls back to the legacy `premium` boolean (→ Pro). */
+  getPlan(): Plan {
+    const p = getSetting<Plan | null>('plan', null);
+    if (p === 'free' || p === 'plus' || p === 'pro') return p;
+    return getSetting<boolean>('premium', false) ? 'pro' : 'free';
   },
-  /** Mock "subscribe" — flips the flag, no real billing. */
-  subscribe(): void {
-    setSetting('premium', true);
+  /** Any paid tier — drives ad removal and cosmetic unlocks. */
+  isPremium(): boolean {
+    return isPaid(this.getPlan());
+  },
+  isPro(): boolean {
+    return this.getPlan() === 'pro';
+  },
+  /** Does the active plan grant a given feature? */
+  hasFeature(feature: PlanFeature): boolean {
+    return planHas(this.getPlan(), feature);
+  },
+  /** Mock "subscribe" to a tier — records the plan, no real billing. */
+  subscribe(plan: PlanId = 'pro'): void {
+    setSetting('plan', plan);
+    setSetting('premium', true); // keep the legacy flag in sync
     paywallOpen = false;
     emit();
   },
-  /** Mock "cancel" — for the demo so you can toggle ads back on. */
+  /** Mock "cancel" — back to the free tier so ads return. */
   cancel(): void {
+    setSetting('plan', 'free');
     setSetting('premium', false);
     emit();
   },
