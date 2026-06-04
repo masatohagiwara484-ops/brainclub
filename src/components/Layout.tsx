@@ -74,6 +74,14 @@ export default function Layout({ children }: { children: ReactNode }) {
             {i18n.language.startsWith('ja') ? '日本語' : 'EN'}
           </button>
           <Link
+            to="/profile"
+            className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+            aria-label={t('nav.profile')}
+            title={t('nav.profile')}
+          >
+            📊
+          </Link>
+          <Link
             to="/settings"
             className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
             aria-label={t('nav.settings')}

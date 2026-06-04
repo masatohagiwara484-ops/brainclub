@@ -3,7 +3,7 @@
     "name": "BrainClub",
     "tagline": "世界の脳トレが集まるクラブ。毎日、頭を動かそう。"
   },
-  "nav": { "home": "ホーム", "settings": "設定", "back": "戻る" },
+  "nav": { "home": "ホーム", "settings": "設定", "back": "戻る", "profile": "プロフィール" },
   "controls": {
     "theme": "演出スタイル",
     "zen": "Zen",
@@ -147,6 +147,7 @@
     "memory": "記憶力",
     "logic": "論理力",
     "reflex": "反射神経",
+    "plays": "プレイ数",
     "play": "遊ぶほど脳のプロフィールが育ちます。"
   },
   "share": { "shared": "シェアしました！", "copied": "コピーしました！", "failed": "シェアできませんでした。" },

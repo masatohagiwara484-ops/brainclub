@@ -12,6 +12,7 @@
 
 import { useEffect, useRef, type ReactNode } from 'react';
 import { fx } from '../lib/fx';
+import SynapsePanel from './SynapsePanel';
 
 export type StatChip = { value: ReactNode; label: ReactNode };
 
@@ -56,6 +57,8 @@ type Props = {
    * so a loss is never dressed up as a level-up.
    */
   levelUp?: ReactNode;
+  /** Show the live Synapse profile panel (radar + score + level). Default true. */
+  synapse?: boolean;
   /** Ephemeral "Copied!/Shared!" toast text. */
   shareMsg?: string | null;
   /** Optional dismiss link at the very bottom (e.g. "Back"). */
@@ -82,6 +85,7 @@ export default function ProgressResultModal({
   note,
   actions,
   levelUp,
+  synapse = true,
   shareMsg,
   onClose,
   closeLabel,
@@ -104,7 +108,7 @@ export default function ProgressResultModal({
 
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
+      <div className="max-h-[88vh] w-full max-w-sm overflow-y-auto rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
         <div className="text-4xl">{emoji}</div>
         <h2 className="font-cyber mt-2 text-2xl">{title}</h2>
         {showLevelUp && (
@@ -149,6 +153,7 @@ export default function ProgressResultModal({
         )}
 
         {children}
+        {synapse && <SynapsePanel compact />}
         {note != null && <p className="mt-3 text-xs text-slate-400">{note}</p>}
 
         <div className="mt-5 flex justify-center gap-2">

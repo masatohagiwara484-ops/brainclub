@@ -3,7 +3,7 @@
     "name": "BrainClub",
     "tagline": "A worldwide club of brain games. Train your mind, every day."
   },
-  "nav": { "home": "Home", "settings": "Settings", "back": "Back" },
+  "nav": { "home": "Home", "settings": "Settings", "back": "Back", "profile": "Profile" },
   "controls": {
     "theme": "Visual style",
     "zen": "Zen",
@@ -147,6 +147,7 @@
     "memory": "Memory",
     "logic": "Logic",
     "reflex": "Reflex",
+    "plays": "Plays",
     "play": "Play to grow your brain profile."
   },
   "share": { "shared": "Shared!", "copied": "Copied to clipboard!", "failed": "Could not share." },
