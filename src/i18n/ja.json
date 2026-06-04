@@ -9,6 +9,17 @@
     "sub": "記憶力・論理力・反射神経の3軸で見るシナプスプロフィール。",
     "disclaimer": "Synapse Scoreはアプリ内の指標であり、医学的・IQ的な測定ではありません。"
   },
+  "tier": {
+    "novice": "ノービス",
+    "bronze": "ブロンズ",
+    "silver": "シルバー",
+    "gold": "ゴールド",
+    "platinum": "プラチナ",
+    "diamond": "ダイヤ",
+    "master": "マスター",
+    "toNext": "次の{{tier}}まであと{{n}}",
+    "maxReached": "最高ティア到達 — マスター！"
+  },
   "howto": {
     "help": "遊び方",
     "gotIt": "OK"

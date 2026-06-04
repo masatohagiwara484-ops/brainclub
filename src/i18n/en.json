@@ -9,6 +9,17 @@
     "sub": "Your Synapse profile across memory, logic and reflex.",
     "disclaimer": "Synapse Score is an in-app metric, not a medical or IQ measure."
   },
+  "tier": {
+    "novice": "Novice",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "diamond": "Diamond",
+    "master": "Master",
+    "toNext": "{{n}} pts to {{tier}}",
+    "maxReached": "Top tier reached — Master!"
+  },
   "howto": {
     "help": "How to play",
     "gotIt": "Got it"
