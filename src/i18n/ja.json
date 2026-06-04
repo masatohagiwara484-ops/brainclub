@@ -76,6 +76,23 @@
   "controls": {
     "sound": "サウンド"
   },
+  "account": {
+    "title": "アカウント",
+    "cloudHint": "サインインすると進捗が保存され、複数の端末で同期できます。",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "リンクを送る",
+    "sending": "送信中…",
+    "linkSent": "メールを確認してください。{{email}} にサインインリンクを送りました。",
+    "edit": "編集",
+    "username": "表示名",
+    "avatar": "アバター",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "signOut": "サインアウト",
+    "syncing": "同期中…",
+    "synced": "同期済み",
+    "syncNow": "今すぐ同期"
+  },
   "home": {
     "hero": "世界中の脳トレゲームを、ブラウザで無料で。",
     "sub": "インストール不要・ログイン不要。タップするだけ。",

@@ -76,6 +76,23 @@
   "controls": {
     "sound": "Sound"
   },
+  "account": {
+    "title": "Account",
+    "cloudHint": "Sign in to save your progress and sync across your devices.",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Email me a link",
+    "sending": "Sending…",
+    "linkSent": "Check your inbox — we sent a sign-in link to {{email}}.",
+    "edit": "Edit",
+    "username": "Display name",
+    "avatar": "Avatar",
+    "save": "Save",
+    "cancel": "Cancel",
+    "signOut": "Sign out",
+    "syncing": "Syncing…",
+    "synced": "Synced",
+    "syncNow": "Sync now"
+  },
   "home": {
     "hero": "Play the world's best brain games — free, in your browser.",
     "sub": "No installs. No login. Just one tap to think.",

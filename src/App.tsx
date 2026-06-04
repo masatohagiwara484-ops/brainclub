@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -6,8 +7,14 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Score from './pages/Score';
 import Premium from './pages/Premium';
+import { initCloud } from './lib/cloud';
 
 export default function App() {
+  // Restore any cloud session and start syncing (no-op without Supabase env).
+  useEffect(() => {
+    void initCloud();
+  }, []);
+
   return (
     <BrowserRouter>
       <Layout>

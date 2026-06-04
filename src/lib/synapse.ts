@@ -179,6 +179,12 @@ export function recordPlay(input: PlayInput): PlayResult {
   return { profile, leveledUp, newLevel: leveledUp ? profile.level : undefined };
 }
 
+/** Re-notify subscribers after the profile was replaced underneath us (e.g. a
+ *  cloud sync wrote localStorage directly). Components re-read via getProfile(). */
+export function notifyProfileChanged(): void {
+  emit();
+}
+
 /** Reset the whole profile (used by Settings / tests). */
 export function resetProfile(): void {
   setSetting(STORE_KEY, emptyProfile());

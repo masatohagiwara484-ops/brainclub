@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import SynapsePanel from '../components/SynapsePanel';
+import AccountPanel from '../components/AccountPanel';
 import { getStreak } from '../lib/storage';
 
 // The growth dashboard: the Synapse radar (memory / logic / reflex), level and
@@ -13,6 +14,10 @@ export default function Profile() {
       <div className="mx-auto max-w-md px-5 py-6">
         <h1 className="font-cyber text-2xl">{t('synapse.title')}</h1>
         <p className="mt-1 text-sm text-slate-500">{t('synapse.play')}</p>
+
+        <div className="mt-5">
+          <AccountPanel />
+        </div>
 
         <div className="mt-5">
           <SynapsePanel />
