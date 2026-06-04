@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { setSetting } from '../lib/storage';
 import { useSettings } from '../lib/settings';
+import { useMonetization } from '../lib/monetization';
 
 // A labeled on/off switch row.
 function Toggle({
@@ -42,6 +43,7 @@ function Toggle({
 export default function Settings() {
   const { t, i18n } = useTranslation();
   const s = useSettings();
+  const m = useMonetization();
   const isJa = i18n.language.startsWith('ja');
 
   const setLang = (lang: 'en' | 'ja') => {
@@ -133,6 +135,20 @@ export default function Settings() {
             checked={s.isColorBlind()}
             onChange={(v) => s.setColorBlind(v)}
           />
+        </section>
+
+        {/* Cosmetics */}
+        <section className="mt-5">
+          <h2 className="font-dot mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            {t('monet.shopTitle')}
+          </h2>
+          <button
+            onClick={() => m.openShop()}
+            className="mt-1 flex w-full items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-left hover:bg-slate-50"
+          >
+            <span className="font-semibold text-slate-800">🎨 {t('monet.shopTitle')}</span>
+            <span className="text-sm text-slate-400">›</span>
+          </button>
         </section>
 
         <p className="mt-8 text-center text-xs text-slate-300">

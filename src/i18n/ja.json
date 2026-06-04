@@ -3,7 +3,12 @@
     "name": "BrainClub",
     "tagline": "世界の脳トレが集まるクラブ。毎日、頭を動かそう。"
   },
-  "nav": { "home": "ホーム", "settings": "設定", "back": "戻る", "profile": "プロフィール" },
+  "nav": { "home": "ホーム", "score": "スコア", "subscription": "サブスク", "settings": "設定", "back": "戻る", "profile": "プロフィール", "tabs": "メインナビゲーション" },
+  "score": {
+    "title": "あなたのスコア",
+    "sub": "記憶力・論理力・反射神経の3軸で見るシナプスプロフィール。",
+    "disclaimer": "Synapse Scoreはアプリ内の指標であり、医学的・IQ的な測定ではありません。"
+  },
   "howto": {
     "help": "遊び方",
     "gotIt": "OK"

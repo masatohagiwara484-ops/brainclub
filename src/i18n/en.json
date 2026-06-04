@@ -3,7 +3,12 @@
     "name": "BrainClub",
     "tagline": "A worldwide club of brain games. Train your mind, every day."
   },
-  "nav": { "home": "Home", "settings": "Settings", "back": "Back", "profile": "Profile" },
+  "nav": { "home": "Home", "score": "Score", "subscription": "Premium", "settings": "Settings", "back": "Back", "profile": "Profile", "tabs": "Main navigation" },
+  "score": {
+    "title": "Your Score",
+    "sub": "Your Synapse profile across memory, logic and reflex.",
+    "disclaimer": "Synapse Score is an in-app metric, not a medical or IQ measure."
+  },
   "howto": {
     "help": "How to play",
     "gotIt": "Got it"

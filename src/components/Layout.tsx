@@ -1,45 +1,40 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { setSetting } from '../lib/storage';
 import { useSettings } from '../lib/settings';
 import { useMonetization } from '../lib/monetization';
 import { useHowto } from '../lib/howto';
 import FxLayer from './FxLayer';
 import MonetizationLayer from './MonetizationLayer';
 import HowToOverlay from './HowToOverlay';
+import BottomNav from './BottomNav';
+import { Icon } from './Icons';
 
-// Universal layout: the brand, language toggle and back/settings live in the
-// SAME place on every screen (a core UX requirement from the strategy doc).
+// Universal layout (chess.com-style shell): a slim header with the profile on
+// the left, brand in the center, and a Premium shortcut on the right, plus a
+// persistent bottom tab bar. The many quick-toggles that used to live up here
+// (theme / sound / language / shop) now live on the Settings tab, keeping the
+// header uncluttered. On a game screen the header swaps to back + help and the
+// tab bar hides for an immersive view.
 export default function Layout({ children }: { children: ReactNode }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const loc = useLocation();
   const nav = useNavigate();
-  const onHome = loc.pathname === '/';
 
-  // All preferences flow through the reactive settings store, so the header
-  // quick-toggles and the /settings page always agree. Zen vs Arcade is a
-  // [data-theme] token on this root; color-blind mode is [data-contrast].
+  // [data-theme] (Zen/Arcade) and [data-contrast] (color-blind) come from the
+  // reactive settings store; [data-skin] (cosmetics) from monetization. They
+  // recolor FX/UI with no game-code changes.
   const s = useSettings();
   const theme = s.getTheme();
-  const muted = !s.isSound();
   const colorBlind = s.isColorBlind();
-
-  // Cosmetics: the active skin is a [data-skin] token on the same root as the
-  // theme, so it recolors FX/UI with no game-code changes (Mission 8).
   const m = useMonetization();
   const skin = m.getSkin();
 
   // On a game screen (/play/:id[/:difficulty]) the header shows a "?" that
   // replays the textless gesture tutorial for that game (Mission 9).
   const h = useHowto();
-  const playId = loc.pathname.startsWith('/play/') ? loc.pathname.split('/')[2] : null;
-
-  const toggleLang = () => {
-    const next = i18n.language.startsWith('ja') ? 'en' : 'ja';
-    i18n.changeLanguage(next);
-    setSetting('lang', next);
-  };
+  const onPlay = loc.pathname.startsWith('/play/');
+  const playId = onPlay ? loc.pathname.split('/')[2] : null;
 
   return (
     <div
@@ -48,88 +43,68 @@ export default function Layout({ children }: { children: ReactNode }) {
       data-contrast={colorBlind ? 'high' : undefined}
       className="flex h-[100dvh] flex-col bg-white text-slate-900"
     >
-      <header className="z-20 flex items-center justify-between border-b border-slate-200 px-4 py-3">
-        <div className="flex items-center gap-2">
-          {!onHome && (
+      <header className="z-20 flex items-center justify-between border-b border-slate-200 px-3 py-2.5">
+        {/* Left: profile avatar (or back chevron during a game). Fixed width keeps the brand centered. */}
+        <div className="flex w-16 items-center">
+          {onPlay ? (
             <button
               onClick={() => nav('/')}
-              className="rounded-lg px-2 py-1 text-slate-400 hover:text-slate-800"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
               aria-label={t('nav.back')}
             >
-              ‹
+              <Icon name="back" className="h-6 w-6" />
             </button>
-          )}
-          <Link to="/" className="flex items-center gap-2 tracking-tight">
-            <span className="text-lg">🧠</span>
-            <span className="font-cyber text-lg">{t('app.name')}</span>
-          </Link>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => s.setTheme(theme === 'arcade' ? 'zen' : 'arcade')}
-            className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-            aria-label={t('controls.theme')}
-            title={t('controls.theme')}
-          >
-            {theme === 'arcade' ? `🎆 ${t('controls.arcade')}` : `🧘 ${t('controls.zen')}`}
-          </button>
-          <button
-            onClick={() => s.setSound(muted)}
-            className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-            aria-label={t('controls.sound')}
-            aria-pressed={!muted}
-            title={t('controls.sound')}
-          >
-            {muted ? '🔇' : '🔊'}
-          </button>
-          <button
-            onClick={toggleLang}
-            className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-          >
-            {i18n.language.startsWith('ja') ? '日本語' : 'EN'}
-          </button>
-          {playId && (
-            <button
-              onClick={() => h.open(playId)}
-              className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-              aria-label={t('howto.help')}
-              title={t('howto.help')}
+          ) : (
+            <Link
+              to="/profile"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-slate-500 hover:bg-slate-100"
+              aria-label={t('nav.profile')}
+              title={t('nav.profile')}
             >
-              ?
-            </button>
+              <Icon name="user" className="h-5 w-5" />
+            </Link>
           )}
-          <button
-            onClick={() => m.openShop()}
-            className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-            aria-label={t('monet.shopTitle')}
-            title={t('monet.shopTitle')}
-          >
-            🎨
-          </button>
-          <Link
-            to="/profile"
-            className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-            aria-label={t('nav.profile')}
-            title={t('nav.profile')}
-          >
-            📊
-          </Link>
-          <Link
-            to="/settings"
-            className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-            aria-label={t('nav.settings')}
-            title={t('nav.settings')}
-          >
-            ⚙️
-          </Link>
+        </div>
+
+        <Link to="/" className="flex items-center gap-2 tracking-tight">
+          <span className="text-lg">🧠</span>
+          <span className="font-cyber text-lg">{t('app.name')}</span>
+        </Link>
+
+        {/* Right: game help (during play) or a Premium shortcut. */}
+        <div className="flex w-16 items-center justify-end">
+          {onPlay ? (
+            playId && (
+              <button
+                onClick={() => h.open(playId)}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
+                aria-label={t('howto.help')}
+                title={t('howto.help')}
+              >
+                <Icon name="help" className="h-6 w-6" />
+              </button>
+            )
+          ) : (
+            <Link
+              to="/premium"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-amber-500 hover:bg-amber-50"
+              aria-label={t('monet.premiumTitle')}
+              title={t('monet.premiumTitle')}
+            >
+              <Icon name="diamond" className="h-6 w-6" />
+            </Link>
+          )}
         </div>
       </header>
+
       <main className="relative flex-1 overflow-hidden">
         {children}
         <FxLayer />
         <MonetizationLayer />
         <HowToOverlay />
       </main>
+
+      <BottomNav />
     </div>
   );
 }

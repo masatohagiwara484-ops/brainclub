@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import GamePage from './pages/GamePage';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import Score from './pages/Score';
 import Premium from './pages/Premium';
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/score" element={<Score />} />
           <Route path="/premium" element={<Premium />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/play/:id" element={<GamePage />} />
