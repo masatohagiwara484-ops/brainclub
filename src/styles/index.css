@@ -265,6 +265,17 @@ canvas {
   }
 }
 
+/* Subtle "alive" pulse for the streak fire icon (Home reward banner). Tailwind
+   doesn't emit a `pulse` keyframe unless `animate-pulse` is used, so we define a
+   gentler opacity+scale variant here for `animate-[pulse_2s_ease-in-out_infinite]`. */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.72; transform: scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[pulse_2s_ease-in-out_infinite\] { animation: none !important; }
+}
+
 /* Metallic "cyber silver" headings with a 3D/embossed feel.
    Uses a silver gradient clipped to the glyphs plus layered shadows so it still
    reads clearly on a white background. */
