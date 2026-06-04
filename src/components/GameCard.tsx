@@ -26,7 +26,9 @@ export default function GameCard({ game }: { game: GameDef }) {
 
   const inner = (
     <div
-      className={`group relative flex aspect-[4/3] flex-col overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-4 shadow-md ring-1 ring-black/5 transition-all duration-200 ease-out ${
+      // `rounded-card` is the new semantic radius token (= 1rem, identical to
+      // the previous `rounded-2xl`) — demonstrates the design-token scale.
+      className={`group relative flex aspect-[4/3] flex-col overflow-hidden rounded-card bg-gradient-to-br ${gradient} p-4 shadow-md ring-1 ring-black/5 transition-all duration-200 ease-out ${
         game.available
           ? 'hover:-translate-y-0.5 hover:shadow-xl hover:brightness-[1.03] hover:ring-1 hover:ring-white/20 active:scale-[0.985] active:shadow-md'
           : 'opacity-50'

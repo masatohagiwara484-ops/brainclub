@@ -4,6 +4,35 @@
 
 :root {
   color-scheme: light;
+
+  /* ============================================================
+     Design tokens — single source of truth for theming
+     ============================================================
+     These power the var-driven semantic colors in tailwind.config.js
+     (success/warning/danger/surface/surface-2). The DEFAULTS below mirror the
+     current palette exactly, so existing screens are unchanged; themes and
+     high-contrast mode can override these in ONE place (see below) to re-skin
+     the whole app without touching components. --brand / --accent are exposed
+     too as the foundation for future fully-tokenized theming. */
+  --brand: #2563eb;
+  --brand-dark: #1d4ed8;
+  --accent: #16a34a;
+  --success: #16a34a; /* green-600 */
+  --warning: #d97706; /* amber-600 */
+  --danger: #dc2626; /* red-600 */
+  --surface: #ffffff; /* base card/sheet background */
+  --surface-2: #f1f5f9; /* slate-100 — subtle inset / muted background */
+}
+
+/* High-contrast / color-blind mode (Layout sets [data-contrast='high']).
+   Additive: only elements that opt into the semantic tokens are affected, so
+   there is no regression for today's screens. Deepens the status colors and the
+   muted surface for stronger separation. */
+[data-contrast='high'] {
+  --success: #15803d; /* green-700 */
+  --warning: #b45309; /* amber-700 */
+  --danger: #b91c1c; /* red-700 */
+  --surface-2: #e2e8f0; /* slate-200 */
 }
 
 html,

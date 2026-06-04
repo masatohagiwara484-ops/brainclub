@@ -22,7 +22,9 @@ const VARIANTS: Record<Variant, string> = {
   primary: 'bg-brand text-white shadow-md hover:bg-brandDark',
   secondary: 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50',
   ghost: 'text-slate-600 hover:bg-slate-100',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
+  // `bg-danger` is the new semantic color token; its default (#dc2626) equals the
+  // previous bg-red-600, so the variant is unchanged today but now themeable.
+  danger: 'bg-danger text-white hover:bg-red-700',
 };
 
 const SIZES: Record<Size, string> = {
