@@ -5,6 +5,7 @@ import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
+import ProgressResultModal from '../../components/ProgressResultModal';
 import { colorById, makeRound, TUNING, type ColorId, type Round } from './colorClash';
 
 export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
@@ -49,7 +50,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
       setSetting(bestKey, finalScore);
       setNewBest(true);
       // Celebrate ONLY a new best — never the failure itself (non-exploitative).
-      if (finalScore > 0) fx.win();
+      // The celebration is fired centrally by the result modal (celebrate={newBest}).
     } else {
       setNewBest(false);
     }
@@ -216,38 +217,29 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
 
       {/* Game over */}
       {phase === 'over' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
-            <div className="text-4xl">{newBest ? '🏆' : '🎨'}</div>
-            <h2 className="font-cyber mt-2 text-2xl">
-              {newBest ? t('colorclash.newBest') : t('colorclash.gameOver')}
-            </h2>
-            <p className="mt-2 text-3xl font-black tabular-nums text-brand">{score}</p>
-            <p className="mt-1 text-sm text-slate-500">
-              {t('colorclash.best')}: {best}
+        <ProgressResultModal
+          emoji={newBest ? '🏆' : '🎨'}
+          title={newBest ? t('colorclash.newBest') : t('colorclash.gameOver')}
+          celebrate={newBest}
+          actions={[
+            { label: t('colorclash.again'), onClick: start, variant: 'primary' },
+            { label: t('colorclash.share'), onClick: onShare, variant: 'secondary' },
+          ]}
+          shareMsg={shareMsg}
+        >
+          <p className="mt-2 text-3xl font-black tabular-nums text-brand">{score}</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {t('colorclash.best')}: {best}
+          </p>
+          {round && (
+            <p className="mt-2 text-xs text-slate-400">
+              {t('colorclash.answerWas')}{' '}
+              <span className="font-bold" style={{ color: colorById(round.ink).hex }}>
+                {t(`colorclash.colors.${round.ink}`)}
+              </span>
             </p>
-            {round && (
-              <p className="mt-2 text-xs text-slate-400">
-                {t('colorclash.answerWas')}{' '}
-                <span className="font-bold" style={{ color: colorById(round.ink).hex }}>
-                  {t(`colorclash.colors.${round.ink}`)}
-                </span>
-              </p>
-            )}
-            <div className="mt-5 flex justify-center gap-2">
-              <button onClick={start} className="rounded-xl bg-brand px-4 py-2 font-semibold text-white">
-                {t('colorclash.again')}
-              </button>
-              <button
-                onClick={onShare}
-                className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700"
-              >
-                {t('colorclash.share')}
-              </button>
-            </div>
-            {shareMsg && <p className="mt-3 text-sm text-accent">{shareMsg}</p>}
-          </div>
-        </div>
+          )}
+        </ProgressResultModal>
       )}
     </div>
   );

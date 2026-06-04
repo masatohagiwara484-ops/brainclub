@@ -12,7 +12,7 @@ import {
 import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { haptics } from '../../lib/haptics';
-import { fx } from '../../lib/fx';
+import ProgressResultModal from '../../components/ProgressResultModal';
 
 export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
   const { t } = useTranslation();
@@ -77,7 +77,7 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
       haptics.tick();
       if (isSolved(next)) {
         setWon(true);
-        fx.win();
+        // The win celebration is fired centrally by the result modal on open.
       }
     } else {
       // Re-select the tapped tube if it has liquid, else clear.
@@ -151,27 +151,20 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
 
       {/* Win modal */}
       {won && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
-            <div className="text-4xl">🎉</div>
-            <h2 className="font-cyber mt-2 text-2xl">{t('watersort.solved')}</h2>
-            <p className="mt-1 text-slate-500">
+        <ProgressResultModal
+          emoji="🎉"
+          title={t('watersort.solved')}
+          subtitle={
+            <>
               {t(difficultyKey(difficulty))} · {moves} {t('watersort.moves')}
-            </p>
-            <div className="mt-5 flex justify-center gap-2">
-              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold text-white">
-                {t('watersort.share')}
-              </button>
-              <button
-                onClick={newLevel}
-                className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700"
-              >
-                {t('watersort.again')}
-              </button>
-            </div>
-            {shareMsg && <p className="mt-3 text-sm text-accent">{shareMsg}</p>}
-          </div>
-        </div>
+            </>
+          }
+          actions={[
+            { label: t('watersort.share'), onClick: onShare, variant: 'primary' },
+            { label: t('watersort.again'), onClick: newLevel, variant: 'secondary' },
+          ]}
+          shareMsg={shareMsg}
+        />
       )}
     </div>
   );

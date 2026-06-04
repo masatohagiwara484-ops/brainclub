@@ -13,8 +13,8 @@ import {
   chooseMove,
 } from './gomokuAI';
 import { haptics } from '../../lib/haptics';
-import { fx } from '../../lib/fx';
 import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import ProgressResultModal from '../../components/ProgressResultModal';
 import type { GameProps } from '../types';
 
 type Status = 'playing' | 'black' | 'white' | 'draw';
@@ -167,8 +167,9 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
         if (isWin(next, x, y, color)) {
           setStatus(color === BLACK ? 'black' : 'white');
           // Celebrate only the player's win — never the loss (non-predatory).
-          if (color === BLACK) fx.win();
-          else haptics.bump();
+          // The player-win celebration is fired centrally by the result modal;
+          // the AI's win gets only a soft buzz, no fanfare.
+          if (color !== BLACK) haptics.bump();
         } else if (isBoardFull(next)) {
           setStatus('draw');
         } else {
@@ -297,23 +298,16 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
 
       {/* Result modal */}
       {status !== 'playing' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
-            <div className="text-4xl">{status === 'black' ? '🏆' : status === 'white' ? '🤖' : '🤝'}</div>
-            <h2 className="font-cyber mt-2 text-2xl">
-              {status === 'black' ? t('gomoku.youWin') : status === 'white' ? t('gomoku.youLose') : t('gomoku.draw')}
-            </h2>
-            <div className="mt-5 flex justify-center gap-2">
-              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold text-white">
-                {t('gomoku.share')}
-              </button>
-              <button onClick={newGame} className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700">
-                {t('gomoku.again')}
-              </button>
-            </div>
-            {shareMsg && <p className="mt-3 text-sm text-accent">{shareMsg}</p>}
-          </div>
-        </div>
+        <ProgressResultModal
+          emoji={status === 'black' ? '🏆' : status === 'white' ? '🤖' : '🤝'}
+          title={status === 'black' ? t('gomoku.youWin') : status === 'white' ? t('gomoku.youLose') : t('gomoku.draw')}
+          celebrate={status === 'black'}
+          actions={[
+            { label: t('gomoku.share'), onClick: onShare, variant: 'primary' },
+            { label: t('gomoku.again'), onClick: newGame, variant: 'secondary' },
+          ]}
+          shareMsg={shareMsg}
+        />
       )}
     </div>
   );

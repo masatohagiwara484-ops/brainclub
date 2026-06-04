@@ -18,7 +18,7 @@ import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
-import { fx } from '../../lib/fx';
+import ProgressResultModal from '../../components/ProgressResultModal';
 
 function fmt(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -87,7 +87,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
     haptics.tick();
     if (isWon(next)) {
       setWon(true);
-      fx.win();
+      // The win celebration is fired centrally by the result modal on open.
       saveBest('solitaire', difficulty, { seconds, moves: moves + 1, at: Date.now() });
     }
     return true;
@@ -305,24 +305,20 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
 
       {/* Win modal */}
       {won && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
-            <div className="text-4xl">🎉</div>
-            <h2 className="font-cyber mt-2 text-2xl">{t('solitaire.solved')}</h2>
-            <p className="mt-1 text-slate-500">
+        <ProgressResultModal
+          emoji="🎉"
+          title={t('solitaire.solved')}
+          subtitle={
+            <>
               {t(difficultyKey(difficulty))} · ⏱ {fmt(seconds)} · {moves} {t('solitaire.moves')}
-            </p>
-            <div className="mt-5 flex justify-center gap-2">
-              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold text-white">
-                {t('solitaire.share')}
-              </button>
-              <button onClick={newGame} className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700">
-                {t('solitaire.again')}
-              </button>
-            </div>
-            {shareMsg && <p className="mt-3 text-sm text-accent">{shareMsg}</p>}
-          </div>
-        </div>
+            </>
+          }
+          actions={[
+            { label: t('solitaire.share'), onClick: onShare, variant: 'primary' },
+            { label: t('solitaire.again'), onClick: newGame, variant: 'secondary' },
+          ]}
+          shareMsg={shareMsg}
+        />
       )}
     </div>
   );

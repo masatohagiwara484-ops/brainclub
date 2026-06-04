@@ -5,6 +5,7 @@ import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/diff
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
 import { fx } from '../../lib/fx';
+import ProgressResultModal from '../../components/ProgressResultModal';
 
 // Cells of the row / column / 3×3 box that contain index `i`.
 function rowCells(i: number): number[] {
@@ -139,7 +140,8 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
 
       if (full) {
         setSolved(true);
-        fx.win(); // confetti + win chime + success haptic
+        // The win celebration (confetti + chime) is fired centrally by the
+        // result modal when it opens.
         saveBest('sudoku', difficulty, { seconds, moves: 0, at: Date.now() });
       } else if (newly.length) {
         streakRef.current += 1;
@@ -294,27 +296,20 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
 
       {/* Solved modal */}
       {solved && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
-            <div className="text-4xl">🎉</div>
-            <h2 className="font-cyber mt-2 text-2xl">{t('sudoku.solved')}</h2>
-            <p className="mt-1 text-slate-500">
+        <ProgressResultModal
+          emoji="🎉"
+          title={t('sudoku.solved')}
+          subtitle={
+            <>
               {t(`difficulty.${difficulty}`)} · ⏱ {fmt(seconds)}
-            </p>
-            <div className="mt-5 flex justify-center gap-2">
-              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold text-white">
-                {t('sudoku.share')}
-              </button>
-              <button
-                onClick={() => generate(difficulty)}
-                className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700"
-              >
-                {t('sudoku.again')}
-              </button>
-            </div>
-            {shareMsg && <p className="mt-3 text-sm text-accent">{shareMsg}</p>}
-          </div>
-        </div>
+            </>
+          }
+          actions={[
+            { label: t('sudoku.share'), onClick: onShare, variant: 'primary' },
+            { label: t('sudoku.again'), onClick: () => generate(difficulty), variant: 'secondary' },
+          ]}
+          shareMsg={shareMsg}
+        />
       )}
     </div>
   );

@@ -17,7 +17,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { haptics } from '../../lib/haptics';
-import { fx } from '../../lib/fx';
 import { makeRng } from '../../lib/daily';
 
 const COLORS = {
@@ -404,7 +403,6 @@ export class CubeEngine {
   private onSolved() {
     if (this.moveCount === 0) return;
     this.stopTimer();
-    fx.win();
     this.opts.onSolved?.(this.currentStats());
   }
 

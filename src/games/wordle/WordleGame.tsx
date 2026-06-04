@@ -5,8 +5,8 @@ import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/diff
 import { dailySeed, dayNumber, makeRng } from '../../lib/daily';
 import { bumpStreak, getSetting, setSetting } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
-import { fx } from '../../lib/fx';
 import { useSettings } from '../../lib/settings';
+import ProgressResultModal from '../../components/ProgressResultModal';
 import {
   WORD_CONFIG,
   evaluate,
@@ -189,7 +189,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
     persistDaily(g, st, answer);
 
     if (won) {
-      fx.win();
+      // The win celebration is fired centrally by the result modal on open.
       recordDaily(true, g.length);
     } else if (lost) {
       haptics.bump();
@@ -278,7 +278,6 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
         : 'bg-slate-400 border-slate-400 text-white';
 
   const winRate = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
-  const maxDist = Math.max(1, ...stats.dist);
 
   return (
     <div className="flex h-full flex-col items-center overflow-y-auto px-3 py-3">
@@ -401,90 +400,50 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
 
       {/* Result modal */}
       {showResult && status !== 'playing' && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900/40 p-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
-            <div className="text-4xl">{status === 'won' ? '🎉' : '😅'}</div>
-            <h2 className="font-cyber mt-2 text-2xl">
-              {status === 'won' ? t('wordle.won') : t('wordle.lost')}
-            </h2>
-            <p className="mt-1 text-slate-500">
-              {t('wordle.answer')}: <span className="font-bold uppercase tracking-widest text-slate-800">{answer}</span>
-            </p>
-
-            {/* Stats (daily only) */}
-            {mode === 'daily' && (
-              <div className="mt-4">
-                <div className="grid grid-cols-4 gap-1 text-center">
-                  {[
-                    [stats.played, t('wordle.played')],
-                    [winRate, t('wordle.winRate')],
-                    [stats.streak, t('wordle.streak')],
-                    [stats.maxStreak, t('wordle.maxStreak')],
-                  ].map(([v, label], i) => (
-                    <div key={i}>
-                      <div className="text-xl font-bold tabular-nums">{v}</div>
-                      <div className="text-[10px] leading-tight text-slate-500">{label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 text-left text-xs font-semibold text-slate-500">
-                  {t('wordle.distribution')}
-                </div>
-                <div className="mt-1 flex flex-col gap-1">
-                  {stats.dist.map((count, i) => {
-                    const isThis = status === 'won' && guesses.length === i + 1;
-                    return (
-                      <div key={i} className="flex items-center gap-2 text-xs">
-                        <span className="w-3 text-slate-500">{i + 1}</span>
-                        <div className="flex-1">
-                          <div
-                            className={`flex h-5 items-center justify-end rounded px-1.5 font-bold text-white ${
-                              isThis ? okBg : 'bg-slate-400'
-                            }`}
-                            style={{ width: `${Math.max(8, (count / maxDist) * 100)}%` }}
-                          >
-                            {count}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <p className="mt-3 text-xs text-slate-400">{t('wordle.dailyDone')}</p>
-              </div>
-            )}
-
-            <div className="mt-5 flex justify-center gap-2">
-              <button onClick={onShare} className="rounded-xl bg-brand px-4 py-2 font-semibold text-white">
-                {t('wordle.share')}
-              </button>
-              {mode === 'practice' ? (
-                <button
-                  onClick={startPractice}
-                  className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700"
-                >
-                  {t('wordle.again')}
-                </button>
-              ) : (
-                <button
-                  onClick={() => setMode('practice')}
-                  className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700"
-                >
-                  {t('wordle.practiceMore')}
-                </button>
-              )}
-            </div>
-            {shareMsg && <p className="mt-3 text-sm text-accent">{shareMsg}</p>}
-
-            <button
-              onClick={() => setShowResult(false)}
-              className="mt-4 text-xs text-slate-400 underline"
-            >
-              {t('nav.back')}
-            </button>
-          </div>
-        </div>
+        <ProgressResultModal
+          emoji={status === 'won' ? '🎉' : '😅'}
+          title={status === 'won' ? t('wordle.won') : t('wordle.lost')}
+          celebrate={status === 'won'}
+          subtitle={
+            <>
+              {t('wordle.answer')}:{' '}
+              <span className="font-bold uppercase tracking-widest text-slate-800">{answer}</span>
+            </>
+          }
+          stats={
+            mode === 'daily'
+              ? [
+                  { value: stats.played, label: t('wordle.played') },
+                  { value: winRate, label: t('wordle.winRate') },
+                  { value: stats.streak, label: t('wordle.streak') },
+                  { value: stats.maxStreak, label: t('wordle.maxStreak') },
+                ]
+              : undefined
+          }
+          distribution={
+            mode === 'daily'
+              ? {
+                  label: t('wordle.distribution'),
+                  highlightClass: okBg,
+                  bars: stats.dist.map((count, i) => ({
+                    rowLabel: i + 1,
+                    value: count,
+                    highlight: status === 'won' && guesses.length === i + 1,
+                  })),
+                }
+              : undefined
+          }
+          note={mode === 'daily' ? t('wordle.dailyDone') : undefined}
+          actions={[
+            { label: t('wordle.share'), onClick: onShare, variant: 'primary' },
+            mode === 'practice'
+              ? { label: t('wordle.again'), onClick: startPractice, variant: 'secondary' }
+              : { label: t('wordle.practiceMore'), onClick: () => setMode('practice'), variant: 'secondary' },
+          ]}
+          shareMsg={shareMsg}
+          onClose={() => setShowResult(false)}
+          closeLabel={t('nav.back')}
+        />
       )}
     </div>
   );
