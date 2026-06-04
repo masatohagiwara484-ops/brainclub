@@ -7,6 +7,7 @@ import {
   type Difficulty,
 } from '../lib/difficulty';
 import type { GameDef } from '../games/registry';
+import { sound } from '../lib/sound';
 import GameArt from './GameArt';
 
 // A dedicated screen between the game grid and play: pick a difficulty (★1–★4,
@@ -15,7 +16,10 @@ export default function DifficultyScreen({ game }: { game: GameDef }) {
   const { t } = useTranslation();
   const nav = useNavigate();
 
-  const choose = (d: Difficulty) => nav(`/play/${game.id}/${d}`);
+  const choose = (d: Difficulty) => {
+    sound.playSelectDifficulty();
+    nav(`/play/${game.id}/${d}`);
+  };
 
   return (
     <div className="flex h-full flex-col items-center overflow-y-auto px-5 py-8">

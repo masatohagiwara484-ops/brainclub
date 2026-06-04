@@ -49,7 +49,7 @@
     "perks": {
       "noAds": "No ads, ever",
       "allSkins": "Every skin unlocked",
-      "themes": "Zen & Arcade themes",
+      "themes": "Premium themes",
       "proStats": "Detailed Synapse stats & export",
       "exclusiveThemes": "Exclusive themes",
       "earlyAccess": "Early access to new games",
@@ -74,9 +74,6 @@
     }
   },
   "controls": {
-    "theme": "Visual style",
-    "zen": "Zen",
-    "arcade": "Arcade",
     "sound": "Sound"
   },
   "home": {
@@ -94,11 +91,13 @@
   "settings": {
     "title": "Settings",
     "language": "Language",
-    "themeNote": "Arcade is bright and flashy; Zen is calm and minimal. Try both.",
-    "zenNote": "Calm, minimal effects",
-    "arcadeNote": "Bright, flashy effects",
+    "sound": "Sound",
+    "soundEffects": "Sound effects",
+    "soundNote": "Pleasant in-game sound effects and clicks.",
+    "bgm": "Background music",
+    "bgmNote": "A calm, looping soundtrack — one for the menus, another in-game.",
+    "volume": "Volume",
     "feedback": "Feedback & accessibility",
-    "soundNote": "Pleasant in-game sound effects.",
     "haptics": "Vibration (mobile)",
     "hapticsNote": "Works on Android. iOS Safari does not support web vibration, so it is ignored on iPhone.",
     "reduceMotion": "Reduce motion",

@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { sound } from '../lib/sound';
 import { Icon, type IconName } from './Icons';
 
 // chess.com-style bottom tab bar: Home / Score / Subscription / Settings.
@@ -32,6 +33,7 @@ export default function BottomNav() {
           <Link
             key={tab.to}
             to={tab.to}
+            onClick={() => sound.playTab()}
             aria-current={active ? 'page' : undefined}
             className="flex flex-1 flex-col items-center gap-0.5 pb-1.5 pt-2"
           >

@@ -12,7 +12,9 @@ import { getSetting, setSetting } from './storage';
 import { sound } from './sound';
 import { haptics } from './haptics';
 
-export type Theme = 'zen' | 'arcade';
+// The app is locked to the calm "zen" look (the Arcade theme was retired). The
+// type and token remain so FX/CSS keep reading [data-theme="zen"] unchanged.
+export type Theme = 'zen';
 
 type Listener = () => void;
 let listeners: Listener[] = [];
@@ -28,11 +30,7 @@ export function subscribeSettings(l: Listener): () => void {
 
 export const settings = {
   getTheme(): Theme {
-    return getSetting<Theme>('theme', 'arcade');
-  },
-  setTheme(v: Theme): void {
-    setSetting('theme', v);
-    emit();
+    return 'zen';
   },
 
   isSound(): boolean {
@@ -41,6 +39,23 @@ export const settings = {
   setSound(v: boolean): void {
     sound.setEnabled(v);
     if (v) sound.unlock(); // arm audio from within the click gesture
+    emit();
+  },
+
+  // Background music (separate from SFX) + master volume.
+  isBgm(): boolean {
+    return sound.isBgm();
+  },
+  setBgm(v: boolean): void {
+    sound.setBgm(v);
+    if (v) sound.unlock(); // arm audio from within the click gesture
+    emit();
+  },
+  getVolume(): number {
+    return sound.getVolume();
+  },
+  setVolume(v: number): void {
+    sound.setVolume(v);
     emit();
   },
 

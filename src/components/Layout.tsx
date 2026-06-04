@@ -8,6 +8,7 @@ import FxLayer from './FxLayer';
 import MonetizationLayer from './MonetizationLayer';
 import HowToOverlay from './HowToOverlay';
 import BottomNav from './BottomNav';
+import BgmController from './BgmController';
 import { Icon } from './Icons';
 
 // Universal layout (chess.com-style shell): a slim header with the profile on
@@ -104,6 +105,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <HowToOverlay />
       </main>
 
+      <BgmController />
       <BottomNav />
     </div>
   );

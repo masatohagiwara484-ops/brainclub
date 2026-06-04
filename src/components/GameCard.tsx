@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { GameDef } from '../games/registry';
+import { sound } from '../lib/sound';
 import GameArt from './GameArt';
 
 // A blue box per game: a game-evoking illustration above, the game name in white
@@ -30,7 +31,7 @@ export default function GameCard({ game }: { game: GameDef }) {
   );
 
   return game.available ? (
-    <Link to={game.route} aria-label={t(game.nameKey)}>
+    <Link to={game.route} aria-label={t(game.nameKey)} onClick={() => sound.playSelectGame()}>
       {inner}
     </Link>
   ) : (

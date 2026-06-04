@@ -9,6 +9,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
+      // BGM tracks load on demand (browser HTTP cache) — keep them out of the
+      // precache so the install payload stays lean.
+      workbox: { globIgnores: ['**/bgm/**'] },
       manifest: {
         name: 'BrainClub — Worldwide Brain Games',
         short_name: 'BrainClub',

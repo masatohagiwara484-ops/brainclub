@@ -79,30 +79,37 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* Visual style */}
-        <section className="mt-5">
-          <h2 className="font-dot mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
-            {t('controls.theme')}
+        {/* Sound */}
+        <section className="mt-5 divide-y divide-slate-100">
+          <h2 className="font-dot pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            {t('settings.sound')}
           </h2>
-          <p className="mb-2 text-xs leading-snug text-slate-400">{t('settings.themeNote')}</p>
-          <div className="grid grid-cols-2 gap-2 py-1">
-            {(['zen', 'arcade'] as const).map((th) => {
-              const active = s.getTheme() === th;
-              return (
-                <button
-                  key={th}
-                  onClick={() => s.setTheme(th)}
-                  className={`rounded-2xl border-2 px-4 py-3 text-left transition ${
-                    active ? 'border-brand bg-blue-50' : 'border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="text-lg">{th === 'zen' ? '🧘 ' : '🎆 '}{t(`controls.${th}`)}</div>
-                  <div className="mt-0.5 text-xs text-slate-400">
-                    {t(`settings.${th === 'zen' ? 'zenNote' : 'arcadeNote'}`)}
-                  </div>
-                </button>
-              );
-            })}
+          <Toggle
+            label={t('settings.soundEffects')}
+            note={t('settings.soundNote')}
+            checked={s.isSound()}
+            onChange={(v) => s.setSound(v)}
+          />
+          <Toggle
+            label={t('settings.bgm')}
+            note={t('settings.bgmNote')}
+            checked={s.isBgm()}
+            onChange={(v) => s.setBgm(v)}
+          />
+          <div className="py-3.5">
+            <div className="flex items-center justify-between gap-4">
+              <div className="font-semibold text-slate-800">{t('settings.volume')}</div>
+              <div className="text-xs tabular-nums text-slate-400">{Math.round(s.getVolume() * 100)}</div>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={Math.round(s.getVolume() * 100)}
+              onChange={(e) => s.setVolume(Number(e.target.value) / 100)}
+              aria-label={t('settings.volume')}
+              className="mt-2 w-full accent-brand"
+            />
           </div>
         </section>
 
@@ -111,12 +118,6 @@ export default function Settings() {
           <h2 className="font-dot pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
             {t('settings.feedback')}
           </h2>
-          <Toggle
-            label={t('controls.sound')}
-            note={t('settings.soundNote')}
-            checked={s.isSound()}
-            onChange={(v) => s.setSound(v)}
-          />
           <Toggle
             label={t('settings.haptics')}
             note={t('settings.hapticsNote')}

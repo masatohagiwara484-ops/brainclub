@@ -74,14 +74,8 @@ canvas {
    [data-theme] tokens below, so Zen and Arcade reskin with ZERO JS changes.
    Everything is transform/opacity-only so it stays smooth on low-end phones. */
 
-/* Theme intensity tokens. Applied to the Layout root (data-theme). */
-[data-theme='arcade'] {
-  --fx-accent: #f59e0b;
-  --fx-glow: 0 0 12px rgba(245, 158, 11, 0.9), 0 0 26px rgba(245, 158, 11, 0.55);
-  --fx-flash: rgba(239, 68, 68, 0.45);
-  --confetti-count-scale: 1.25;
-  --motion-scale: 1;
-}
+/* Theme intensity tokens. Applied to the Layout root (data-theme). The app is
+   locked to "zen" (the Arcade theme was retired); FX still read these tokens. */
 [data-theme='zen'] {
   --fx-accent: #2563eb;
   --fx-glow: 0 0 8px rgba(37, 99, 235, 0.45);

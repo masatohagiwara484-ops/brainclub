@@ -49,7 +49,7 @@
     "perks": {
       "noAds": "広告なし",
       "allSkins": "全スキン解放",
-      "themes": "Zen / Arcade テーマ",
+      "themes": "プレミアムテーマ",
       "proStats": "シナプス詳細統計・書き出し",
       "exclusiveThemes": "限定テーマ",
       "earlyAccess": "新ゲーム早期アクセス",
@@ -74,9 +74,6 @@
     }
   },
   "controls": {
-    "theme": "演出スタイル",
-    "zen": "Zen",
-    "arcade": "Arcade",
     "sound": "サウンド"
   },
   "home": {
@@ -94,11 +91,13 @@
   "settings": {
     "title": "設定",
     "language": "言語",
-    "themeNote": "Arcadeは派手で華やか、Zenは静かでシンプル。両方お試しください。",
-    "zenNote": "静かで控えめな演出",
-    "arcadeNote": "明るく派手な演出",
+    "sound": "サウンド",
+    "soundEffects": "効果音",
+    "soundNote": "心地よいゲーム内の効果音とクリック音。",
+    "bgm": "BGM",
+    "bgmNote": "ゆっくりループする音楽。メニューとゲーム中で別の曲が流れます。",
+    "volume": "音量",
     "feedback": "フィードバックとアクセシビリティ",
-    "soundNote": "心地よいゲーム内効果音。",
     "haptics": "振動（モバイル）",
     "hapticsNote": "Androidで動作します。iOS Safariはweb振動に非対応のため、iPhoneでは無視されます。",
     "reduceMotion": "モーションを減らす",
