@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
 import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
@@ -8,6 +8,11 @@ import { haptics } from '../../lib/haptics';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import { useSettings } from '../../lib/settings';
+import {
+  triggerCorrectFeedback,
+  triggerIncorrectFeedback,
+  triggerSolveFeedback,
+} from '../../lib/feedback';
 import ProgressResultModal from '../../components/ProgressResultModal';
 
 const AXES = getGame('wordle')?.axes ?? {};
@@ -81,8 +86,11 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
 
   // Animation nonces.
   const [popKey, setPopKey] = useState(0);
-  const [shakeKey, setShakeKey] = useState(0);
   const [flipRow, setFlipRow] = useState<number | null>(null);
+
+  // The board element, so the shared feedback system can punch it on submit
+  // (replaces the old bespoke per-row shake nonce).
+  const boardRef = useRef<HTMLDivElement>(null);
 
   const dailyKey = `wordle.daily.${difficulty}`;
 
@@ -180,7 +188,8 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
   const submit = useCallback(() => {
     if (status !== 'playing') return;
     if (!isValidGuess(current, length)) {
-      setShakeKey((k) => k + 1);
+      // Rejected guess (not a real word / too short): shake + red flash.
+      triggerIncorrectFeedback(boardRef.current);
       haptics.bump();
       return;
     }
@@ -196,7 +205,9 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
     persistDaily(g, st, answer);
 
     if (won) {
-      // The win celebration is fired centrally by the result modal on open.
+      // Bigger pop + success glow on the board (the screen-level win confetti is
+      // still fired centrally by the result modal on open).
+      triggerSolveFeedback(boardRef.current);
       recordDaily(true, g.length);
       // Fewer guesses → higher quality (solved in 1 = perfect).
       const perf = clamp01((maxGuesses - g.length) / Math.max(1, maxGuesses - 1));
@@ -208,11 +219,14 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
       });
       setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
     } else if (lost) {
+      triggerIncorrectFeedback(boardRef.current);
       haptics.bump();
       recordDaily(false, g.length);
       recordPlay({ gameId: 'wordle', axes: AXES, quality: 0.2, weight: XP_WEIGHT[difficulty] });
       setLevelUp(null);
     } else {
+      // A valid guess was accepted and recorded: a quick positive blip.
+      triggerCorrectFeedback(boardRef.current);
       haptics.tick();
     }
     if (st !== 'playing') setTimeout(() => setShowResult(true), length * 280 + 400);
@@ -337,7 +351,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
       </div>
 
       {/* Board */}
-      <div className="mt-4 flex flex-col gap-1.5" style={{ perspective: '800px' }}>
+      <div ref={boardRef} className="mt-4 flex flex-col gap-1.5" style={{ perspective: '800px' }}>
         {Array.from({ length: maxGuesses }).map((_, r) => {
           const submitted = r < guesses.length;
           const isActive = r === guesses.length && status === 'playing';
@@ -345,10 +359,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
           const st = submitted ? rowStates[r] : null;
 
           return (
-            <div
-              key={isActive ? `active-${shakeKey}` : `row-${r}`}
-              className={`flex gap-1.5 ${isActive && shakeKey ? 'wg-shake' : ''}`}
-            >
+            <div key={isActive ? 'active' : `row-${r}`} className="flex gap-1.5">
               {Array.from({ length }).map((_, i) => {
                 const ch = rowVal[i] ?? '';
                 const filled = !!ch;
