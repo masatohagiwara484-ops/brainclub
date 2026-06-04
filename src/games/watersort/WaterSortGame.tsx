@@ -9,10 +9,16 @@ import {
   isSolved,
   type State,
 } from './waterSort';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { haptics } from '../../lib/haptics';
+import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
+import { getGame } from '../registry';
 import ProgressResultModal from '../../components/ProgressResultModal';
+
+const AXES = getGame('watersort')?.axes ?? {};
+// Target move counts per difficulty — solving in fewer moves nudges quality up.
+const TARGET: Record<Difficulty, number> = { easy: 25, medium: 50, hard: 90, expert: 140 };
 
 export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
   const { t } = useTranslation();
@@ -23,6 +29,7 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
   const [history, setHistory] = useState<State[]>([]);
   const [moves, setMoves] = useState(0);
   const [won, setWon] = useState(false);
+  const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
 
   const newLevel = useCallback(() => {
@@ -33,6 +40,7 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
     setHistory([]);
     setMoves(0);
     setWon(false);
+    setLevelUp(null);
   }, [difficulty]);
 
   useEffect(() => {
@@ -45,6 +53,7 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
     setHistory([]);
     setMoves(0);
     setWon(false);
+    setLevelUp(null);
   };
 
   const undo = () => {
@@ -78,6 +87,15 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
       if (isSolved(next)) {
         setWon(true);
         // The win celebration is fired centrally by the result modal on open.
+        const finalMoves = moves + 1;
+        const perf = clamp01((TARGET[difficulty] - finalMoves) / TARGET[difficulty]);
+        const res = recordPlay({
+          gameId: 'watersort',
+          axes: AXES,
+          quality: difficultyQuality(difficulty, perf),
+          weight: XP_WEIGHT[difficulty],
+        });
+        setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
       }
     } else {
       // Re-select the tapped tube if it has liquid, else clear.
@@ -159,6 +177,7 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
               {t(difficultyKey(difficulty))} · {moves} {t('watersort.moves')}
             </>
           }
+          levelUp={levelUp}
           actions={[
             { label: t('watersort.share'), onClick: onShare, variant: 'primary' },
             { label: t('watersort.again'), onClick: newLevel, variant: 'secondary' },

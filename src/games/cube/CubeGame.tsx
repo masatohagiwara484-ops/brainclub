@@ -3,9 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { CubeEngine, type CubeStats } from './cubeEngine';
 import { saveBest } from '../../lib/storage';
 import { share } from '../../lib/share';
+import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
+import { getGame } from '../registry';
+import type { Difficulty } from '../../lib/difficulty';
 import ProgressResultModal from '../../components/ProgressResultModal';
 
 const SIZES = [2, 3, 4, 5];
+
+const AXES = getGame('cube')?.axes ?? {};
+// The cube has no EASY–EXPERT picker; its size maps onto the shared scale so it
+// feeds the Synapse profile like every other game.
+const SIZE_DIFFICULTY: Record<number, Difficulty> = { 2: 'easy', 3: 'medium', 4: 'hard', 5: 'expert' };
+const SIZE_TARGET: Record<number, number> = { 2: 60, 3: 180, 4: 420, 5: 720 };
 
 function fmt(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -21,6 +30,7 @@ export default function CubeGame() {
   const [size, setSize] = useState(3);
   const [stats, setStats] = useState<CubeStats>({ moves: 0, seconds: 0, running: false });
   const [win, setWin] = useState<CubeStats | null>(null);
+  const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,7 +38,17 @@ export default function CubeGame() {
     const engine = new CubeEngine(canvas, {
       onStats: setStats,
       onSolved: (s) => {
-        saveBest('cube', `${engineRef.current?.size ?? 3}`, { seconds: s.seconds, moves: s.moves, at: Date.now() });
+        const sz = engineRef.current?.size ?? 3;
+        saveBest('cube', `${sz}`, { seconds: s.seconds, moves: s.moves, at: Date.now() });
+        const diff = SIZE_DIFFICULTY[sz] ?? 'medium';
+        const perf = clamp01((SIZE_TARGET[sz] - s.seconds) / SIZE_TARGET[sz]);
+        const res = recordPlay({
+          gameId: 'cube',
+          axes: AXES,
+          quality: difficultyQuality(diff, perf),
+          weight: XP_WEIGHT[diff],
+        });
+        setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
         setWin(s);
       },
     });
@@ -49,6 +69,7 @@ export default function CubeGame() {
   const changeSize = (n: number) => {
     setSize(n);
     setWin(null);
+    setLevelUp(null);
     engineRef.current?.setSize(n);
   };
 
@@ -97,7 +118,7 @@ export default function CubeGame() {
       <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-wrap justify-center gap-2">
         <Btn onClick={() => engineRef.current?.scramble()}>{t('cube.scramble')}</Btn>
         <Btn onClick={() => engineRef.current?.undo()}>{t('cube.undo')}</Btn>
-        <Btn onClick={() => { setWin(null); engineRef.current?.reset(); }}>{t('cube.reset')}</Btn>
+        <Btn onClick={() => { setWin(null); setLevelUp(null); engineRef.current?.reset(); }}>{t('cube.reset')}</Btn>
         <Btn onClick={() => engineRef.current?.resetView()}>{t('cube.view')}</Btn>
       </div>
 
@@ -111,11 +132,12 @@ export default function CubeGame() {
               ⏱ {fmt(win.seconds)} · {win.moves} {t('cube.moves')}
             </>
           }
+          levelUp={levelUp}
           actions={[
             { label: t('cube.share'), onClick: onShare, variant: 'primary' },
             {
               label: t('cube.again'),
-              onClick: () => { setWin(null); engineRef.current?.scramble(); },
+              onClick: () => { setWin(null); setLevelUp(null); engineRef.current?.scramble(); },
               variant: 'secondary',
             },
           ]}

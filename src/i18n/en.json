@@ -139,6 +139,16 @@
       "orange": "Orange"
     }
   },
+  "synapse": {
+    "title": "Synapse profile",
+    "score": "Synapse Score",
+    "level": "Level",
+    "levelUp": "Level {{n}}!",
+    "memory": "Memory",
+    "logic": "Logic",
+    "reflex": "Reflex",
+    "play": "Play to grow your brain profile."
+  },
   "share": { "shared": "Shared!", "copied": "Copied to clipboard!", "failed": "Could not share." },
   "games": {
     "cube": { "name": "Rubik's Cube 3D", "tagline": "Spatial reasoning · 2×2 to 5×5" },

@@ -14,8 +14,12 @@ import {
 } from './gomokuAI';
 import { haptics } from '../../lib/haptics';
 import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { recordPlay, difficultyQuality, XP_WEIGHT } from '../../lib/synapse';
+import { getGame } from '../registry';
 import ProgressResultModal from '../../components/ProgressResultModal';
 import type { GameProps } from '../types';
+
+const AXES = getGame('gomoku')?.axes ?? {};
 
 type Status = 'playing' | 'black' | 'white' | 'draw';
 
@@ -49,7 +53,30 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
   const [status, setStatus] = useState<Status>('playing');
   const [last, setLast] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]);
+  const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
+  const recordedRef = useRef(false);
+
+  // Record one Synapse play when the game ends (win / loss / draw). The player's
+  // win counts most; a loss still logs a little reflex/logic activity. Guarded so
+  // it fires exactly once per finished game.
+  useEffect(() => {
+    if (status === 'playing') {
+      recordedRef.current = false;
+      return;
+    }
+    if (recordedRef.current) return;
+    recordedRef.current = true;
+    const quality =
+      status === 'black'
+        ? difficultyQuality(difficulty, 0.75)
+        : status === 'draw'
+          ? difficultyQuality(difficulty, 0.3)
+          : 0.15;
+    const res = recordPlay({ gameId: 'gomoku', axes: AXES, quality, weight: XP_WEIGHT[difficulty] });
+    // Only surface a level-up on the player's win (never dress up a loss).
+    setLevelUp(status === 'black' && res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
+  }, [status, difficulty, t]);
 
   // ---- drawing ----
   const draw = useCallback(() => {
@@ -209,6 +236,7 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
     setStatus('playing');
     setLast(null);
     setHistory([]);
+    setLevelUp(null);
   };
 
   // Undo a full round (the AI's reply + the player's move).
@@ -302,6 +330,7 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
           emoji={status === 'black' ? '🏆' : status === 'white' ? '🤖' : '🤝'}
           title={status === 'black' ? t('gomoku.youWin') : status === 'white' ? t('gomoku.youLose') : t('gomoku.draw')}
           celebrate={status === 'black'}
+          levelUp={levelUp}
           actions={[
             { label: t('gomoku.share'), onClick: onShare, variant: 'primary' },
             { label: t('gomoku.again'), onClick: newGame, variant: 'secondary' },

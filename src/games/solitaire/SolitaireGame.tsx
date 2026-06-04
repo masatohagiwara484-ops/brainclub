@@ -14,11 +14,17 @@ import {
   type Loc,
   type Card,
 } from './klondike';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
+import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
+import { getGame } from '../registry';
 import ProgressResultModal from '../../components/ProgressResultModal';
+
+const AXES = getGame('solitaire')?.axes ?? {};
+// Target completion times (seconds) per difficulty.
+const TARGET: Record<Difficulty, number> = { easy: 300, medium: 480, hard: 720, expert: 900 };
 
 function fmt(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -40,6 +46,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
   const [moves, setMoves] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [won, setWon] = useState(false);
+  const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   const [cardW, setCardW] = useState(48);
 
@@ -52,6 +59,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
     setMoves(0);
     setSeconds(0);
     setWon(false);
+    setLevelUp(null);
   }, [difficulty]);
 
   useEffect(() => {
@@ -89,6 +97,14 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
       setWon(true);
       // The win celebration is fired centrally by the result modal on open.
       saveBest('solitaire', difficulty, { seconds, moves: moves + 1, at: Date.now() });
+      const perf = clamp01((TARGET[difficulty] - seconds) / TARGET[difficulty]);
+      const res = recordPlay({
+        gameId: 'solitaire',
+        axes: AXES,
+        quality: difficultyQuality(difficulty, perf),
+        weight: XP_WEIGHT[difficulty],
+      });
+      setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
     }
     return true;
   };
@@ -111,6 +127,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
     setMoves(0);
     setSeconds(0);
     setWon(false);
+    setLevelUp(null);
   };
 
   // ---- interaction ----
@@ -313,6 +330,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
               {t(difficultyKey(difficulty))} · ⏱ {fmt(seconds)} · {moves} {t('solitaire.moves')}
             </>
           }
+          levelUp={levelUp}
           actions={[
             { label: t('solitaire.share'), onClick: onShare, variant: 'primary' },
             { label: t('solitaire.again'), onClick: newGame, variant: 'secondary' },

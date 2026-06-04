@@ -1,5 +1,6 @@
 import { lazy, type LazyExoticComponent, type ComponentType } from 'react';
 import type { GameProps } from './types';
+import type { AxisWeights } from '../lib/synapse';
 
 export type GameCategory = 'must-have' | 'recommended' | 'innovative';
 
@@ -18,6 +19,8 @@ export type GameDef = {
   available: boolean;
   /** Shows the difficulty-select screen (EASY–EXPERT) before launching. */
   hasDifficulty?: boolean;
+  /** How this game taps the three Synapse axes (memory / logic / reflex). */
+  axes?: AxisWeights;
   component?: LazyExoticComponent<ComponentType<GameProps>>;
 };
 
@@ -33,6 +36,7 @@ export const GAMES: GameDef[] = [
     emoji: '🧊',
     gradient: 'from-[#ff3b30] via-[#ffd60a] to-[#34c759]',
     available: true,
+    axes: { memory: 0.3, logic: 0.4, reflex: 0.3 },
     component: lazy(() => import('./cube/CubeGame')),
   },
   {
@@ -45,6 +49,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-sky-500 to-indigo-600',
     available: true,
     hasDifficulty: true,
+    axes: { logic: 0.8, memory: 0.2 },
     component: lazy(() => import('./sudoku/SudokuGame')),
   },
   {
@@ -57,6 +62,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-emerald-500 to-teal-600',
     available: true,
     hasDifficulty: true,
+    axes: { memory: 0.4, logic: 0.5, reflex: 0.1 },
     component: lazy(() => import('./wordle/WordleGame')),
   },
   {
@@ -69,6 +75,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-rose-500 to-red-600',
     available: true,
     hasDifficulty: true,
+    axes: { logic: 0.5, memory: 0.3, reflex: 0.2 },
     component: lazy(() => import('./solitaire/SolitaireGame')),
   },
   {
@@ -81,6 +88,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-cyan-500 to-blue-600',
     available: true,
     hasDifficulty: true,
+    axes: { logic: 0.7, memory: 0.3 },
     component: lazy(() => import('./watersort/WaterSortGame')),
   },
   {
@@ -93,6 +101,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-amber-500 to-orange-600',
     available: true,
     hasDifficulty: true,
+    axes: { logic: 0.7, reflex: 0.3 },
     component: lazy(() => import('./gomoku/GomokuGame')),
   },
   {
@@ -105,6 +114,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-pink-500 via-violet-500 to-orange-400',
     available: true,
     hasDifficulty: true,
+    axes: { reflex: 0.8, logic: 0.2 },
     component: lazy(() => import('./colorclash/ColorClashGame')),
   },
   { id: 'chess', nameKey: 'games.chess.name', taglineKey: 'games.chess.tagline', route: '/play/chess', category: 'recommended', emoji: '♟️', gradient: 'from-slate-500 to-slate-700', available: false },

@@ -5,8 +5,15 @@ import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
+import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
+import { getGame } from '../registry';
 import ProgressResultModal from '../../components/ProgressResultModal';
 import { colorById, makeRound, TUNING, type ColorId, type Round } from './colorClash';
+
+const AXES = getGame('colorclash')?.axes ?? {};
+// Score that reads as a strong run. Lower at higher difficulty (the timer is
+// tighter), so reaching it reflects more reflex skill.
+const SCORE_TARGET: Record<string, number> = { easy: 25, medium: 18, hard: 13, expert: 9 };
 
 export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
   const { t } = useTranslation();
@@ -20,6 +27,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
   const [progress, setProgress] = useState(1); // 1 → 0 over the round window
   const [roundSeq, setRoundSeq] = useState(0);
   const [newBest, setNewBest] = useState(false);
+  const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
 
   const rngRef = useRef<() => number>(() => Math.random());
@@ -37,6 +45,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
     scoreRef.current = 0;
     setScore(0);
     setNewBest(false);
+    setLevelUp(null);
     setPhase('playing');
     nextRound();
   }, [nextRound]);
@@ -44,7 +53,8 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
   const endGame = useCallback(() => {
     setPhase('over');
     const finalScore = scoreRef.current;
-    if (finalScore > bestRef.current) {
+    const isBest = finalScore > bestRef.current;
+    if (isBest) {
       bestRef.current = finalScore;
       setBest(finalScore);
       setSetting(bestKey, finalScore);
@@ -54,7 +64,12 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
     } else {
       setNewBest(false);
     }
-  }, [bestKey]);
+    // Log a Synapse play every game: quality scales with the run, anchored by
+    // difficulty. A level-up is only surfaced on a new best (never a loss).
+    const quality = clamp01(0.15 + 0.8 * clamp01(finalScore / SCORE_TARGET[difficulty]));
+    const res = recordPlay({ gameId: 'colorclash', axes: AXES, quality, weight: XP_WEIGHT[difficulty] });
+    setLevelUp(isBest && finalScore > 0 && res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
+  }, [bestKey, difficulty, t]);
 
   const answer = useCallback(
     (choice: ColorId) => {
@@ -221,6 +236,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
           emoji={newBest ? '🏆' : '🎨'}
           title={newBest ? t('colorclash.newBest') : t('colorclash.gameOver')}
           celebrate={newBest}
+          levelUp={levelUp}
           actions={[
             { label: t('colorclash.again'), onClick: start, variant: 'primary' },
             { label: t('colorclash.share'), onClick: onShare, variant: 'secondary' },

@@ -49,6 +49,13 @@ type Props = {
   /** A small grey footnote below the custom content. */
   note?: ReactNode;
   actions: ResultAction[];
+  /**
+   * When the play crossed a Synapse level threshold, pass the banner content
+   * (e.g. "Level 3!"). It shows a banner and upgrades the open celebration from
+   * the win chime to the level-up fanfare. Only honored when `celebrate` is on,
+   * so a loss is never dressed up as a level-up.
+   */
+  levelUp?: ReactNode;
   /** Ephemeral "Copied!/Shared!" toast text. */
   shareMsg?: string | null;
   /** Optional dismiss link at the very bottom (e.g. "Back"). */
@@ -74,20 +81,24 @@ export default function ProgressResultModal({
   children,
   note,
   actions,
+  levelUp,
   shareMsg,
   onClose,
   closeLabel,
 }: Props) {
   // Fire the celebration exactly once, when the modal first appears. The ref
   // guard keeps React 18 StrictMode's double-invoked mount effect from firing
-  // it twice in development.
+  // it twice in development. A level-up upgrades the win chime to the louder
+  // level-up fanfare.
+  const showLevelUp = celebrate && levelUp != null;
   const fired = useRef(false);
   useEffect(() => {
     if (celebrate && !fired.current) {
       fired.current = true;
-      fx.win();
+      if (showLevelUp) fx.levelUp();
+      else fx.win();
     }
-  }, [celebrate]);
+  }, [celebrate, showLevelUp]);
 
   const maxBar = distribution ? Math.max(1, ...distribution.bars.map((b) => b.value)) : 1;
 
@@ -96,6 +107,11 @@ export default function ProgressResultModal({
       <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center text-slate-900 shadow-2xl ring-1 ring-black/5">
         <div className="text-4xl">{emoji}</div>
         <h2 className="font-cyber mt-2 text-2xl">{title}</h2>
+        {showLevelUp && (
+          <div className="mx-auto mt-2 inline-block rounded-full bg-accent px-3 py-1 text-sm font-bold text-white shadow fx-pop">
+            ⚡ {levelUp}
+          </div>
+        )}
         {subtitle != null && <p className="mt-1 text-slate-500">{subtitle}</p>}
 
         {stats && stats.length > 0 && (

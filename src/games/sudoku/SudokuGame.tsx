@@ -5,7 +5,13 @@ import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/diff
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
 import { fx } from '../../lib/fx';
+import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
+import { getGame } from '../registry';
 import ProgressResultModal from '../../components/ProgressResultModal';
+
+const AXES = getGame('sudoku')?.axes ?? {};
+// Target solve times (seconds) per difficulty — beating them nudges quality up.
+const TARGET: Record<Difficulty, number> = { easy: 300, medium: 420, hard: 600, expert: 900 };
 
 // Cells of the row / column / 3×3 box that contain index `i`.
 function rowCells(i: number): number[] {
@@ -78,6 +84,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [seconds, setSeconds] = useState(0);
   const [solved, setSolved] = useState(false);
+  const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   // Cells that just completed a unit — they briefly glow + pop.
   const [glow, setGlow] = useState<{ cells: Set<number>; key: number }>({ cells: new Set(), key: 0 });
@@ -100,6 +107,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
       setSelected(null);
       setSeconds(0);
       setSolved(false);
+      setLevelUp(null);
       setGlow({ cells: new Set(), key: 0 });
       streakRef.current = 0;
     }, 20);
@@ -143,6 +151,14 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
         // The win celebration (confetti + chime) is fired centrally by the
         // result modal when it opens.
         saveBest('sudoku', difficulty, { seconds, moves: 0, at: Date.now() });
+        const perf = clamp01((TARGET[difficulty] - seconds) / TARGET[difficulty]);
+        const res = recordPlay({
+          gameId: 'sudoku',
+          axes: AXES,
+          quality: difficultyQuality(difficulty, perf),
+          weight: XP_WEIGHT[difficulty],
+        });
+        setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
       } else if (newly.length) {
         streakRef.current += 1;
         fx.correct({ streak: streakRef.current }); // rising chime + escalating haptic
@@ -304,6 +320,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
               {t(`difficulty.${difficulty}`)} · ⏱ {fmt(seconds)}
             </>
           }
+          levelUp={levelUp}
           actions={[
             { label: t('sudoku.share'), onClick: onShare, variant: 'primary' },
             { label: t('sudoku.again'), onClick: () => generate(difficulty), variant: 'secondary' },

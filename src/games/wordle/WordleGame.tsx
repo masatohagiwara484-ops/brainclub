@@ -5,8 +5,12 @@ import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/diff
 import { dailySeed, dayNumber, makeRng } from '../../lib/daily';
 import { bumpStreak, getSetting, setSetting } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
+import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
+import { getGame } from '../registry';
 import { useSettings } from '../../lib/settings';
 import ProgressResultModal from '../../components/ProgressResultModal';
+
+const AXES = getGame('wordle')?.axes ?? {};
 import {
   WORD_CONFIG,
   evaluate,
@@ -72,6 +76,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
 
   const [stats, setStats] = useState<Stats>(() => loadStats(difficulty, maxGuesses));
   const [showResult, setShowResult] = useState(false);
+  const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
 
   // Animation nonces.
@@ -99,6 +104,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
     setStatus('playing');
     setCurrent('');
     setShowResult(false);
+    setLevelUp(null);
   }, [dailyKey, difficulty, length]);
 
   const startPractice = useCallback(() => {
@@ -107,6 +113,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
     setStatus('playing');
     setCurrent('');
     setShowResult(false);
+    setLevelUp(null);
   }, [length]);
 
   useEffect(() => {
@@ -191,9 +198,20 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
     if (won) {
       // The win celebration is fired centrally by the result modal on open.
       recordDaily(true, g.length);
+      // Fewer guesses → higher quality (solved in 1 = perfect).
+      const perf = clamp01((maxGuesses - g.length) / Math.max(1, maxGuesses - 1));
+      const res = recordPlay({
+        gameId: 'wordle',
+        axes: AXES,
+        quality: difficultyQuality(difficulty, perf),
+        weight: XP_WEIGHT[difficulty],
+      });
+      setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
     } else if (lost) {
       haptics.bump();
       recordDaily(false, g.length);
+      recordPlay({ gameId: 'wordle', axes: AXES, quality: 0.2, weight: XP_WEIGHT[difficulty] });
+      setLevelUp(null);
     } else {
       haptics.tick();
     }
@@ -434,6 +452,7 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
               : undefined
           }
           note={mode === 'daily' ? t('wordle.dailyDone') : undefined}
+          levelUp={levelUp}
           actions={[
             { label: t('wordle.share'), onClick: onShare, variant: 'primary' },
             mode === 'practice'
