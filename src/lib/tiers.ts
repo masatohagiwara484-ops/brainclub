@@ -11,19 +11,24 @@ export type Tier = {
   nameKey: string;
   /** Inclusive Synapse-Score threshold (0..100) to reach this tier. */
   min: number;
-  /** Rung color for the pyramid. */
+  /** Rung color for the pyramid (used for the active-rung glow / dot). */
   color: string;
+  /** Tailwind gradient classes for the rung — a subtle metallic sheen that
+   *  intensifies on higher tiers (via-stop = highlight). Purely visual. */
+  gradient: string;
+  /** Foreground text class that stays readable on this rung's gradient. */
+  text: string;
 };
 
 // Low → high. A score >= a tier's `min` (and below the next) lands on that rung.
 export const TIERS: Tier[] = [
-  { id: 'novice', nameKey: 'tier.novice', min: 0, color: '#94a3b8' },
-  { id: 'bronze', nameKey: 'tier.bronze', min: 15, color: '#b45309' },
-  { id: 'silver', nameKey: 'tier.silver', min: 30, color: '#64748b' },
-  { id: 'gold', nameKey: 'tier.gold', min: 45, color: '#eab308' },
-  { id: 'platinum', nameKey: 'tier.platinum', min: 60, color: '#14b8a6' },
-  { id: 'diamond', nameKey: 'tier.diamond', min: 75, color: '#3b82f6' },
-  { id: 'master', nameKey: 'tier.master', min: 90, color: '#a855f7' },
+  { id: 'novice', nameKey: 'tier.novice', min: 0, color: '#94a3b8', gradient: 'from-slate-400 to-slate-500', text: 'text-white' },
+  { id: 'bronze', nameKey: 'tier.bronze', min: 15, color: '#b45309', gradient: 'from-[#c2853f] via-[#9a5a23] to-[#7c4518]', text: 'text-white' },
+  { id: 'silver', nameKey: 'tier.silver', min: 30, color: '#64748b', gradient: 'from-[#e2e8f0] via-[#cbd5e1] to-[#94a3b8]', text: 'text-slate-900' },
+  { id: 'gold', nameKey: 'tier.gold', min: 45, color: '#eab308', gradient: 'from-[#fde68a] via-[#eab308] to-[#b8860b]', text: 'text-slate-900' },
+  { id: 'platinum', nameKey: 'tier.platinum', min: 60, color: '#14b8a6', gradient: 'from-[#5eead4] via-[#14b8a6] to-[#0d9488]', text: 'text-white' },
+  { id: 'diamond', nameKey: 'tier.diamond', min: 75, color: '#3b82f6', gradient: 'from-[#93c5fd] via-[#3b82f6] to-[#2563eb]', text: 'text-white' },
+  { id: 'master', nameKey: 'tier.master', min: 90, color: '#a855f7', gradient: 'from-[#c084fc] via-[#a855f7] to-[#7e22ce]', text: 'text-white' },
 ];
 
 function clamp(x: number, lo: number, hi: number): number {
@@ -60,3 +65,9 @@ export function tierProgress(score: number): TierProgress {
   const into = clamp(score, tier.min, next.min) - tier.min;
   return { tier, next, frac: span > 0 ? into / span : 1, toNext: Math.max(0, Math.ceil(next.min - score)) };
 }
+
+// Public API aliases matching the redesign spec's naming (getTierForScore /
+// getTierProgress). They delegate to the canonical functions above, which the
+// rest of the app and scripts/verify-tiers.mjs already use.
+export const getTierForScore = tierForScore;
+export const getTierProgress = tierProgress;
