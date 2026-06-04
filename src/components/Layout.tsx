@@ -3,7 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { setSetting } from '../lib/storage';
 import { useSettings } from '../lib/settings';
+import { useMonetization } from '../lib/monetization';
 import FxLayer from './FxLayer';
+import MonetizationLayer from './MonetizationLayer';
 
 // Universal layout: the brand, language toggle and back/settings live in the
 // SAME place on every screen (a core UX requirement from the strategy doc).
@@ -21,6 +23,11 @@ export default function Layout({ children }: { children: ReactNode }) {
   const muted = !s.isSound();
   const colorBlind = s.isColorBlind();
 
+  // Cosmetics: the active skin is a [data-skin] token on the same root as the
+  // theme, so it recolors FX/UI with no game-code changes (Mission 8).
+  const m = useMonetization();
+  const skin = m.getSkin();
+
   const toggleLang = () => {
     const next = i18n.language.startsWith('ja') ? 'en' : 'ja';
     i18n.changeLanguage(next);
@@ -30,6 +37,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div
       data-theme={theme}
+      data-skin={skin === 'default' ? undefined : skin}
       data-contrast={colorBlind ? 'high' : undefined}
       className="flex h-[100dvh] flex-col bg-white text-slate-900"
     >
@@ -73,6 +81,14 @@ export default function Layout({ children }: { children: ReactNode }) {
           >
             {i18n.language.startsWith('ja') ? '日本語' : 'EN'}
           </button>
+          <button
+            onClick={() => m.openShop()}
+            className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+            aria-label={t('monet.shopTitle')}
+            title={t('monet.shopTitle')}
+          >
+            🎨
+          </button>
           <Link
             to="/profile"
             className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
@@ -94,6 +110,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <main className="relative flex-1 overflow-hidden">
         {children}
         <FxLayer />
+        <MonetizationLayer />
       </main>
     </div>
   );

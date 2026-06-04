@@ -13,6 +13,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { fx } from '../lib/fx';
 import SynapsePanel from './SynapsePanel';
+import AdSlot from './AdSlot';
 
 export type StatChip = { value: ReactNode; label: ReactNode };
 
@@ -154,6 +155,7 @@ export default function ProgressResultModal({
 
         {children}
         {synapse && <SynapsePanel compact />}
+        <AdSlot className="mt-4 text-left" />
         {note != null && <p className="mt-3 text-xs text-slate-400">{note}</p>}
 
         <div className="mt-5 flex justify-center gap-2">

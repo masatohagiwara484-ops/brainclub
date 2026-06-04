@@ -4,6 +4,43 @@
     "tagline": "A worldwide club of brain games. Train your mind, every day."
   },
   "nav": { "home": "Home", "settings": "Settings", "back": "Back", "profile": "Profile" },
+  "monet": {
+    "shopTitle": "Skin shop",
+    "shopNote": "Cosmetic only — recolors the whole app. Every game stays free.",
+    "apply": "Apply",
+    "applied": "Applied",
+    "done": "Done",
+    "close": "Close",
+    "premiumTag": "Premium",
+    "unlockAll": "Unlock everything with Premium",
+    "premiumTitle": "BrainClub Premium",
+    "premiumTagline": "Brain time, not screen time — ad-free.",
+    "learnMore": "Learn more",
+    "subscribeCta": "Start Premium",
+    "maybeLater": "Maybe later",
+    "mockNote": "Demo only — no payment is taken.",
+    "thanks": "You're Premium. Thank you!",
+    "cancelDemo": "Cancel (demo)",
+    "price": "$4.99",
+    "pricePer": "per month, cancel anytime",
+    "adLabel": "Ad",
+    "adPlaceholder": "Ad placeholder",
+    "removeAds": "Remove ads",
+    "perks": {
+      "noAds": "No ads, ever",
+      "allSkins": "Every skin unlocked",
+      "proStats": "Detailed Synapse stats",
+      "support": "Support an indie, no-login app"
+    },
+    "skins": {
+      "default": "Classic Blue",
+      "sunset": "Sunset",
+      "ocean": "Ocean",
+      "forest": "Forest",
+      "aurora": "Aurora",
+      "mono": "Graphite"
+    }
+  },
   "controls": {
     "theme": "Visual style",
     "zen": "Zen",

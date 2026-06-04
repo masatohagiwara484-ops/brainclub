@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { GAMES, type GameCategory } from '../games/registry';
 import GameCard from '../components/GameCard';
+import AdSlot from '../components/AdSlot';
 import { getStreak } from '../lib/storage';
 
 const SECTIONS: GameCategory[] = ['must-have', 'recommended', 'innovative'];
@@ -39,6 +41,16 @@ export default function Home() {
             </section>
           );
         })}
+
+        <AdSlot className="mb-6" />
+
+        <Link
+          to="/premium"
+          className="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-amber-400 to-pink-500 px-5 py-4 text-white shadow"
+        >
+          <span className="flex items-center gap-2 font-bold">✨ {t('monet.premiumTitle')}</span>
+          <span className="text-sm font-semibold opacity-90">{t('monet.learnMore')} ›</span>
+        </Link>
 
         <footer className="py-6 text-center text-xs text-slate-300">
           {t('app.name')} · {t('app.tagline')}

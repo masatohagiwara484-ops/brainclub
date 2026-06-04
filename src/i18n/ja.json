@@ -4,6 +4,43 @@
     "tagline": "世界の脳トレが集まるクラブ。毎日、頭を動かそう。"
   },
   "nav": { "home": "ホーム", "settings": "設定", "back": "戻る", "profile": "プロフィール" },
+  "monet": {
+    "shopTitle": "スキンショップ",
+    "shopNote": "見た目だけのコスメ。アプリ全体の配色が変わります。ゲームは全て無料のまま。",
+    "apply": "適用",
+    "applied": "適用中",
+    "done": "完了",
+    "close": "閉じる",
+    "premiumTag": "Premium",
+    "unlockAll": "Premiumで全て解放",
+    "premiumTitle": "BrainClub Premium",
+    "premiumTagline": "スクロールの代わりに、考える時間を。広告なし。",
+    "learnMore": "詳しく見る",
+    "subscribeCta": "Premiumを始める",
+    "maybeLater": "あとで",
+    "mockNote": "デモ用です。実際の課金は発生しません。",
+    "thanks": "Premium会員です。ありがとう！",
+    "cancelDemo": "解約（デモ）",
+    "price": "¥600",
+    "pricePer": "月額・いつでも解約可",
+    "adLabel": "広告",
+    "adPlaceholder": "広告枠（プレースホルダ）",
+    "removeAds": "広告を消す",
+    "perks": {
+      "noAds": "広告なし",
+      "allSkins": "全スキン解放",
+      "proStats": "シナプス詳細統計",
+      "support": "ログイン不要の個人開発を応援"
+    },
+    "skins": {
+      "default": "クラシックブルー",
+      "sunset": "サンセット",
+      "ocean": "オーシャン",
+      "forest": "フォレスト",
+      "aurora": "オーロラ",
+      "mono": "グラファイト"
+    }
+  },
   "controls": {
     "theme": "演出スタイル",
     "zen": "Zen",

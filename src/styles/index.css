@@ -90,6 +90,32 @@ canvas {
   --motion-scale: 0.7;
 }
 
+/* Cosmetic skins (Mission 8). Same root element as [data-theme]; declared AFTER
+   the theme blocks so a skin's --fx-accent wins on the equal-specificity tie and
+   recolors confetti / glow / radar with ZERO game-code changes. Swatch colors
+   here mirror SKINS in lib/monetization.ts. `default` sets nothing (the attr is
+   omitted entirely), so the theme accent shows through. */
+[data-skin='sunset'] {
+  --fx-accent: #fb7185;
+  --fx-glow: 0 0 12px rgba(251, 113, 133, 0.85), 0 0 26px rgba(245, 158, 11, 0.5);
+}
+[data-skin='ocean'] {
+  --fx-accent: #06b6d4;
+  --fx-glow: 0 0 12px rgba(6, 182, 212, 0.85), 0 0 26px rgba(59, 130, 246, 0.5);
+}
+[data-skin='forest'] {
+  --fx-accent: #22c55e;
+  --fx-glow: 0 0 12px rgba(34, 197, 94, 0.85), 0 0 26px rgba(132, 204, 22, 0.5);
+}
+[data-skin='aurora'] {
+  --fx-accent: #a855f7;
+  --fx-glow: 0 0 12px rgba(168, 85, 247, 0.85), 0 0 26px rgba(236, 72, 153, 0.5);
+}
+[data-skin='mono'] {
+  --fx-accent: #64748b;
+  --fx-glow: 0 0 10px rgba(100, 116, 139, 0.6);
+}
+
 /* Confetti: each piece falls from center to a randomized (--x,--y) with spin. */
 @keyframes fx-confetti-fall {
   0% {
