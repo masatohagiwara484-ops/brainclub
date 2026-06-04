@@ -44,3 +44,22 @@ export async function share(r: ShareResult): Promise<'shared' | 'copied' | 'fail
     return 'failed';
   }
 }
+
+/** Share an already-built block of text (Web Share API → clipboard fallback). */
+export async function shareText(text: string, title = 'BrainClub'): Promise<'shared' | 'copied' | 'failed'> {
+  try {
+    if (navigator.share) {
+      await navigator.share({ title, text });
+      return 'shared';
+    }
+  } catch {
+    /* cancelled / unsupported — fall through to clipboard */
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    return 'copied';
+  } catch {
+    return 'failed';
+  }
+}
+

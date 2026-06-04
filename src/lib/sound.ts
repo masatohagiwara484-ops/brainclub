@@ -94,6 +94,10 @@ export const sound = {
     tone(180, 0.18, 'sawtooth', 0, 0.14);
     tone(120, 0.22, 'sawtooth', 0.04, 0.1);
   },
+  /** A single sustained pad tone at a given frequency (used by Simon). */
+  playNote(freq: number, dur = 0.18) {
+    tone(freq, dur, 'triangle', 0, 0.16);
+  },
   /** Win — a bright major arpeggio. */
   playWin() {
     arp([523.25, 659.25, 783.99, 1046.5], 0.09, 'triangle');

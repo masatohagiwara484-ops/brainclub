@@ -180,6 +180,123 @@
       "orange": "オレンジ"
     }
   },
+  "reaction": {
+    "howto": "緑になったら、できるだけ速くタップ。全5回。",
+    "start": "スタート",
+    "wait": "待て…",
+    "tap": "タップ！",
+    "tooSoon": "早すぎ！",
+    "retry": "タップでやり直し",
+    "again": "もう一度",
+    "done": "いい反射神経！",
+    "avg": "平均",
+    "best": "最速",
+    "share": "シェア"
+  },
+  "schulte": {
+    "find": "探す",
+    "solved": "クリア！",
+    "newBest": "自己ベスト更新！",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "memorygrid": {
+    "level": "レベル",
+    "howto": "光ったマスを覚えて、記憶だけで全部タップ。レベルごとに増えます。",
+    "start": "スタート",
+    "memorize": "記憶して…",
+    "gameOver": "ゲームオーバー",
+    "reached": "到達",
+    "cells": "マス",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "simon": {
+    "round": "ラウンド",
+    "howto": "光る順番を見て、同じ順にタップ。毎回1つ増えます。",
+    "start": "スタート",
+    "watch": "見て…",
+    "repeat": "あなたの番",
+    "gameOver": "ゲームオーバー",
+    "reached": "到達",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "whack": {
+    "howto": "出てきたモグラをタップ。30秒勝負！",
+    "start": "スタート",
+    "newBest": "自己ベスト更新！",
+    "gameOver": "時間切れ！",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "memory": {
+    "moves": "手",
+    "solved": "全部そろった！",
+    "newBest": "自己ベスト更新！",
+    "pairs": "ペア",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "lightsout": {
+    "moves": "手",
+    "goal": "すべてのライトを消そう。",
+    "solved": "全消灯！",
+    "newBest": "自己ベスト更新！",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "slide": {
+    "moves": "手",
+    "solved": "クリア！",
+    "newBest": "自己ベスト更新！",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "g2048": {
+    "newGame": "新規",
+    "howto": "スワイプで同じ数字を合体。2048を目指せ！",
+    "score": "スコア",
+    "best": "最大タイル",
+    "gameOver": "ゲームオーバー",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "mastermind": {
+    "guess": "推理",
+    "won": "正解！",
+    "lost": "回数切れ",
+    "guesses": "回",
+    "tries": "回数",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "minesweeper": {
+    "flagOn": "旗",
+    "flagOff": "掘る",
+    "won": "クリア！",
+    "lost": "ドカン！",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "flood": {
+    "fill": "塗る",
+    "won": "全部塗った！",
+    "lost": "手数切れ",
+    "moves": "手",
+    "limit": "上限",
+    "again": "もう一度",
+    "share": "シェア"
+  },
+  "pegsolitaire": {
+    "newGame": "新規",
+    "pegs": "ペグ",
+    "goal": "ペグを飛び越して1個だけ残そう。",
+    "perfect": "パーフェクト！1個！",
+    "stuck": "動かせません",
+    "again": "もう一度",
+    "share": "シェア"
+  },
   "synapse": {
     "title": "シナプス・プロフィール",
     "score": "シナプススコア",
@@ -200,7 +317,19 @@
     "solitaire": { "name": "ソリティア", "tagline": "カード整理 · ゆったり" },
     "watersort": { "name": "色水ソート", "tagline": "色の論理 · 爽快" },
     "gomoku": { "name": "五目並べ", "tagline": "五目 · サクッと" },
-    "chess": { "name": "チェス", "tagline": "戦略 · 王道" },
-    "memory": { "name": "神経衰弱", "tagline": "記憶 · 集中" }
+    "memory": { "name": "神経衰弱", "tagline": "記憶 · 集中" },
+    "reaction": { "name": "反応速度", "tagline": "反射 · 速さ勝負" },
+    "simon": { "name": "エコー", "tagline": "記憶 · 音をまねる" },
+    "memorygrid": { "name": "記憶グリッド", "tagline": "記憶 · 光を再現" },
+    "whack": { "name": "モグラたたき", "tagline": "反射 · 30秒勝負" },
+    "schulte": { "name": "シュルテ表", "tagline": "集中 · 順番に探す" },
+    "2048": { "name": "2048", "tagline": "論理 · 合体して2048" },
+    "slide": { "name": "スライドパズル", "tagline": "論理 · 数字を並べる" },
+    "lightsout": { "name": "ライツアウト", "tagline": "論理 · 全部消す" },
+    "mastermind": { "name": "コードブレイク", "tagline": "論理 · 暗号を解け" },
+    "minesweeper": { "name": "マインスイーパー", "tagline": "論理 · 地雷を避けて" },
+    "flood": { "name": "フラッドイット", "tagline": "論理 · 一色にする" },
+    "pegsolitaire": { "name": "ペグソリティア", "tagline": "論理 · 1個だけ残す" },
+    "chess": { "name": "チェス", "tagline": "戦略 · 王道" }
   }
 }

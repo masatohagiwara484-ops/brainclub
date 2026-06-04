@@ -144,6 +144,19 @@ const SCENES: Record<string, Scene> = {
     finger: { mode: 'tap1', a: { x: 110, y: 85 } },
   },
 
+  // Swipe to merge matching tiles (2048).
+  '2048': {
+    board: [
+      { x: 70, y: 80, w: 40, h: 40, cls: 'bg-[#eee4da] text-[#776e65] text-xl font-bold', label: '2' },
+      { x: 120, y: 80, w: 40, h: 40, cls: 'bg-[#eee4da] text-[#776e65] text-xl font-bold', label: '2' },
+      { x: 170, y: 80, w: 40, h: 40, cls: 'bg-slate-200' },
+      { x: 120, y: 140, w: 80, h: 22, cls: 'text-slate-400 text-lg', label: '→' },
+    ],
+    reveals: [{ x: 170, y: 80, w: 40, h: 40, cls: 'bg-[#f2b179] text-white text-xl font-bold', label: '4', timing: 'late' }],
+    pulses: [{ x: 60, y: 80 }],
+    finger: { mode: 'swipe', a: { x: 55, y: 80 }, b: { x: 175, y: 80 } },
+  },
+
   // Tap the button that matches the INK (fill), not the marks (word color).
   colorclash: {
     board: [
@@ -162,6 +175,15 @@ const SCENES: Record<string, Scene> = {
     pulses: [{ x: 120, y: 132 }],
     finger: { mode: 'tap1', a: { x: 120, y: 132 } },
   },
+};
+
+// Fallback for any game without a bespoke scene: most are tap-driven, so a
+// single "tap here" finger on a generic target reads correctly everywhere.
+const GENERIC: Scene = {
+  board: [{ x: 120, y: 80, w: 96, h: 56, cls: 'bg-white ring-1 ring-slate-200 text-3xl', label: '👆' }],
+  reveals: [{ x: 120, y: 80, w: 96, h: 56, cls: 'bg-brand/10 ring-2 ring-brand/40', timing: 'early' }],
+  pulses: [{ x: 120, y: 80, size: 64 }],
+  finger: { mode: 'tap1', a: { x: 120, y: 80 } },
 };
 
 // ---- Rendering ----------------------------------------------------------------
@@ -228,8 +250,8 @@ export default function HowToOverlay() {
   const id = h.openId();
   if (!id) return null;
   const game = getGame(id);
-  const scene = SCENES[id];
-  if (!game || !scene) return null;
+  if (!game) return null;
+  const scene = SCENES[id] ?? GENERIC;
 
   return (
     <div

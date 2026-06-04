@@ -106,6 +106,115 @@ const ART: Record<string, (className?: string) => React.ReactNode> = {
       </>,
       c,
     ),
+  reaction: (c) =>
+    base(<path d="M36 6 16 36h13l-3 22 22-32H33l3-20z" fill="currentColor" stroke="none" />, c),
+  simon: (c) =>
+    base(
+      <>
+        <circle cx="32" cy="32" r="22" />
+        <path d="M32 10v44M10 32h44" />
+        <path d="M22 22a14 14 0 0 1 4-4" strokeWidth={5} />
+      </>,
+      c,
+    ),
+  memorygrid: (c) =>
+    base(
+      <>
+        <rect x="10" y="10" width="44" height="44" rx="4" />
+        <path d="M24 10v44M40 10v44M10 24h44M10 40h44" strokeWidth={2} opacity={0.6} />
+        <rect x="12.5" y="12.5" width="9" height="9" rx="1.5" fill="currentColor" stroke="none" />
+        <rect x="42.5" y="26.5" width="9" height="9" rx="1.5" fill="currentColor" stroke="none" />
+        <rect x="27.5" y="42.5" width="9" height="9" rx="1.5" fill="currentColor" stroke="none" />
+      </>,
+      c,
+    ),
+  whack: (c) =>
+    base(
+      <>
+        <path d="M14 50c0-12 8-20 18-20s18 8 18 20" />
+        <ellipse cx="14" cy="50" rx="8" ry="4" />
+        <ellipse cx="50" cy="50" rx="8" ry="4" />
+        <circle cx="26" cy="40" r="2.5" fill="currentColor" stroke="none" />
+        <circle cx="38" cy="40" r="2.5" fill="currentColor" stroke="none" />
+      </>,
+      c,
+    ),
+  schulte: (c) =>
+    base(
+      <>
+        <rect x="10" y="10" width="44" height="44" rx="4" />
+        <path d="M25 10v44M39 10v44M10 25h44M10 39h44" strokeWidth={2} opacity={0.6} />
+        <path d="M16 20h3M44 33h3M30 47h4" strokeWidth={4} />
+      </>,
+      c,
+    ),
+  '2048': (c) =>
+    base(
+      <>
+        <rect x="10" y="10" width="20" height="20" rx="3" />
+        <rect x="34" y="10" width="20" height="20" rx="3" fill="currentColor" stroke="none" />
+        <rect x="10" y="34" width="20" height="20" rx="3" fill="currentColor" stroke="none" />
+        <rect x="34" y="34" width="20" height="20" rx="3" />
+      </>,
+      c,
+    ),
+  slide: (c) =>
+    base(
+      <>
+        <rect x="10" y="10" width="44" height="44" rx="4" />
+        <path d="M24 10v44M40 10v44M10 24h44M10 40h44" strokeWidth={2} opacity={0.6} />
+        <path d="M44 32H28m0 0 6-6m-6 6 6 6" strokeWidth={3} />
+      </>,
+      c,
+    ),
+  lightsout: (c) =>
+    base(
+      <>
+        <path d="M32 8a16 16 0 0 0-9 29c2 1.5 3 3 3 6h12c0-3 1-4.5 3-6a16 16 0 0 0-9-29z" />
+        <path d="M26 52h12M28 57h8" />
+      </>,
+      c,
+    ),
+  mastermind: (c) =>
+    base(
+      <>
+        <circle cx="18" cy="22" r="7" fill="currentColor" stroke="none" />
+        <circle cx="38" cy="22" r="7" />
+        <circle cx="18" cy="44" r="7" />
+        <circle cx="38" cy="44" r="7" fill="currentColor" stroke="none" />
+        <circle cx="54" cy="22" r="2.5" fill="currentColor" stroke="none" />
+        <circle cx="54" cy="30" r="2.5" fill="currentColor" stroke="none" />
+      </>,
+      c,
+    ),
+  minesweeper: (c) =>
+    base(
+      <>
+        <circle cx="30" cy="36" r="16" fill="currentColor" stroke="none" />
+        <path d="M30 20V8M30 8l6 4M30 8l-6 4M14 36H8M52 36h-6M19 25l-4-4M45 25l4-4" />
+      </>,
+      c,
+    ),
+  flood: (c) =>
+    base(
+      <>
+        <path d="M32 8C22 22 16 30 16 40a16 16 0 0 0 32 0c0-10-6-18-16-32z" />
+        <path d="M24 42c2 4 6 6 10 5" strokeWidth={2.5} />
+      </>,
+      c,
+    ),
+  pegsolitaire: (c) =>
+    base(
+      <>
+        <path d="M24 10h16v14h14v16H40v14H24V40H10V24h14z" strokeWidth={2.5} />
+        <circle cx="32" cy="32" r="3.2" fill="currentColor" stroke="none" />
+        <circle cx="32" cy="17" r="3.2" fill="currentColor" stroke="none" />
+        <circle cx="32" cy="47" r="3.2" fill="currentColor" stroke="none" />
+        <circle cx="17" cy="32" r="3.2" fill="currentColor" stroke="none" />
+        <circle cx="47" cy="32" r="3.2" fill="currentColor" stroke="none" />
+      </>,
+      c,
+    ),
 };
 
 export default function GameArt({ id, className }: Props & { id: string }) {
