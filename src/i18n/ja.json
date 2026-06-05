@@ -1,4 +1,5 @@
 {
+  "selector": { "hint": "ドラッグして探す", "play": "プレイ" },
   "app": {
     "name": "BrainClub",
     "tagline": "世界の脳トレが集まるクラブ。毎日、頭を動かそう。"

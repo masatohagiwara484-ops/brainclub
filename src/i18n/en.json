@@ -1,4 +1,5 @@
 {
+  "selector": { "hint": "Drag to explore", "play": "Play" },
   "app": {
     "name": "BrainClub",
     "tagline": "A worldwide club of brain games. Train your mind, every day."
