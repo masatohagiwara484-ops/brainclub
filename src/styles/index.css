@@ -14,8 +14,11 @@
      high-contrast mode can override these in ONE place (see below) to re-skin
      the whole app without touching components. --brand / --accent are exposed
      too as the foundation for future fully-tokenized theming. */
-  --brand: #2563eb;
-  --brand-dark: #1d4ed8;
+  /* Brand is the premium indigo (#6366F1 == --primary). RGB-channel form so
+     Tailwind opacity modifiers (bg-brand/10 …) work; change here to re-skin the
+     whole app. */
+  --brand-rgb: 99 102 241; /* #6366f1 indigo */
+  --brand-dark-rgb: 79 70 229; /* #4f46e5 indigo-700 (hover) */
   --accent: #16a34a;
   --success: #16a34a; /* green-600 */
   --warning: #d97706; /* amber-600 */
@@ -171,8 +174,8 @@ canvas {
 /* Theme intensity tokens. Applied to the Layout root (data-theme). The app is
    locked to "zen" (the Arcade theme was retired); FX still read these tokens. */
 [data-theme='zen'] {
-  --fx-accent: #2563eb;
-  --fx-glow: 0 0 8px rgba(37, 99, 235, 0.45);
+  --fx-accent: #6366f1;
+  --fx-glow: 0 0 8px rgba(99, 102, 241, 0.5);
   --fx-flash: rgba(239, 68, 68, 0.28);
   --confetti-count-scale: 0.55;
   --motion-scale: 0.7;

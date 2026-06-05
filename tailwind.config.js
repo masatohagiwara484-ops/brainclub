@@ -4,12 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ---- Core palette (unchanged — kept literal so existing screens and
-        // any opacity modifiers like `bg-brand/50` stay pixel-identical). ----
+        // ---- Core palette ----
+        // `brand` is now the premium indigo (#6366F1) and is var-driven via an
+        // RGB-channel custom property so opacity modifiers (bg-brand/10, etc.)
+        // keep working. Re-point it in ONE place (src/styles/index.css) to
+        // re-skin every brand-colored surface across the app at once.
         ink: '#0f172a', // primary text on white
         panel: '#ffffff', // cards / modals
-        brand: '#2563eb', // primary blue (boxes, buttons)
-        brandDark: '#1d4ed8',
+        brand: 'rgb(var(--brand-rgb) / <alpha-value>)',
+        brandDark: 'rgb(var(--brand-dark-rgb) / <alpha-value>)',
         accent: '#16a34a', // success / streak
 
         // ---- Semantic tokens (NEW, additive) ----

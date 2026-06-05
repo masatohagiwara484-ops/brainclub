@@ -68,7 +68,7 @@ export default function Score() {
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
                     <div
                       className="h-full rounded-full transition-all"
-                      style={{ width: `${Math.round(profile[a])}%`, background: 'var(--fx-accent, #2563eb)' }}
+                      style={{ width: `${Math.round(profile[a])}%`, background: 'var(--fx-accent, #6366f1)' }}
                     />
                   </div>
                   <span className="w-8 text-right text-xs font-bold tabular-nums text-slate-700">

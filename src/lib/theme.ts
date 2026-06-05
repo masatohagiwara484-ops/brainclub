@@ -15,7 +15,7 @@ export const palette = {
   accentPink: '#F472B6',
   success: '#34D399',
   surface: '#0F172A', // deep slate — dark premium surfaces/modals
-  brand: '#2563EB', // legacy brand blue (kept for continuity)
+  brand: '#6366F1', // brand == premium indigo (re-skinned from the old #2563EB)
 } as const;
 
 export type ThemeToken = keyof typeof palette;

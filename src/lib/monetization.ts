@@ -35,7 +35,7 @@ export type SkinDef = {
 // The catalog. `default` is always owned and free. Swatch colors here MUST mirror
 // the [data-skin='…'] blocks in styles/index.css (kept in sync by hand).
 export const SKINS: SkinDef[] = [
-  { id: 'default', c1: '#2563eb', c2: '#60a5fa', price: '' },
+  { id: 'default', c1: '#6366f1', c2: '#a5b4fc', price: '' },
   { id: 'sunset', c1: '#fb7185', c2: '#f59e0b', price: '$1.99' },
   { id: 'ocean', c1: '#06b6d4', c2: '#3b82f6', price: '$1.99' },
   { id: 'forest', c1: '#22c55e', c2: '#84cc16', price: '$1.99' },

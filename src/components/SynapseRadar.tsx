@@ -59,9 +59,9 @@ export default function SynapseRadar({ profile, radius = 80, className }: Props)
       <polygon
         className="fx-pop"
         points={dataPoints}
-        fill="var(--fx-accent, #2563eb)"
+        fill="var(--fx-accent, #6366f1)"
         fillOpacity={0.25}
-        stroke="var(--fx-accent, #2563eb)"
+        stroke="var(--fx-accent, #6366f1)"
         strokeWidth={2}
         strokeLinejoin="round"
         style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
@@ -69,7 +69,7 @@ export default function SynapseRadar({ profile, radius = 80, className }: Props)
       {/* vertex dots */}
       {AXES.map((a) => {
         const [x, y] = point(cx, cy, R * (Math.max(0, Math.min(100, profile[a])) / 100), ANGLES[a]);
-        return <circle key={a} cx={x} cy={y} r={3} fill="var(--fx-accent, #2563eb)" />;
+        return <circle key={a} cx={x} cy={y} r={3} fill="var(--fx-accent, #6366f1)" />;
       })}
       {/* axis labels + values */}
       {AXES.map((a) => {

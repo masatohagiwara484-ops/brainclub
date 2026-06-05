@@ -20,6 +20,23 @@
 - PWA対応（インストール可・オフライン）
 - バックエンドなし（現状は全てクライアントサイド＝静的デプロイ）
 - デプロイ先: **Vercel**
+- **アニメ/演出ライブラリ**: `framer-motion`, `canvas-confetti`, `@react-three/fiber@^8` + `@react-three/drei@^9`
+  （※ R3F は **React 18 互換の v8 系で固定**。最新 v9 は React 19 必須なので不可。drei は重いので**実際に使う機能だけ import**＝未使用なら本番バンドルに載らない）
+
+## 🎨 プレミアム・デザインシステム（Cygames級の統一感）
+> **方針転換**: 当初の「chess.com風・低アセット」から、**Cygamesインスパイアの濃く鮮やかなプレミアム路線**へ全面刷新中。
+> 「安っぽいゲーム感」ではなく「上質でモダン」を目指す。色遷移・余白・タイポ階層すべてを“高級”に。
+- **ブランド色 = プレミアム・インディゴ `#6366F1`**（旧 `#2563eb` 青から変更）。
+  - **再スキンは1箇所**: `src/styles/index.css` の `--brand-rgb`（RGBチャンネル形式→Tailwindの不透明度修飾子 `bg-brand/10` 等が動く）。
+  - これを変えるだけで全30ファイル・約62箇所の `brand` 系ユーティリティが一括で再色付けされる。
+- **デザイントークン**（`tailwind.config.js` + `:root` の CSS変数, すべて var 駆動）:
+  - 色: `primary`/`accent-cyan`/`accent-pink`/`success`/`warning`/`danger`/`surface`/`surface-2`
+  - 影: `shadow-game`(柔), `shadow-elevated`(深), `shadow-premium`(インディゴ・グロー)
+  - 角丸: `rounded-card`(1rem)/`rounded-panel`(1.25rem)
+- **タイポ**: **Inter**（`index.html` で読込, body既定フォント）。見出しは `.font-display`（800/タイトトラッキング）。`.font-cyber`/`.font-dot`(DotGothic16) はロゴ/特殊見出し用に残置。
+- **テーマ機構**: `src/lib/theme.ts` の `useTheme()` が `<html>` に `data-theme="premium"` を付与（Layout内ルートの `data-theme="zen"`=FXエンジンと衝突しないよう **html側**に付ける）。premium層は `--success`/`--surface` を深色へ上書き。
+  - 型付き `palette`/`color()` は CSS変数を読めない canvas/Three/confetti 用の生hex供給源。
+- **演出系の基盤**: 要素単位は `lib/feedback.ts`（correct/incorrect/solve）、画面単位は `lib/fx.ts`（confetti/flash/shake, `--fx-accent`もインディゴ化済み）。`.transition-premium`(スプリング風イージング)・`.bg-neural`(微細シナプス模様) も用意。reduced-motion 厳守。
 
 ## 📐 アーキテクチャ
 ```
@@ -27,12 +44,14 @@ src/
   games/registry.ts      ゲームカタログ（cube/sudoku/solitaire/watersort/gomoku/wordle が稼働、他はavailable:falseで"Coming soon"）
   games/cube/            cubeEngine.ts（Three.js本体＋バグ修正）＋ CubeGame.tsx（React UI）
   games/wordle/          wordGuess.ts（単語リスト/採点ロジック）＋ WordleGame.tsx（Word Guess本体・難易度＝文字数4〜7・デイリー＋練習）
-  components/            Layout（全画面共通の枠＝ユニバーサルレイアウト）, GameCard
-  pages/                 Home（ハブのゲームグリッド）, GamePage
-  lib/                   haptics（振動）, storage（ベスト記録/ストリーク）, daily（日替わりseed）, share（Wordle型シェア）
+  components/            Layout, GameCard, Button（共通ボタン＝唯一の真実）, TierPyramid（ティア階段）, SynapseRadar 等
+  pages/                 Home（ハブのゲームグリッド）, GamePage, Score（Synapseスコア＋ティア）
+  lib/                   haptics, storage, daily, share, theme（プレミアムトークン+useTheme）,
+                         feedback（要素単位の手応え）, fx（画面単位の演出）, tiers（ティア純関数）, synapse, monetization
   i18n/                  en.json（デフォルト）, ja.json
 scripts/verify-cube.mjs    キューブ崩壊バグの自動検証（node scripts/verify-cube.mjs）
 scripts/verify-wordle.mjs  Word Guessの単語リスト＆採点ロジック検証（node scripts/verify-wordle.mjs）
+scripts/verify-tiers.mjs   ティア閾値/進捗ロジックの境界値検証（node scripts/verify-tiers.mjs）
 ```
 
 ## ✅ 決定事項（ユーザーとの合意）

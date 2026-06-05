@@ -19,7 +19,7 @@ const BASE =
   'disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:active:scale-100';
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-brand text-white shadow-md hover:bg-brandDark',
+  primary: 'bg-brand text-white shadow-md hover:bg-brandDark hover:shadow-premium',
   secondary: 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50',
   ghost: 'text-slate-600 hover:bg-slate-100',
   // `bg-danger` is the new semantic color token; its default (#dc2626) equals the
