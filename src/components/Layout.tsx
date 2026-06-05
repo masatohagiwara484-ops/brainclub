@@ -11,6 +11,7 @@ import BottomNav from './BottomNav';
 import BgmController from './BgmController';
 import { Icon } from './Icons';
 import Button from './Button';
+import { useTheme } from '../lib/theme';
 
 // Universal layout (chess.com-style shell): a slim header with the profile on
 // the left, brand in the center, and a Premium shortcut on the right, plus a
@@ -22,6 +23,9 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const loc = useLocation();
   const nav = useNavigate();
+
+  // Activate the premium theme (sets data-theme="premium" on <html>).
+  useTheme();
 
   // [data-theme] (Zen/Arcade) and [data-contrast] (color-blind) come from the
   // reactive settings store; [data-skin] (cosmetics) from monetization. They
@@ -72,9 +76,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           )}
         </div>
 
-        <Link to="/" className="flex items-center gap-2 tracking-tight">
-          <span className="text-lg">🧠</span>
-          <span className="font-cyber text-lg">{t('app.name')}</span>
+        <Link to="/" className="group flex items-center gap-2 tracking-tight">
+          <span className="text-lg transition-premium group-hover:scale-110">🧠</span>
+          {/* Premium wordmark: Inter display weight with an indigo→pink gradient. */}
+          <span className="bg-gradient-to-r from-primary to-accent-pink bg-clip-text font-display text-lg text-transparent">
+            {t('app.name')}
+          </span>
         </Link>
 
         {/* Right: game help (during play) or a Premium shortcut. */}

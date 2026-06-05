@@ -22,6 +22,24 @@
   --danger: #dc2626; /* red-600 */
   --surface: #ffffff; /* base card/sheet background */
   --surface-2: #f1f5f9; /* slate-100 — subtle inset / muted background */
+
+  /* ---- Premium overhaul accents (NEW) ---- */
+  --primary: #6366f1; /* indigo — the new lead accent */
+  --accent-cyan: #67e8f9;
+  --accent-pink: #f472b6;
+}
+
+/* Premium theme (lib/theme.ts sets data-theme="premium" on <html>). This layer
+   owns the Cygames-inspired deep/vibrant overrides; it lives on <html> so it
+   never collides with the Layout root's data-theme="zen" (FX engine, below).
+   It only re-points var-driven tokens, so anything not yet using them is
+   unaffected. */
+:root[data-theme='premium'] {
+  --success: #34d399; /* vibrant emerald */
+  --surface: #0f172a; /* deep slate — for dark premium modals/sheets */
+  --primary: #6366f1;
+  --accent-cyan: #67e8f9;
+  --accent-pink: #f472b6;
 }
 
 /* High-contrast / color-blind mode (Layout sets [data-contrast='high']).
@@ -47,7 +65,10 @@ body {
   color: #0f172a;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* Prevent the page from scrolling/zooming while dragging a game canvas */
@@ -59,6 +80,50 @@ canvas {
 .font-dot {
   font-family: 'DotGothic16', system-ui, sans-serif;
   letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   Premium design system — typography + motion utilities
+   ============================================================ */
+
+/* Modern, bold display type for headlines/wordmarks. Tight tracking + heavy
+   weight give the premium weight-hierarchy the overhaul is after. */
+.font-display {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* "Expensive"-feeling spring-like easing for color/transform transitions —
+   a gentle overshoot-free ease that reads as high quality rather than linear. */
+.transition-premium {
+  transition-property: color, background-color, border-color, fill, stroke,
+    opacity, box-shadow, transform, filter;
+  transition-duration: 320ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Subtle "neural" backdrop: a faint dot-grid of synapse nodes crossed by soft
+   diagonal lines, in the premium accent hues. Very low opacity so it whispers
+   behind dark premium surfaces. Pair with a slow drift for life. */
+.bg-neural {
+  background-image:
+    radial-gradient(rgba(103, 232, 249, 0.1) 1px, transparent 1.4px),
+    radial-gradient(rgba(244, 114, 182, 0.08) 1px, transparent 1.4px),
+    linear-gradient(115deg, rgba(99, 102, 241, 0.06) 0%, transparent 55%);
+  background-size: 26px 26px, 26px 26px, 100% 100%;
+  background-position: 0 0, 13px 13px, 0 0;
+}
+@keyframes neural-drift {
+  0% { background-position: 0 0, 13px 13px, 0 0; }
+  100% { background-position: 26px 52px, 39px 65px, 0 0; }
+}
+.bg-neural-animated {
+  animation: neural-drift 18s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-neural-animated { animation: none !important; }
 }
 
 /* ---- Word Guess animations ---- */

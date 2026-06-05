@@ -22,8 +22,18 @@ export default {
         success: 'var(--success)',
         warning: 'var(--warning)',
         danger: 'var(--danger)',
-        surface: 'var(--surface)', // base card/sheet background (white today)
+        surface: 'var(--surface)', // base sheet bg — white by default; the
+        // `premium` theme re-points it to a deep #0F172A for dark premium modals.
         'surface-2': 'var(--surface-2)', // subtle inset / muted background (slate-100 today)
+
+        // ---- Premium overhaul palette (NEW, additive) ----
+        // Cygames-inspired deep & vibrant accents. Var-driven so the `premium`
+        // theme (styles/index.css → [data-theme='premium'] on <html>, set by
+        // lib/theme.ts) is the single place that controls the look. Defaults
+        // live in :root so the tokens resolve even before the theme attaches.
+        primary: 'var(--primary)', // #6366F1 indigo — the new lead accent
+        'accent-cyan': 'var(--accent-cyan)', // #67E8F9
+        'accent-pink': 'var(--accent-pink)', // #F472B6
       },
 
       // ---- Elevation tokens (NEW, additive) ----
@@ -32,6 +42,9 @@ export default {
       boxShadow: {
         game: '0 2px 6px rgba(15, 23, 42, 0.08), 0 8px 20px rgba(15, 23, 42, 0.06)',
         elevated: '0 10px 30px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.08)',
+        // Indigo-tinted "expensive" glow for hero CTAs / premium surfaces.
+        premium:
+          '0 18px 40px -12px rgba(99, 102, 241, 0.45), 0 6px 16px -8px rgba(15, 23, 42, 0.25)',
       },
 
       // ---- Refined radius scale (NEW, additive) ----
@@ -45,7 +58,11 @@ export default {
       },
 
       fontFamily: {
-        display: ['system-ui', 'Avenir', 'Helvetica', 'Arial', 'sans-serif'],
+        // Inter leads the stack now (loaded in index.html) for a premium, modern
+        // feel with a wide weight range; system-ui is the swap fallback. The
+        // `.font-display` heading class is defined in styles/index.css (it adds
+        // the heavy weight + tight tracking), so no `display` key is needed here.
+        sans: ['Inter', 'system-ui', 'Avenir', 'Helvetica', 'Arial', 'sans-serif'],
       },
     },
   },
