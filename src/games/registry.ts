@@ -22,7 +22,22 @@ export type GameDef = {
   /** How this game taps the three Synapse axes (memory / logic / reflex). */
   axes?: AxisWeights;
   component?: LazyExoticComponent<ComponentType<GameProps>>;
+  /** The raw dynamic import behind `component` — lets the launcher warm the
+   *  game's code chunk during the countdown so it mounts instantly at "GO!". */
+  load?: GameImport;
 };
+
+type GameImport = () => Promise<{ default: ComponentType<GameProps> }>;
+
+// Pairs a lazy component with its raw importer from a single import expression,
+// so the path is declared once and both `component` (render) and `load`
+// (preload) stay in sync.
+function lazyGame(factory: GameImport): {
+  component: LazyExoticComponent<ComponentType<GameProps>>;
+  load: GameImport;
+} {
+  return { component: lazy(factory), load: factory };
+}
 
 // The portfolio: 20 playable games across must-have / recommended / innovative
 // (Clubhouse Games × NYT Games), with chess still teasing the roadmap. Each game
@@ -38,7 +53,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-[#ff3b30] via-[#ffd60a] to-[#34c759]',
     available: true,
     axes: { memory: 0.3, logic: 0.4, reflex: 0.3 },
-    component: lazy(() => import('./cube/CubeGame')),
+    ...lazyGame(() => import('./cube/CubeGame')),
   },
   {
     id: 'sudoku',
@@ -51,7 +66,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 0.8, memory: 0.2 },
-    component: lazy(() => import('./sudoku/SudokuGame')),
+    ...lazyGame(() => import('./sudoku/SudokuGame')),
   },
   {
     id: 'wordle',
@@ -64,7 +79,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { memory: 0.4, logic: 0.5, reflex: 0.1 },
-    component: lazy(() => import('./wordle/WordleGame')),
+    ...lazyGame(() => import('./wordle/WordleGame')),
   },
   {
     id: 'solitaire',
@@ -77,7 +92,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 0.5, memory: 0.3, reflex: 0.2 },
-    component: lazy(() => import('./solitaire/SolitaireGame')),
+    ...lazyGame(() => import('./solitaire/SolitaireGame')),
   },
   {
     id: 'watersort',
@@ -90,7 +105,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 0.7, memory: 0.3 },
-    component: lazy(() => import('./watersort/WaterSortGame')),
+    ...lazyGame(() => import('./watersort/WaterSortGame')),
   },
   {
     id: 'gomoku',
@@ -103,7 +118,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 0.7, reflex: 0.3 },
-    component: lazy(() => import('./gomoku/GomokuGame')),
+    ...lazyGame(() => import('./gomoku/GomokuGame')),
   },
   {
     id: 'colorclash',
@@ -116,7 +131,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { reflex: 0.8, logic: 0.2 },
-    component: lazy(() => import('./colorclash/ColorClashGame')),
+    ...lazyGame(() => import('./colorclash/ColorClashGame')),
   },
   {
     id: 'reaction',
@@ -128,7 +143,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-lime-400 to-green-600',
     available: true,
     axes: { reflex: 1 },
-    component: lazy(() => import('./reaction/ReactionGame')),
+    ...lazyGame(() => import('./reaction/ReactionGame')),
   },
   {
     id: 'simon',
@@ -140,7 +155,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-rose-500 to-pink-600',
     available: true,
     axes: { memory: 0.8, reflex: 0.2 },
-    component: lazy(() => import('./simon/SimonGame')),
+    ...lazyGame(() => import('./simon/SimonGame')),
   },
   {
     id: 'memorygrid',
@@ -152,7 +167,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-violet-500 to-fuchsia-600',
     available: true,
     axes: { memory: 1 },
-    component: lazy(() => import('./memorygrid/MemoryGridGame')),
+    ...lazyGame(() => import('./memorygrid/MemoryGridGame')),
   },
   {
     id: 'whack',
@@ -164,7 +179,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-amber-400 to-orange-600',
     available: true,
     axes: { reflex: 1 },
-    component: lazy(() => import('./whack/WhackGame')),
+    ...lazyGame(() => import('./whack/WhackGame')),
   },
   {
     id: 'memory',
@@ -177,7 +192,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { memory: 1 },
-    component: lazy(() => import('./memory/MemoryGame')),
+    ...lazyGame(() => import('./memory/MemoryGame')),
   },
   {
     id: 'schulte',
@@ -190,7 +205,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { reflex: 0.7, logic: 0.3 },
-    component: lazy(() => import('./schulte/SchulteGame')),
+    ...lazyGame(() => import('./schulte/SchulteGame')),
   },
   {
     id: '2048',
@@ -202,7 +217,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-orange-400 to-red-500',
     available: true,
     axes: { logic: 0.8, memory: 0.2 },
-    component: lazy(() => import('./game2048/Game2048')),
+    ...lazyGame(() => import('./game2048/Game2048')),
   },
   {
     id: 'slide',
@@ -215,7 +230,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 0.7, memory: 0.3 },
-    component: lazy(() => import('./slide/SlideGame')),
+    ...lazyGame(() => import('./slide/SlideGame')),
   },
   {
     id: 'lightsout',
@@ -228,7 +243,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 1 },
-    component: lazy(() => import('./lightsout/LightsOutGame')),
+    ...lazyGame(() => import('./lightsout/LightsOutGame')),
   },
   {
     id: 'mastermind',
@@ -241,7 +256,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 1 },
-    component: lazy(() => import('./mastermind/MastermindGame')),
+    ...lazyGame(() => import('./mastermind/MastermindGame')),
   },
   {
     id: 'minesweeper',
@@ -254,7 +269,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 0.8, memory: 0.2 },
-    component: lazy(() => import('./minesweeper/MinesweeperGame')),
+    ...lazyGame(() => import('./minesweeper/MinesweeperGame')),
   },
   {
     id: 'flood',
@@ -267,7 +282,7 @@ export const GAMES: GameDef[] = [
     available: true,
     hasDifficulty: true,
     axes: { logic: 0.9, reflex: 0.1 },
-    component: lazy(() => import('./flood/FloodGame')),
+    ...lazyGame(() => import('./flood/FloodGame')),
   },
   {
     id: 'pegsolitaire',
@@ -279,7 +294,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-amber-600 to-yellow-800',
     available: true,
     axes: { logic: 1 },
-    component: lazy(() => import('./pegsolitaire/PegSolitaireGame')),
+    ...lazyGame(() => import('./pegsolitaire/PegSolitaireGame')),
   },
   { id: 'chess', nameKey: 'games.chess.name', taglineKey: 'games.chess.tagline', route: '/play/chess', category: 'recommended', emoji: '♟️', gradient: 'from-slate-500 to-slate-700', available: false },
 ];

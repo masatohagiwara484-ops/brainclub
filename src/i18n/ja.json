@@ -1,5 +1,6 @@
 {
   "selector": { "hint": "ドラッグして探す", "play": "プレイ", "loading": "読み込み中…" },
+  "countdown": { "go": "GO!" },
   "app": {
     "name": "BrainClub",
     "tagline": "世界の脳トレが集まるクラブ。毎日、頭を動かそう。"

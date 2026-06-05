@@ -238,4 +238,20 @@ export const sound = {
   playLevelUp() {
     arp([392, 523.25, 659.25, 783.99, 1046.5], 0.07, 'square');
   },
+
+  /**
+   * Countdown beep (3 → 2 → 1). `step` is 0,1,2 so the pitch climbs a rising
+   * major triad (A4 → C#5 → E5) for an escalating, anticipatory feel. Triggered
+   * in the SAME callback that flips the visual number, so audio and the on-screen
+   * pop stay perfectly synchronized.
+   */
+  playCountdownTick(step: number) {
+    const freqs = [440, 554.37, 659.25]; // A4 · C#5 · E5
+    tone(freqs[Math.min(Math.max(step, 0), 2)], 0.17, 'triangle', 0, 0.2);
+  },
+  /** Countdown "GO!" — a bright, satisfying launch chord that resolves up. */
+  playCountdownGo() {
+    arp([523.25, 659.25, 783.99, 1046.5], 0.06, 'triangle'); // C5-E5-G5-C6
+    tone(1318.51, 0.26, 'sine', 0.05, 0.12); // shimmering E6 cap
+  },
 };
