@@ -129,6 +129,39 @@ canvas {
   .bg-neural-animated { animation: none !important; }
 }
 
+/* ============================================================
+   Home hero — floating "brain field" backdrop (instant, CSS-only)
+   ============================================================
+   Powers components/BrainFieldBg.tsx. Pure CSS so the hero *feels* alive the
+   instant the app paints (no JS loop, zero added bundle weight): faint
+   brain/puzzle glyphs drift over soft indigo/cyan/pink orbs. Transform/opacity
+   only → GPU-friendly. Per-element duration/delay/rotation come from inline
+   --dur / --delay / --rot vars so one keyframe serves every floater. */
+@keyframes hero-float {
+  0%   { transform: translateY(0) translateX(0) rotate(var(--rot, 0deg)); }
+  50%  { transform: translateY(-22px) translateX(8px) rotate(calc(var(--rot, 0deg) + 6deg)); }
+  100% { transform: translateY(0) translateX(0) rotate(var(--rot, 0deg)); }
+}
+.hero-float {
+  animation: hero-float var(--dur, 9s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform;
+}
+
+@keyframes hero-orb {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(var(--ox, 20px), var(--oy, -16px)) scale(1.12); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+.hero-orb {
+  animation: hero-orb var(--dur, 18s) ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-float, .hero-orb { animation: none !important; }
+}
+
 /* ---- Word Guess animations ---- */
 /* Pop when a letter is typed into a tile. */
 @keyframes wg-pop {

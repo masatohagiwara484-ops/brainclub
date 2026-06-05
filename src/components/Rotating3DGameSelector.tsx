@@ -676,9 +676,19 @@ function Scene({
 // 2D fallback (reduced motion) — a clean horizontal snap carousel
 // ---------------------------------------------------------------------------
 
-function Fallback2D({ games, t, nav }: { games: GameDef[]; t: TFunction; nav: NavigateFunction }) {
+function Fallback2D({
+  games,
+  t,
+  nav,
+  embedded = false,
+}: {
+  games: GameDef[];
+  t: TFunction;
+  nav: NavigateFunction;
+  embedded?: boolean;
+}) {
   return (
-    <div className="h-full w-full overflow-x-auto" style={{ background: BG }}>
+    <div className="h-full w-full overflow-x-auto" style={embedded ? undefined : { background: BG }}>
       <div className="flex h-full snap-x snap-mandatory items-center gap-4 px-[18vw]">
         {games.map((g) => (
           <button
@@ -702,10 +712,75 @@ function Fallback2D({ games, t, nav }: { games: GameDef[]; t: TFunction; nav: Na
 const BG = 'radial-gradient(120% 90% at 50% 8%, #1e1b4b 0%, #0b1020 58%, #070a14 100%)';
 
 // ---------------------------------------------------------------------------
+// PlayButton — the call-to-action. `big` is the Home-hero variant: a tall,
+// premium PLAY slab (gradient primary→cyan, indigo glow) with a framer-motion
+// spring press. The small variant keeps the original look for the /labs route.
+// ---------------------------------------------------------------------------
+
+function PlayButton({
+  game,
+  onClick,
+  t,
+  big = false,
+}: {
+  game: GameDef;
+  onClick: () => void;
+  t: TFunction;
+  big?: boolean;
+}) {
+  const playLabel = t('selector.play', { defaultValue: 'Play' });
+  if (big) {
+    return (
+      <motion.button
+        onClick={onClick}
+        disabled={!game.available}
+        whileTap={game.available ? { scale: 0.95 } : undefined}
+        whileHover={game.available ? { scale: 1.015 } : undefined}
+        transition={{ type: 'spring', stiffness: 480, damping: 26 }}
+        className={`pointer-events-auto flex h-20 w-full items-center justify-center gap-3 rounded-3xl font-display text-2xl uppercase text-white ${
+          game.available
+            ? 'bg-gradient-to-r from-primary to-accent-cyan tracking-[0.22em] shadow-premium'
+            : 'cursor-not-allowed bg-white/10 tracking-[0.12em] text-white/50'
+        }`}
+        aria-label={game.available ? `${playLabel} ${t(game.nameKey)}` : t('home.comingSoon')}
+      >
+        {game.available ? (
+          <>
+            <span aria-hidden className="text-xl leading-none">
+              ▶
+            </span>
+            {playLabel}
+          </>
+        ) : (
+          t('home.comingSoon')
+        )}
+      </motion.button>
+    );
+  }
+  return (
+    <button
+      onClick={onClick}
+      disabled={!game.available}
+      className={`pointer-events-auto rounded-2xl px-8 py-3 font-display text-base shadow-premium transition-premium active:scale-95 ${
+        game.available ? 'bg-brand text-white hover:bg-brandDark' : 'cursor-not-allowed bg-white/15 text-white/50'
+      }`}
+    >
+      {game.available ? playLabel : t('home.comingSoon')}
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Public component
 // ---------------------------------------------------------------------------
 
-export default function Rotating3DGameSelector() {
+export default function Rotating3DGameSelector({
+  embedded = false,
+}: {
+  /** Home-hero mode: transparent backdrop (so the floating brain field shows
+   *  through) + the large PLAY slab docked below the canvas. */
+  embedded?: boolean;
+} = {}) {
   const { t } = useTranslation();
   const nav = useNavigate();
   const reduced = useMemo(() => prefersReducedMotion(), []);
@@ -725,7 +800,7 @@ export default function Rotating3DGameSelector() {
     haptics.tick();
   }, []);
 
-  if (reduced) return <Fallback2D games={games} t={t} nav={nav} />;
+  if (reduced) return <Fallback2D games={games} t={t} nav={nav} embedded={embedded} />;
 
   const snap = () => {
     drag.current.target = Math.round(drag.current.target / slotAngle) * slotAngle;
@@ -755,59 +830,83 @@ export default function Rotating3DGameSelector() {
     if (game.available) nav(game.route);
   };
 
+  // The drag/spin surface lives on the canvas region so it never fights with the
+  // PLAY slab below it (embedded) or anything else.
+  const dragHandlers = {
+    onPointerDown: onDown,
+    onPointerMove: onMove,
+    onPointerUp: onUp,
+    onPointerLeave: onUp,
+    onPointerCancel: onUp,
+    onWheel,
+  };
+
+  const canvasEl = (
+    <Canvas
+      dpr={[1, 2]}
+      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      camera={{ position: [0, 1.5, 10.4], fov: 32 }}
+      onCreated={({ camera }) => camera.lookAt(0, 0.2, 5.6)}
+    >
+      <Suspense fallback={null}>
+        <Scene games={games} slotAngle={slotAngle} drag={drag} rotRef={rotRef} onSelect={reportIndex} />
+      </Suspense>
+    </Canvas>
+  );
+
+  const hintEl = (
+    <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center pt-4">
+      <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70 backdrop-blur-sm">
+        {t('selector.hint', { defaultValue: 'Drag to explore' })}
+      </span>
+    </div>
+  );
+
+  const nameEl = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={selected}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -16 }}
+        transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+        className="flex flex-col items-center text-center"
+      >
+        <h2 className="font-display text-2xl text-white drop-shadow-lg">{t(game.nameKey)}</h2>
+        <p className="mt-1 max-w-xs text-sm text-white/70">{t(game.taglineKey)}</p>
+      </motion.div>
+    </AnimatePresence>
+  );
+
+  // Home-hero layout: canvas dominates (flex-1), the name/tagline floats at its
+  // base, and the big PLAY slab docks directly below it in normal flow.
+  if (embedded) {
+    return (
+      <div className="flex h-full w-full select-none flex-col overflow-hidden">
+        <div className="relative min-h-0 flex-1" style={{ touchAction: 'none' }} {...dragHandlers}>
+          {canvasEl}
+          {hintEl}
+          <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center px-6">{nameEl}</div>
+        </div>
+        <div className="px-5 pb-3 pt-1">
+          <PlayButton game={game} onClick={play} t={t} big />
+        </div>
+      </div>
+    );
+  }
+
+  // Standalone /labs/selector — the original full-bleed immersive view.
   return (
     <div
       className="relative h-full w-full select-none overflow-hidden"
       style={{ touchAction: 'none', background: BG }}
-      onPointerDown={onDown}
-      onPointerMove={onMove}
-      onPointerUp={onUp}
-      onPointerLeave={onUp}
-      onPointerCancel={onUp}
-      onWheel={onWheel}
+      {...dragHandlers}
     >
-      <Canvas
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-        camera={{ position: [0, 1.5, 10.4], fov: 32 }}
-        onCreated={({ camera }) => camera.lookAt(0, 0.2, 5.6)}
-      >
-        <Suspense fallback={null}>
-          <Scene games={games} slotAngle={slotAngle} drag={drag} rotRef={rotRef} onSelect={reportIndex} />
-        </Suspense>
-      </Canvas>
-
-      {/* Top hint */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center pt-4">
-        <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70 backdrop-blur-sm">
-          {t('selector.hint', { defaultValue: 'Drag to explore' })}
-        </span>
-      </div>
-
-      {/* Name + tagline + CTA overlay */}
+      {canvasEl}
+      {hintEl}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-6 pb-10">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selected}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col items-center text-center"
-          >
-            <h2 className="font-display text-2xl text-white drop-shadow-lg">{t(game.nameKey)}</h2>
-            <p className="mt-1 max-w-xs text-sm text-white/70">{t(game.taglineKey)}</p>
-          </motion.div>
-        </AnimatePresence>
-        <button
-          onClick={play}
-          disabled={!game.available}
-          className={`pointer-events-auto rounded-2xl px-8 py-3 font-display text-base shadow-premium transition-premium active:scale-95 ${
-            game.available ? 'bg-brand text-white hover:bg-brandDark' : 'cursor-not-allowed bg-white/15 text-white/50'
-          }`}
-        >
-          {game.available ? t('selector.play', { defaultValue: 'Play' }) : t('home.comingSoon')}
-        </button>
+        {nameEl}
+        <PlayButton game={game} onClick={play} t={t} />
       </div>
     </div>
   );

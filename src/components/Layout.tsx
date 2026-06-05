@@ -49,7 +49,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       data-contrast={colorBlind ? 'high' : undefined}
       className="flex h-[100dvh] flex-col bg-white text-slate-900"
     >
-      <header className="z-20 flex items-center justify-between border-b border-slate-200 px-3 py-2.5">
+      <header className="z-20 flex items-center justify-between border-b border-slate-200/80 px-3 py-2.5 backdrop-blur-md supports-[backdrop-filter]:bg-white/80">
         {/* Left: profile avatar (or back chevron during a game). Fixed width keeps the brand centered. */}
         <div className="flex w-16 items-center">
           {onPlay ? (
@@ -77,9 +77,11 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
 
         <Link to="/" className="group flex items-center gap-2 tracking-tight">
-          <span className="text-lg transition-premium group-hover:scale-110">🧠</span>
-          {/* Premium wordmark: Inter display weight with an indigo→pink gradient. */}
-          <span className="bg-gradient-to-r from-primary to-accent-pink bg-clip-text font-display text-lg text-transparent">
+          <span className="text-xl transition-premium group-hover:scale-110 group-hover:drop-shadow-[0_0_10px_rgba(99,102,241,0.55)]">
+            🧠
+          </span>
+          {/* Premium wordmark: Inter display weight with an indigo→cyan→pink gradient. */}
+          <span className="bg-gradient-to-r from-primary via-accent-cyan to-accent-pink bg-clip-text font-display text-xl text-transparent">
             {t('app.name')}
           </span>
         </Link>
