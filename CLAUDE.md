@@ -44,8 +44,8 @@ src/
   games/registry.ts      ゲームカタログ（cube/sudoku/solitaire/watersort/gomoku/wordle が稼働、他はavailable:falseで"Coming soon"）
   games/cube/            cubeEngine.ts（Three.js本体＋バグ修正）＋ CubeGame.tsx（React UI）
   games/wordle/          wordGuess.ts（単語リスト/採点ロジック）＋ WordleGame.tsx（Word Guess本体・難易度＝文字数4〜7・デイリー＋練習）
-  components/            Layout, GameCard, Button（共通ボタン＝唯一の真実）, TierPyramid（ティア階段）, SynapseRadar 等
-  pages/                 Home（ハブのゲームグリッド）, GamePage, Score（Synapseスコア＋ティア）
+  components/            Layout, GameCard, Button（共通ボタン＝唯一の真実）, TierPyramid（ティア階段）, SynapseRadar, Rotating3DGameSelector（ホームの3D回転扉セレクター）等
+  pages/                 Home（=3D回転扉ゲームセレクター。旧パネル/グリッド選択は廃止）, GamePage, Score（Synapseスコア＋ティア）
   lib/                   haptics, storage, daily, share, theme（プレミアムトークン+useTheme）,
                          feedback（要素単位の手応え）, fx（画面単位の演出）, tiers（ティア純関数）, synapse, monetization
   i18n/                  en.json（デフォルト）, ja.json

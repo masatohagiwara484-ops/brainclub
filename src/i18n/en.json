@@ -1,5 +1,5 @@
 {
-  "selector": { "hint": "Drag to explore", "play": "Play" },
+  "selector": { "hint": "Drag to explore", "play": "Play", "loading": "Loading…" },
   "app": {
     "name": "BrainClub",
     "tagline": "A worldwide club of brain games. Train your mind, every day."
