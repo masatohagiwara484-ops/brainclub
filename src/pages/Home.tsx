@@ -4,15 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { getStreak } from '../lib/storage';
 import { GAMES } from '../games/registry';
 import BrainFieldBg from '../components/BrainFieldBg';
+import ErrorBoundary from '../components/ErrorBoundary';
 
-// The home screen is built around the 3D rotating-door game selector as its
-// hero: a floating "brain field" backdrop sets the mood the instant the app
-// opens, the wheel dominates the center, and a large premium PLAY slab sits at
-// its base. Drag/swipe the wheel to browse every game, then tap PLAY (or pick a
-// daily favorite below). The heavy 3D stack (three/drei/framer-motion) stays
-// lazy-loaded so the landing — backdrop included — paints instantly and the
-// wheel swaps in.
-const Rotating3DGameSelector = lazy(() => import('../components/Rotating3DGameSelector'));
+// The home screen is built around a Pokémon-TCG-style deck of HOLOGRAPHIC game
+// cards (R3F + a custom foil shader) as its hero: a floating "brain field"
+// backdrop sets the mood the instant the app opens, the holographic card deck
+// dominates the center, and a large premium PLAY slab sits at its base. Swipe to
+// browse (one card snaps in at a time), tilt for the foil parallax, then tap
+// PLAY (or pick a daily favorite below). The heavy 3D stack
+// (three/drei/framer-motion) stays lazy-loaded so the landing — backdrop
+// included — paints instantly and the deck swaps in.
+const Rotating3DGameSelector = lazy(() => import('../components/HolographicCardSelector'));
 
 const BG = 'radial-gradient(120% 90% at 50% 8%, #1e1b4b 0%, #0b1020 58%, #070a14 100%)';
 
@@ -47,19 +49,37 @@ export default function Home() {
         </div>
       )}
 
-      {/* Hero: the 3D rotating selector + its big PLAY slab dominate the screen. */}
+      {/* Hero: the holographic card deck + its big PLAY slab dominate the screen.
+          A boundary degrades a GPU/shader failure to a tappable game grid. */}
       <div className="relative z-10 min-h-0 flex-1">
-        <Suspense
+        <ErrorBoundary
           fallback={
-            <div className="flex h-full w-full items-center justify-center">
-              <div className="animate-[pulse_2s_ease-in-out_infinite] font-display text-sm text-white/70">
-                {t('selector.loading', { defaultValue: 'Loading…' })}
-              </div>
+            <div className="grid h-full w-full grid-cols-2 content-start gap-3 overflow-y-auto p-4">
+              {GAMES.filter((g) => g.available).map((g) => (
+                <button
+                  key={g.id}
+                  onClick={() => nav(g.route)}
+                  className={`flex aspect-[5/6] flex-col rounded-2xl bg-gradient-to-br ${g.gradient} p-3 text-left text-white shadow-elevated active:scale-95`}
+                >
+                  <div className="text-3xl">{g.emoji}</div>
+                  <div className="mt-auto font-display text-sm">{t(g.nameKey)}</div>
+                </button>
+              ))}
             </div>
           }
         >
-          <Rotating3DGameSelector embedded />
-        </Suspense>
+          <Suspense
+            fallback={
+              <div className="flex h-full w-full items-center justify-center">
+                <div className="animate-[pulse_2s_ease-in-out_infinite] font-display text-sm text-white/70">
+                  {t('selector.loading', { defaultValue: 'Loading…' })}
+                </div>
+              </div>
+            }
+          >
+            <Rotating3DGameSelector />
+          </Suspense>
+        </ErrorBoundary>
       </div>
 
       {/* Daily favorites — a slim quick-pick strip tucked under the hero. */}

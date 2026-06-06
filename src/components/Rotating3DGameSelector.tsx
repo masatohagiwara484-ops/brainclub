@@ -643,7 +643,7 @@ const flatText = (s: string, color = '#ffffff') => (
   </Text>
 );
 
-function GameModel({ id, colors, activeRef }: { id: string; colors: Trio; activeRef: ActiveRef }) {
+export function GameModel({ id, colors, activeRef }: { id: string; colors: Trio; activeRef: ActiveRef }) {
   const [base, , glow] = colors;
   switch (id) {
     case 'cube':

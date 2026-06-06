@@ -11,7 +11,7 @@ import { initCloud } from './lib/cloud';
 
 // Heavy 3D flagship (three/drei/framer-motion) — lazy so it stays out of the
 // main bundle and only loads when the /labs/selector route is visited.
-const Rotating3DGameSelector = lazy(() => import('./components/Rotating3DGameSelector'));
+const Rotating3DGameSelector = lazy(() => import('./components/HolographicCardSelector'));
 
 export default function App() {
   // Restore any cloud session and start syncing (no-op without Supabase env).
