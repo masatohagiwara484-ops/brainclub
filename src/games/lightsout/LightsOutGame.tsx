@@ -7,7 +7,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('lightsout')?.axes ?? {};
@@ -65,7 +65,7 @@ export default function LightsOutGame({ difficulty = 'easy' }: GameProps) {
 
   useEffect(() => {
     if (!won) return;
-    fx.win();
+    // Celebration (chime + themed confetti) is owned by GameResultScreen.
     const prev = getSetting<number>(bestKey, 0);
     const better = prev === 0 || moves < prev;
     if (better) {
@@ -122,9 +122,11 @@ export default function LightsOutGame({ difficulty = 'easy' }: GameProps) {
       </div>
 
       {won && (
-        <ProgressResultModal
-          emoji={isBest ? '🏆' : '💡'}
+        <GameResultScreen
+          gameId="lightsout"
+          emoji="💡"
           title={isBest ? t('lightsout.newBest') : t('lightsout.solved')}
+          isNewBest={isBest}
           celebrate
           levelUp={levelUp}
           stats={[
@@ -132,15 +134,12 @@ export default function LightsOutGame({ difficulty = 'easy' }: GameProps) {
             { value: best || moves, label: '🏆' },
             { value: `${n}×${n}`, label: t('difficulty.label') },
           ]}
-          actions={[
-            { label: t('lightsout.again'), onClick: restart, variant: 'primary' },
-            {
-              label: t('lightsout.share'),
-              onClick: () =>
-                doShare(`BrainClub · ${t('games.lightsout.name')} (${t(difficultyKey(difficulty))})\n💡 ${moves} ${t('lightsout.moves')}\n${window.location.origin}`),
-              variant: 'secondary',
-            },
-          ]}
+          onPlayAgain={restart}
+          playAgainLabel={t('lightsout.again')}
+          onShare={() =>
+            doShare(`BrainClub · ${t('games.lightsout.name')} (${t(difficultyKey(difficulty))})\n💡 ${moves} ${t('lightsout.moves')}\n${window.location.origin}`)
+          }
+          shareLabel={t('lightsout.share')}
           shareMsg={shareMsg}
         />
       )}

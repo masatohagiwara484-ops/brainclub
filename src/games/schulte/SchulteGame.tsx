@@ -7,7 +7,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('schulte')?.axes ?? {};
@@ -69,7 +69,7 @@ export default function SchulteGame({ difficulty = 'easy' }: GameProps) {
         const secs = (Date.now() - startRef.current) / 1000;
         setElapsed(secs);
         setDone(true);
-        fx.win();
+        // Celebration (chime + themed confetti) is owned by GameResultScreen.
         const prev = getSetting<number>(bestKey, 0);
         const better = prev === 0 || secs < prev;
         if (better) {
@@ -130,9 +130,11 @@ export default function SchulteGame({ difficulty = 'easy' }: GameProps) {
       </div>
 
       {done && (
-        <ProgressResultModal
-          emoji={isBest ? '🏆' : '🧭'}
+        <GameResultScreen
+          gameId="schulte"
+          emoji="🧭"
           title={isBest ? t('schulte.newBest') : t('schulte.solved')}
+          isNewBest={isBest}
           celebrate
           levelUp={levelUp}
           stats={[
@@ -140,15 +142,12 @@ export default function SchulteGame({ difficulty = 'easy' }: GameProps) {
             { value: `${best || elapsed.toFixed(1)}s`, label: '🏆' },
             { value: `${n}×${n}`, label: t('difficulty.label') },
           ]}
-          actions={[
-            { label: t('schulte.again'), onClick: restart, variant: 'primary' },
-            {
-              label: t('schulte.share'),
-              onClick: () =>
-                doShare(`BrainClub · ${t('games.schulte.name')} (${t(difficultyKey(difficulty))})\n🧭 ${elapsed.toFixed(1)}s\n${window.location.origin}`),
-              variant: 'secondary',
-            },
-          ]}
+          onPlayAgain={restart}
+          playAgainLabel={t('schulte.again')}
+          onShare={() =>
+            doShare(`BrainClub · ${t('games.schulte.name')} (${t(difficultyKey(difficulty))})\n🧭 ${elapsed.toFixed(1)}s\n${window.location.origin}`)
+          }
+          shareLabel={t('schulte.share')}
           shareMsg={shareMsg}
         />
       )}

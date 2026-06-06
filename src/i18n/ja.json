@@ -355,6 +355,15 @@
     "play": "遊ぶほど脳のプロフィールが育ちます。"
   },
   "share": { "shared": "シェアしました！", "copied": "コピーしました！", "failed": "シェアできませんでした。" },
+  "result": {
+    "brainBoosted": "脳がブースト！",
+    "newBest": "自己ベスト更新！",
+    "synapseScore": "シナプススコア",
+    "toNext": "次の{{tier}}まで{{n}}",
+    "maxTier": "最高ティア到達",
+    "playAgain": "もう一度",
+    "share": "結果をシェア"
+  },
   "games": {
     "cube": { "name": "ルービックキューブ 3D", "tagline": "空間認識 · 2×2〜5×5" },
     "sudoku": { "name": "ナンプレ", "tagline": "論理 · 無限の問題" },

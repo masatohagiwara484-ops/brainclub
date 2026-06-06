@@ -5,7 +5,7 @@ import { getSetting, setSetting } from '../../lib/storage';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('2048')?.axes ?? {};
@@ -126,7 +126,8 @@ export default function Game2048(_: GameProps) {
         setScore(scoreRef.current);
         if (!hasMoves(withSpawn, N)) {
           setOver(true);
-          fx.win();
+          // Celebration (chime + themed confetti) is owned by GameResultScreen,
+          // and only fires on a new best (see `celebrate` below).
           const final = scoreRef.current;
           if (final > getSetting<number>(BEST_KEY, 0)) {
             setBest(final);
@@ -203,25 +204,23 @@ export default function Game2048(_: GameProps) {
       </div>
 
       {over && (
-        <ProgressResultModal
+        <GameResultScreen
+          gameId="2048"
           emoji="🔢"
           title={t('g2048.gameOver')}
           subtitle={`${t('g2048.score')} ${score}`}
           celebrate={score >= best && score > 0}
+          isNewBest={score >= best && score > 0}
           levelUp={levelUp}
           stats={[
             { value: score, label: t('g2048.score') },
             { value: best, label: '🏆' },
             { value: Math.max(...board), label: t('g2048.best') },
           ]}
-          actions={[
-            { label: t('g2048.again'), onClick: newGame, variant: 'primary' },
-            {
-              label: t('g2048.share'),
-              onClick: () => doShare(`BrainClub · ${t('games.2048.name')}\n🔢 ${score}\n${window.location.origin}`),
-              variant: 'secondary',
-            },
-          ]}
+          onPlayAgain={newGame}
+          playAgainLabel={t('g2048.again')}
+          onShare={() => doShare(`BrainClub · ${t('games.2048.name')}\n🔢 ${score}\n${window.location.origin}`)}
+          shareLabel={t('g2048.share')}
           shareMsg={shareMsg}
         />
       )}

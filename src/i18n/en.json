@@ -355,6 +355,15 @@
     "play": "Play to grow your brain profile."
   },
   "share": { "shared": "Shared!", "copied": "Copied to clipboard!", "failed": "Could not share." },
+  "result": {
+    "brainBoosted": "BRAIN BOOSTED!",
+    "newBest": "New Personal Best!",
+    "synapseScore": "Synapse Score",
+    "toNext": "{{n}} to {{tier}}",
+    "maxTier": "Peak tier reached",
+    "playAgain": "Play Again",
+    "share": "Share Result"
+  },
   "games": {
     "cube": { "name": "Rubik's Cube 3D", "tagline": "Spatial reasoning · 2×2 to 5×5" },
     "sudoku": { "name": "Sudoku", "tagline": "Logic · infinite puzzles" },
