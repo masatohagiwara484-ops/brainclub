@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey } from '../../lib/difficulty';
 import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('slide')?.axes ?? {};
@@ -101,31 +102,26 @@ export default function SlideGame({ difficulty = 'easy' }: GameProps) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      difficulty={difficulty}
+      stat={
+        <>
           {moves} {t('slide.moves')}
-        </span>
-        <span className="text-xs font-semibold tabular-nums text-slate-400">🏆 {best || '—'}</span>
-      </div>
-
+        </>
+      }
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">🏆 {best || '—'}</span>}
+    >
       <div className="flex flex-1 items-center justify-center">
         <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${n}, minmax(0,1fr))`, width: 'min(86vw, 360px)' }}>
           {board.map((v, i) =>
             v === 0 ? (
-              <div key={i} className="aspect-square rounded-xl bg-slate-100" />
+              <div key={i} className="aspect-square rounded-xl bg-white/[0.04]" />
             ) : (
               <button
                 key={i}
                 onClick={() => tap(i)}
                 className={`aspect-square rounded-xl text-xl font-bold tabular-nums shadow-sm transition active:scale-95 ${
-                  movable.has(i) ? 'bg-brand text-white' : 'bg-white text-slate-700 ring-1 ring-slate-200'
+                  movable.has(i) ? 'bg-gradient-to-br from-primary to-accent-cyan text-white' : 'bg-white/[0.08] text-white ring-1 ring-white/10'
                 }`}
               >
                 {v}
@@ -159,6 +155,6 @@ export default function SlideGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

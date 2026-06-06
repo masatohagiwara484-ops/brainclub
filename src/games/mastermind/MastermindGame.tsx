@@ -1,12 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey } from '../../lib/difficulty';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('mastermind')?.axes ?? {};
@@ -110,32 +111,28 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
     Array.from({ length: n }, (_, k) => <span key={`${i}-${k}`} className={`h-2 w-2 rounded-full ${cls}`} />);
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      difficulty={difficulty}
+      stat={
+        <>
           {rows.length}/{cfg.tries}
-        </span>
-        <span className="text-xs font-semibold text-slate-400">🎯 {cfg.pegs}</span>
-      </div>
-
-      <div className="mt-3 flex w-full max-w-xs flex-1 flex-col gap-1.5 overflow-y-auto">
+        </>
+      }
+      action={<span className="text-xs font-semibold text-white/60">🎯 {cfg.pegs}</span>}
+      scroll={false}
+    >
+      <div className="mt-3 flex w-full max-w-xs min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto">
         {rows.map((r, i) => (
-          <div key={i} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-1.5">
+          <div key={i} className="flex items-center justify-between rounded-xl bg-white/[0.05] px-3 py-1.5 ring-1 ring-white/8">
             <div className="flex gap-1.5">
               {r.guess.map((g, k) => (
                 <span key={k} className="h-6 w-6 rounded-full" style={{ backgroundColor: PALETTE[g] }} />
               ))}
             </div>
             <div className="grid grid-cols-2 gap-0.5">
-              {pegDot(i, r.exact, 'bg-slate-800')}
-              {pegDot(i, r.color, 'bg-slate-400')}
-              {pegDot(i, cfg.pegs - r.exact - r.color, 'bg-slate-200')}
+              {pegDot(i, r.exact, 'bg-white')}
+              {pegDot(i, r.color, 'bg-white/50')}
+              {pegDot(i, cfg.pegs - r.exact - r.color, 'bg-white/15')}
             </div>
           </div>
         ))}
@@ -147,8 +144,8 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
                 key={i}
                 onClick={() => clearSlot(i)}
                 className={`h-8 w-8 rounded-full border-2 ${
-                  g >= 0 ? 'border-transparent' : 'border-dashed border-slate-300'
-                } ${i === activeSlot ? 'ring-2 ring-brand' : ''}`}
+                  g >= 0 ? 'border-transparent' : 'border-dashed border-white/30'
+                } ${i === activeSlot ? 'ring-2 ring-accent-cyan' : ''}`}
                 style={g >= 0 ? { backgroundColor: PALETTE[g] } : undefined}
               />
             ))}
@@ -157,7 +154,7 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
       </div>
 
       {status === 'play' && (
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md pt-2">
           <div className="mb-2 flex flex-wrap justify-center gap-2">
             {PALETTE.slice(0, cfg.colors).map((hex, i) => (
               <button
@@ -172,7 +169,7 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
           <button
             onClick={submit}
             disabled={!full}
-            className="w-full rounded-2xl bg-brand py-3 font-bold text-white disabled:opacity-40"
+            className="w-full rounded-2xl bg-gradient-to-r from-primary to-accent-cyan py-3 font-bold text-white shadow-premium disabled:opacity-40"
           >
             {t('mastermind.guess')}
           </button>
@@ -207,6 +204,6 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
           </div>
         </GameResultScreen>
       )}
-    </div>
+    </GameShell>
   );
 }

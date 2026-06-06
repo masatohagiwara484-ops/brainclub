@@ -5,4 +5,5 @@
 // Add an id here as each game is converted.
 export const DARK_GAMES = new Set<string>([
   'sudoku', 'schulte', 'lightsout', 'simon', 'whack', 'memorygrid',
+  'memory', 'mastermind', '2048', 'slide',
 ]);

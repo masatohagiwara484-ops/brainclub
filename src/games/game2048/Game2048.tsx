@@ -6,6 +6,7 @@ import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell, { ShellButton } from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('2048')?.axes ?? {};
@@ -172,30 +173,26 @@ export default function Game2048(_: GameProps) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <button onClick={newGame} className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-          {t('g2048.newGame')}
-        </button>
-        <span className="font-semibold tabular-nums text-slate-700">⭐ {score}</span>
-        <span className="text-xs font-semibold tabular-nums text-slate-400">🏆 {best}</span>
-      </div>
-
-      <p className="mt-2 text-xs text-slate-400">{t('g2048.howto')}</p>
+    <GameShell
+      left={<ShellButton onClick={newGame}>{t('g2048.newGame')}</ShellButton>}
+      stat={<>⭐ {score}</>}
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">🏆 {best}</span>}
+    >
+      <p className="mt-1 text-xs text-white/50">{t('g2048.howto')}</p>
 
       <div className="flex flex-1 items-center justify-center">
         <div
           onPointerDown={(e) => (start.current = { x: e.clientX, y: e.clientY })}
           onPointerUp={onUp}
-          className="grid touch-none gap-2 rounded-2xl bg-slate-200 p-2"
+          className="grid touch-none gap-2 rounded-2xl bg-slate-900/60 p-2 ring-1 ring-white/10"
           style={{ gridTemplateColumns: `repeat(${N}, minmax(0,1fr))`, width: 'min(88vw, 360px)' }}
         >
           {board.map((v, i) => (
             <div
               key={i}
-              className={`grid aspect-square place-items-center rounded-lg font-bold tabular-nums ${TILE[v] ?? 'bg-[#edc22e] text-white'} ${
-                v >= 1024 ? 'text-lg' : 'text-2xl'
-              }`}
+              className={`grid aspect-square place-items-center rounded-lg font-bold tabular-nums ${
+                v === 0 ? 'bg-white/[0.04]' : TILE[v] ?? 'bg-[#edc22e] text-white'
+              } ${v >= 1024 ? 'text-lg' : 'text-2xl'}`}
             >
               {v || ''}
             </div>
@@ -224,6 +221,6 @@ export default function Game2048(_: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

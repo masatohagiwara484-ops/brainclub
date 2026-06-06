@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey } from '../../lib/difficulty';
 import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('memory')?.axes ?? {};
@@ -102,20 +103,15 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      difficulty={difficulty}
+      stat={
+        <>
           {moves} {t('memory.moves')}
-        </span>
-        <span className="text-xs font-semibold tabular-nums text-slate-400">🏆 {best || '—'}</span>
-      </div>
-
+        </>
+      }
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">🏆 {best || '—'}</span>}
+    >
       <div className="flex flex-1 items-center justify-center">
         <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0,1fr))`, width: 'min(88vw, 380px)' }}>
           {deck.map((face, i) => {
@@ -125,7 +121,7 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
                 key={i}
                 onClick={() => flip(i)}
                 className={`grid aspect-square place-items-center rounded-xl text-2xl transition active:scale-95 ${
-                  open ? 'bg-white ring-2 ring-brand/40' : 'bg-brand text-transparent'
+                  open ? 'bg-white ring-2 ring-accent-cyan/50' : 'bg-gradient-to-br from-primary to-indigo-700 text-transparent'
                 } ${matched.has(i) ? 'opacity-50' : ''}`}
               >
                 <span className={open ? '' : 'opacity-0'}>{FACES[face]}</span>
@@ -159,6 +155,6 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }
