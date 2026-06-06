@@ -188,6 +188,7 @@ export class CubeEngine {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    if (!this.timerRunning && this.moveCount === 0) this.fitCamera();
   }
 
   dispose() {
@@ -485,10 +486,19 @@ export class CubeEngine {
   // ---------- camera ----------
   private fitCamera() {
     const d = this.N * STEP;
-    this.camera.position.set(d * 1.5, d * 1.25, d * 1.9);
-    this.controls.target.set(0, 0, 0);
-    this.controls.minDistance = d * 1.2;
-    this.controls.maxDistance = d * 5;
+    const w = this.canvas.clientWidth || window.innerWidth;
+    const h = this.canvas.clientHeight || window.innerHeight;
+    const portrait = h > w * 1.15;
+    this.camera.fov = portrait ? 48 : 45;
+    this.camera.position.set(
+      d * (portrait ? 2.05 : 1.5),
+      d * (portrait ? 1.6 : 1.25),
+      d * (portrait ? 2.75 : 1.9),
+    );
+    this.controls.target.set(0, portrait ? 0.18 : 0, 0);
+    this.controls.minDistance = d * (portrait ? 2.2 : 1.2);
+    this.controls.maxDistance = d * 5.8;
+    this.camera.updateProjectionMatrix();
     this.controls.update();
   }
 

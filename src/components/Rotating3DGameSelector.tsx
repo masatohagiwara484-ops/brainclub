@@ -1,6 +1,7 @@
 import {
   Suspense,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -36,6 +37,8 @@ import { gameColors, type Trio } from '../lib/gamePalette';
 
 const RADIUS = 6.2; // ring radius — sized so 21 slots don't overlap
 const DRAG_SPEED = 0.009; // radians of rotation per pixel dragged
+const TAP_DISTANCE = 12;
+const MOBILE_QUERY = '(max-width: 640px)';
 
 type ActiveRef = MutableRefObject<boolean>;
 
@@ -452,6 +455,109 @@ function DefaultModel({ colors }: { colors: Trio }) {
   );
 }
 
+function useCompactViewport() {
+  const [compact, setCompact] = useState(() =>
+    typeof window === 'undefined' ? false : window.matchMedia(MOBILE_QUERY).matches,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const sync = () => setCompact(mq.matches);
+    sync();
+    mq.addEventListener?.('change', sync);
+    return () => mq.removeEventListener?.('change', sync);
+  }, []);
+
+  return compact;
+}
+
+function HologramCard({
+  colors,
+  activeRef,
+  compact,
+}: {
+  colors: Trio;
+  activeRef: ActiveRef;
+  compact: boolean;
+}) {
+  const group = useRef<THREE.Group>(null);
+  const cardMat = useRef<THREE.MeshStandardMaterial>(null);
+  const shineMat = useRef<THREE.MeshBasicMaterial>(null);
+  const [base, accent, glow] = colors;
+  const sparklePositions = useMemo(
+    () =>
+      Array.from({ length: compact ? 5 : 7 }, (_, i) => {
+        const a = i * 1.71;
+        return [Math.sin(a) * 0.56, Math.cos(a * 1.23) * 0.72, 0.08] as [number, number, number];
+      }),
+    [compact],
+  );
+
+  useFrame((s, dt) => {
+    const active = activeRef.current;
+    if (group.current) {
+      group.current.position.y = THREE.MathUtils.damp(
+        group.current.position.y,
+        active ? 0.1 + Math.sin(s.clock.elapsedTime * 1.5) * 0.025 : 0,
+        7,
+        Math.min(dt, 0.05),
+      );
+      group.current.rotation.z = THREE.MathUtils.damp(
+        group.current.rotation.z,
+        active ? Math.sin(s.clock.elapsedTime * 0.9) * 0.035 : 0,
+        6,
+        Math.min(dt, 0.05),
+      );
+    }
+    if (cardMat.current) {
+      cardMat.current.opacity = active ? 0.34 : 0.18;
+      cardMat.current.emissiveIntensity = active ? 0.45 + Math.sin(s.clock.elapsedTime * 2.2) * 0.18 : 0.18;
+    }
+    if (shineMat.current) {
+      shineMat.current.opacity = active ? 0.3 + Math.sin(s.clock.elapsedTime * 3.1) * 0.12 : 0.08;
+    }
+  });
+
+  return (
+    <group ref={group} position={[0, 0.08, -0.2]} rotation={[-0.08, 0, 0]}>
+      <mesh position={[0, 0, -0.04]}>
+        <boxGeometry args={[1.48, 2.02, 0.035]} />
+        <meshStandardMaterial
+          ref={cardMat}
+          color={base}
+          emissive={glow}
+          emissiveIntensity={0.22}
+          transparent
+          opacity={0.2}
+          roughness={0.18}
+          metalness={0.75}
+        />
+      </mesh>
+      <mesh position={[0, 0.03, 0.01]} rotation={[0, 0, -0.55]}>
+        <planeGeometry args={[0.22, 2.2]} />
+        <meshBasicMaterial
+          ref={shineMat}
+          color="#ffffff"
+          transparent
+          opacity={0.14}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh position={[0, 0, 0.015]}>
+        <planeGeometry args={[1.32, 1.82]} />
+        <meshBasicMaterial color={accent} transparent opacity={0.08} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </mesh>
+      {sparklePositions.map((p, i) => (
+        <mesh key={i} position={p}>
+          <sphereGeometry args={[i % 2 === 0 ? 0.025 : 0.018, 8, 8]} />
+          <meshBasicMaterial color={i % 2 === 0 ? glow : '#ffffff'} transparent opacity={0.78} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 // Flat number/letter helper for grid motifs.
 const flatText = (s: string, color = '#ffffff') => (
   <Text position={[0, 0.34, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.3} color={color} anchorX="center" anchorY="middle">
@@ -555,11 +661,13 @@ function Slot({
   colors,
   baseAngle,
   rotRef,
+  compact,
 }: {
   game: GameDef;
   colors: Trio;
   baseAngle: number;
   rotRef: MutableRefObject<number>;
+  compact: boolean;
 }) {
   const group = useRef<THREE.Group>(null);
   const halo = useRef<THREE.Mesh>(null);
@@ -576,7 +684,8 @@ function Slot({
     const intensity = fc * fc;
     activeRef.current = fc > 0.6;
     if (group.current) {
-      const s = THREE.MathUtils.damp(group.current.scale.x, 1 + intensity * 0.45, 9, d);
+      const baseScale = compact ? 0.72 : 1;
+      const s = THREE.MathUtils.damp(group.current.scale.x, baseScale * (1 + intensity * 0.36), 9, d);
       group.current.scale.setScalar(s);
     }
     if (halo.current) (halo.current.material as THREE.MeshBasicMaterial).opacity = intensity * 0.55;
@@ -586,6 +695,7 @@ function Slot({
   return (
     <group position={[x, 0, z]} rotation={[0, baseAngle, 0]}>
       <group ref={group}>
+        <HologramCard colors={colors} activeRef={activeRef} compact={compact} />
         <mesh ref={halo} position={[0, 0.3, -0.5]}>
           <circleGeometry args={[1.15, 40]} />
           <meshBasicMaterial color={glow} transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} />
@@ -616,12 +726,14 @@ function Scene({
   drag,
   rotRef,
   onSelect,
+  compact,
 }: {
   games: GameDef[];
   slotAngle: number;
   drag: MutableRefObject<{ target: number; dragging: boolean }>;
   rotRef: MutableRefObject<number>;
   onSelect: (i: number) => void;
+  compact: boolean;
 }) {
   const ring = useRef<THREE.Group>(null);
   useFrame((_, dt) => {
@@ -638,9 +750,9 @@ function Scene({
       <directionalLight position={[5, 7, 6]} intensity={2.0} color="#ffffff" />
       <pointLight position={[-6, 3, -4]} intensity={30} color={palette.accentCyan} distance={28} />
       <pointLight position={[5, -2, 5]} intensity={18} color={palette.accentPink} distance={28} />
-      <group ref={ring}>
+      <group ref={ring} scale={compact ? 0.82 : 1}>
         {games.map((g, i) => (
-          <Slot key={g.id} game={g} colors={getColors(g.id)} baseAngle={i * slotAngle} rotRef={rotRef} />
+          <Slot key={g.id} game={g} colors={getColors(g.id)} baseAngle={i * slotAngle} rotRef={rotRef} compact={compact} />
         ))}
       </group>
     </>
@@ -712,7 +824,7 @@ function PlayButton({
         whileTap={game.available ? { scale: 0.95 } : undefined}
         whileHover={game.available ? { scale: 1.015 } : undefined}
         transition={{ type: 'spring', stiffness: 480, damping: 26 }}
-        className={`pointer-events-auto flex h-20 w-full items-center justify-center gap-3 rounded-3xl font-display text-2xl uppercase text-white ${
+        className={`pointer-events-auto flex h-16 w-full items-center justify-center gap-3 rounded-panel font-display text-xl uppercase text-white sm:h-20 sm:text-2xl ${
           game.available
             ? 'bg-gradient-to-r from-primary to-accent-cyan tracking-[0.22em] shadow-premium'
             : 'cursor-not-allowed bg-white/10 tracking-[0.12em] text-white/50'
@@ -759,12 +871,16 @@ export default function Rotating3DGameSelector({
   const { t } = useTranslation();
   const nav = useNavigate();
   const reduced = useMemo(() => prefersReducedMotion(), []);
+  const compact = useCompactViewport();
   const games = GAMES;
   const slotAngle = (Math.PI * 2) / games.length;
 
   const drag = useRef({ target: 0, dragging: false });
   const rotRef = useRef(0);
   const lastX = useRef(0);
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const moved = useRef(0);
   const lastIdx = useRef(-1);
   const [selected, setSelected] = useState(0);
 
@@ -777,34 +893,47 @@ export default function Rotating3DGameSelector({
 
   if (reduced) return <Fallback2D games={games} t={t} nav={nav} embedded={embedded} />;
 
+  const game = games[selected];
+  const play = useCallback(() => {
+    if (game.available) {
+      haptics.success();
+      nav(game.route);
+    }
+  }, [game, nav]);
+
   const snap = () => {
     drag.current.target = Math.round(drag.current.target / slotAngle) * slotAngle;
   };
   const onDown = (e: React.PointerEvent) => {
     drag.current.dragging = true;
     lastX.current = e.clientX;
+    startX.current = e.clientX;
+    startY.current = e.clientY;
+    moved.current = 0;
     (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
   };
   const onMove = (e: React.PointerEvent) => {
     if (!drag.current.dragging) return;
-    drag.current.target -= (e.clientX - lastX.current) * DRAG_SPEED;
+    const dx = e.clientX - lastX.current;
+    drag.current.target -= dx * DRAG_SPEED;
+    moved.current += Math.abs(dx);
     lastX.current = e.clientX;
   };
-  const onUp = () => {
+  const onUp = (e: React.PointerEvent) => {
     if (!drag.current.dragging) return;
     drag.current.dragging = false;
-    snap();
+    const distance = Math.hypot(e.clientX - startX.current, e.clientY - startY.current);
+    if (distance < TAP_DISTANCE && moved.current < TAP_DISTANCE) {
+      play();
+    } else {
+      snap();
+    }
+    (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
   };
   const onWheel = (e: React.WheelEvent) => {
     drag.current.target += Math.sign(e.deltaY) * slotAngle;
     snap();
   };
-
-  const game = games[selected];
-  const play = () => {
-    if (game.available) nav(game.route);
-  };
-
   // The drag/spin surface lives on the canvas region so it never fights with the
   // PLAY slab below it (embedded) or anything else.
   const dragHandlers = {
@@ -820,11 +949,11 @@ export default function Rotating3DGameSelector({
     <Canvas
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      camera={{ position: [0, 1.5, 10.4], fov: 32 }}
-      onCreated={({ camera }) => camera.lookAt(0, 0.2, 5.6)}
+      camera={{ position: compact ? [0, 1.2, 13.6] : [0, 1.5, 10.4], fov: compact ? 27 : 32 }}
+      onCreated={({ camera }) => camera.lookAt(0, compact ? 0.12 : 0.2, compact ? 6.8 : 5.6)}
     >
       <Suspense fallback={null}>
-        <Scene games={games} slotAngle={slotAngle} drag={drag} rotRef={rotRef} onSelect={reportIndex} />
+        <Scene games={games} slotAngle={slotAngle} drag={drag} rotRef={rotRef} onSelect={reportIndex} compact={compact} />
       </Suspense>
     </Canvas>
   );
@@ -832,7 +961,7 @@ export default function Rotating3DGameSelector({
   const hintEl = (
     <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center pt-4">
       <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70 backdrop-blur-sm">
-        {t('selector.hint', { defaultValue: 'Drag to explore' })}
+        {t('selector.hint', { defaultValue: 'Drag to explore · tap to play' })}
       </span>
     </div>
   );
@@ -858,12 +987,12 @@ export default function Rotating3DGameSelector({
   if (embedded) {
     return (
       <div className="flex h-full w-full select-none flex-col overflow-hidden">
-        <div className="relative min-h-0 flex-1" style={{ touchAction: 'none' }} {...dragHandlers}>
+        <div className="relative min-h-0 flex-1 cursor-pointer" style={{ touchAction: 'none' }} {...dragHandlers}>
           {canvasEl}
           {hintEl}
           <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center px-6">{nameEl}</div>
         </div>
-        <div className="px-5 pb-3 pt-1">
+        <div className="px-5 pb-2 pt-1 sm:pb-3">
           <PlayButton game={game} onClick={play} t={t} big />
         </div>
       </div>

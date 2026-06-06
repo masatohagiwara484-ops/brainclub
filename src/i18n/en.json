@@ -1,5 +1,5 @@
 {
-  "selector": { "hint": "Drag to explore", "play": "Play", "loading": "Loading…" },
+  "selector": { "hint": "Drag to explore · tap to play", "play": "Play", "loading": "Loading…" },
   "countdown": { "go": "GO!" },
   "app": {
     "name": "BrainClub",
