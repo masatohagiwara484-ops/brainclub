@@ -12,6 +12,7 @@ import BgmController from './BgmController';
 import { Icon } from './Icons';
 import Button from './Button';
 import { useTheme } from '../lib/theme';
+import { DARK_GAMES } from './darkGames';
 
 // Universal layout (chess.com-style shell): a slim header with the profile on
 // the left, brand in the center, and a Premium shortcut on the right, plus a
@@ -41,10 +42,12 @@ export default function Layout({ children }: { children: ReactNode }) {
   const h = useHowto();
   const onPlay = loc.pathname.startsWith('/play/');
   const playId = onPlay ? loc.pathname.split('/')[2] : null;
-  // The home is one immersive dark surface — give it transparent/dark chrome so
-  // the header + bottom bar blend into the hero instead of clashing as a white
-  // strip. Light pages (games/score/settings) keep the frosted-white chrome.
-  const darkChrome = loc.pathname === '/';
+  // Dark chrome on the immersive home and on any game already migrated to the
+  // dark premium GameShell — so the shared header + root blend in rather than
+  // clashing as a white strip. Light pages (and not-yet-migrated games) keep the
+  // frosted-white chrome. As each game is converted (added to DARK_GAMES) its
+  // header darkens automatically.
+  const darkChrome = loc.pathname === '/' || (onPlay && !!playId && DARK_GAMES.has(playId));
 
   return (
     <div
@@ -72,7 +75,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               aria-label={t('nav.back')}
               leftIcon="back"
               iconClassName="h-6 w-6"
-              className="h-9 w-9 !rounded-full !p-0 !text-slate-500"
+              className={`h-9 w-9 !rounded-full !p-0 ${darkChrome ? '!text-white/80 hover:!bg-white/10' : '!text-slate-500'}`}
             />
           ) : (
             <Link
@@ -104,7 +107,9 @@ export default function Layout({ children }: { children: ReactNode }) {
             playId && (
               <button
                 onClick={() => h.open(playId)}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
+                className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                  darkChrome ? 'text-white/80 hover:bg-white/10' : 'text-slate-500 hover:bg-slate-100'
+                }`}
                 aria-label={t('howto.help')}
                 title={t('howto.help')}
               >

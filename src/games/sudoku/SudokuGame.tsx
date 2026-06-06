@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makePuzzle, cell, N, type Grid, type Puzzle } from './sudokuGen';
-import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
+import { type Difficulty } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
 import { fx } from '../../lib/fx';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell, { ShellButton } from '../../components/GameShell';
 
 const AXES = getGame('sudoku')?.axes ?? {};
 // Target solve times (seconds) per difficulty — beating them nudges quality up.
@@ -219,32 +220,19 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const selCol = selected != null ? selected % N : -1;
 
   return (
-    <div className="flex h-full flex-col items-center overflow-y-auto px-4 py-3">
-      {/* Controls header */}
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">⏱ {fmt(seconds)}</span>
-        <button
-          onClick={() => generate(difficulty)}
-          className="rounded-xl bg-slate-100 px-3 py-1.5 font-semibold text-slate-700 shadow-sm hover:bg-slate-200 active:scale-95"
-        >
-          {t('sudoku.newGame')}
-        </button>
-      </div>
-
+    <GameShell
+      difficulty={difficulty}
+      stat={<>⏱ {fmt(seconds)}</>}
+      action={<ShellButton onClick={() => generate(difficulty)}>{t('sudoku.newGame')}</ShellButton>}
+    >
       {/* Board */}
-      <div className="relative mt-3 w-full max-w-md">
+      <div className="relative mt-2 w-full max-w-md">
         {!data ? (
-          <div className="grid aspect-square place-items-center text-slate-400">
+          <div className="grid aspect-square place-items-center text-white/50">
             {t('sudoku.generating')}
           </div>
         ) : (
-          <div className="grid aspect-square grid-cols-9 overflow-hidden rounded-xl border-2 border-slate-800 bg-white">
+          <div className="grid aspect-square grid-cols-9 overflow-hidden rounded-2xl border-2 border-white/20 bg-slate-900/50 shadow-elevated ring-1 ring-white/5">
             {values.map((v, i) => {
               const r = Math.floor(i / N);
               const c = i % N;
@@ -255,21 +243,21 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
               const conflict = conflicts.has(i);
 
               const borders = [
-                'border-slate-200',
-                c % 3 === 0 && c !== 0 ? 'border-l-2 border-l-slate-800' : '',
-                r % 3 === 0 && r !== 0 ? 'border-t-2 border-t-slate-800' : '',
+                'border-white/10',
+                c % 3 === 0 && c !== 0 ? 'border-l-2 border-l-white/30' : '',
+                r % 3 === 0 && r !== 0 ? 'border-t-2 border-t-white/30' : '',
               ].join(' ');
 
-              let bg = 'bg-white';
-              if (isSel) bg = 'bg-blue-200';
-              else if (sameVal) bg = 'bg-blue-100';
-              else if (inLine) bg = 'bg-slate-50';
+              let bg = 'bg-transparent';
+              if (isSel) bg = 'bg-primary/40';
+              else if (sameVal) bg = 'bg-primary/20';
+              else if (inLine) bg = 'bg-white/[0.06]';
 
               const text = conflict
-                ? 'text-red-500'
+                ? 'text-rose-400'
                 : isGiven
-                  ? 'text-slate-900'
-                  : 'text-brand';
+                  ? 'text-white'
+                  : 'text-accent-cyan';
 
               const glowing = glow.cells.has(i);
 
@@ -296,14 +284,14 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
           <button
             key={n}
             onClick={() => place(n)}
-            className="aspect-square rounded-xl bg-slate-100 text-xl font-bold text-slate-800 shadow-sm transition hover:bg-blue-100 active:scale-95"
+            className="aspect-square rounded-xl bg-white/[0.08] text-xl font-bold text-white shadow-sm ring-1 ring-white/10 transition hover:bg-primary/30 active:scale-95"
           >
             {n}
           </button>
         ))}
         <button
           onClick={erase}
-          className="aspect-square rounded-xl bg-slate-100 text-lg text-slate-500 shadow-sm transition hover:bg-slate-200 active:scale-95"
+          className="aspect-square rounded-xl bg-white/[0.08] text-lg text-white/70 shadow-sm ring-1 ring-white/10 transition hover:bg-white/[0.16] active:scale-95"
           aria-label={t('sudoku.erase')}
         >
           ⌫
@@ -328,6 +316,6 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }
