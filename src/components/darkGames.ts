@@ -3,4 +3,6 @@
 // dark for exactly these games — letting the full-dark rollout proceed one game
 // at a time without the un-converted (still light) games getting a dark header.
 // Add an id here as each game is converted.
-export const DARK_GAMES = new Set<string>(['sudoku']);
+export const DARK_GAMES = new Set<string>([
+  'sudoku', 'schulte', 'lightsout', 'simon', 'whack', 'memorygrid',
+]);

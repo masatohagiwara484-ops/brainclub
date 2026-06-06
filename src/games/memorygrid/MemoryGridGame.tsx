@@ -6,6 +6,7 @@ import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('memorygrid')?.axes ?? {};
@@ -93,26 +94,26 @@ export default function MemoryGridGame(_: GameProps) {
   const reached = Math.max(0, level - 1);
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      stat={
+        <>
           {t('memorygrid.level')} {level}
-        </span>
-        <span className="text-xs font-semibold tabular-nums text-slate-400">🏆 {best}</span>
-      </div>
-
+        </>
+      }
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">🏆 {best}</span>}
+    >
       {phase === 'idle' ? (
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <div className="text-5xl">🧠</div>
           <h2 className="font-cyber mt-3 text-2xl">{t('games.memorygrid.name')}</h2>
-          <p className="mt-2 max-w-xs text-sm text-slate-500">{t('memorygrid.howto')}</p>
-          <button onClick={start} className="mt-6 rounded-2xl bg-brand px-8 py-3 text-lg font-bold text-white shadow-lg active:scale-95">
+          <p className="mt-2 max-w-xs text-sm text-white/60">{t('memorygrid.howto')}</p>
+          <button onClick={start} className="mt-6 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-8 py-3 text-lg font-bold text-white shadow-premium active:scale-95">
             {t('memorygrid.start')}
           </button>
         </div>
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center">
-          <p className="mb-3 text-sm font-semibold text-slate-400">
+          <p className="mb-3 text-sm font-semibold text-white/50">
             {phase === 'show' ? t('memorygrid.memorize') : `${picked.length}/${pattern.length}`}
           </p>
           <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${GRID}, minmax(0,1fr))`, width: 'min(86vw, 360px)' }}>
@@ -124,7 +125,7 @@ export default function MemoryGridGame(_: GameProps) {
                   key={i}
                   onClick={() => tap(i)}
                   className={`aspect-square rounded-xl transition active:scale-95 ${
-                    showLit || hit ? 'bg-brand shadow-[0_0_14px] shadow-brand/50' : 'bg-slate-100 ring-1 ring-slate-200'
+                    showLit || hit ? 'bg-brand shadow-[0_0_14px] shadow-brand/50' : 'bg-white/[0.08] ring-1 ring-white/12'
                   }`}
                 />
               );
@@ -156,6 +157,6 @@ export default function MemoryGridGame(_: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

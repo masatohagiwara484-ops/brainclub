@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey } from '../../lib/difficulty';
 import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('schulte')?.axes ?? {};
@@ -92,20 +93,15 @@ export default function SchulteGame({ difficulty = 'easy' }: GameProps) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">
-          {t('schulte.find')} <span className="text-brand">{next <= total ? next : total}</span>
-        </span>
-        <span className="text-xs font-semibold tabular-nums text-slate-400">⏱ {elapsed.toFixed(1)}s</span>
-      </div>
-
+    <GameShell
+      difficulty={difficulty}
+      stat={
+        <>
+          {t('schulte.find')} <span className="text-accent-cyan">{next <= total ? next : total}</span>
+        </>
+      }
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">⏱ {elapsed.toFixed(1)}s</span>}
+    >
       <div className="flex flex-1 items-center justify-center">
         <div
           key={wrongKey ? `w${wrongKey}` : 'g'}
@@ -119,7 +115,7 @@ export default function SchulteGame({ difficulty = 'easy' }: GameProps) {
                 key={v}
                 onClick={() => tap(v)}
                 className={`aspect-square rounded-xl text-lg font-bold tabular-nums shadow-sm transition active:scale-95 ${
-                  cleared ? 'bg-brand/10 text-brand/40' : 'bg-white text-slate-800 ring-1 ring-slate-200'
+                  cleared ? 'bg-primary/15 text-white/30' : 'bg-white/[0.08] text-white ring-1 ring-white/10'
                 }`}
               >
                 {v}
@@ -151,6 +147,6 @@ export default function SchulteGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

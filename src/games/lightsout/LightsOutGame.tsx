@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey } from '../../lib/difficulty';
 import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('lightsout')?.axes ?? {};
@@ -89,21 +90,16 @@ export default function LightsOutGame({ difficulty = 'easy' }: GameProps) {
   const onCount = grid.filter((v) => v).length;
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      difficulty={difficulty}
+      stat={
+        <>
           {moves} {t('lightsout.moves')}
-        </span>
-        <span className="text-xs font-semibold tabular-nums text-slate-400">💡 {onCount}</span>
-      </div>
-
-      <p className="mt-2 text-xs text-slate-400">{t('lightsout.goal')}</p>
+        </>
+      }
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">💡 {onCount}</span>}
+    >
+      <p className="mt-1 text-xs text-white/50">{t('lightsout.goal')}</p>
 
       <div className="flex flex-1 items-center justify-center">
         <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${n}, minmax(0,1fr))`, width: 'min(82vw, 340px)' }}>
@@ -114,7 +110,7 @@ export default function LightsOutGame({ difficulty = 'easy' }: GameProps) {
               className={`aspect-square rounded-2xl transition active:scale-95 ${
                 on
                   ? 'bg-amber-300 shadow-[0_0_18px] shadow-amber-300/70 ring-1 ring-amber-400'
-                  : 'bg-slate-200 ring-1 ring-slate-300'
+                  : 'bg-white/10 ring-1 ring-white/15'
               }`}
             />
           ))}
@@ -143,6 +139,6 @@ export default function LightsOutGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

@@ -6,6 +6,7 @@ import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('whack')?.axes ?? {};
@@ -94,19 +95,17 @@ export default function WhackGame(_: GameProps) {
   useEffect(() => () => clearAll(), []);
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span className="font-semibold tabular-nums text-slate-700">⭐ {score}</span>
-        <span className="font-semibold tabular-nums text-slate-700">⏱ {timeLeft}s</span>
-        <span className="text-xs font-semibold tabular-nums text-slate-400">🏆 {best}</span>
-      </div>
-
+    <GameShell
+      left={<span className="font-semibold tabular-nums text-white/85">⭐ {score}</span>}
+      stat={<>⏱ {timeLeft}s</>}
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">🏆 {best}</span>}
+    >
       {phase === 'idle' ? (
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <div className="text-5xl">🐹</div>
           <h2 className="font-cyber mt-3 text-2xl">{t('games.whack.name')}</h2>
-          <p className="mt-2 max-w-xs text-sm text-slate-500">{t('whack.howto')}</p>
-          <button onClick={start} className="mt-6 rounded-2xl bg-brand px-8 py-3 text-lg font-bold text-white shadow-lg active:scale-95">
+          <p className="mt-2 max-w-xs text-sm text-white/60">{t('whack.howto')}</p>
+          <button onClick={start} className="mt-6 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-8 py-3 text-lg font-bold text-white shadow-premium active:scale-95">
             {t('whack.start')}
           </button>
         </div>
@@ -117,7 +116,7 @@ export default function WhackGame(_: GameProps) {
               <button
                 key={i}
                 onClick={() => hit(i)}
-                className="grid aspect-square place-items-center rounded-full bg-amber-100 text-4xl ring-2 ring-amber-200 active:scale-95"
+                className="grid aspect-square place-items-center rounded-full bg-amber-950/50 text-4xl ring-2 ring-amber-800/40 active:scale-95"
               >
                 <span className={`transition-transform duration-100 ${mole === i ? 'scale-100' : 'scale-0'}`}>🐹</span>
               </button>
@@ -148,6 +147,6 @@ export default function WhackGame(_: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

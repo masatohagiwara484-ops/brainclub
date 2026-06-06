@@ -7,6 +7,7 @@ import { sound } from '../../lib/sound';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('simon')?.axes ?? {};
@@ -112,26 +113,26 @@ export default function SimonGame(_: GameProps) {
   const score = Math.max(0, seq.length - (phase === 'over' ? 1 : 0));
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      stat={
+        <>
           {t('simon.round')} {seq.length}
-        </span>
-        <span className="text-xs font-semibold tabular-nums text-slate-400">🏆 {best}</span>
-      </div>
-
+        </>
+      }
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">🏆 {best}</span>}
+    >
       {phase === 'idle' ? (
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <div className="text-5xl">🎶</div>
           <h2 className="font-cyber mt-3 text-2xl">{t('games.simon.name')}</h2>
-          <p className="mt-2 max-w-xs text-sm text-slate-500">{t('simon.howto')}</p>
-          <button onClick={start} className="mt-6 rounded-2xl bg-brand px-8 py-3 text-lg font-bold text-white shadow-lg active:scale-95">
+          <p className="mt-2 max-w-xs text-sm text-white/60">{t('simon.howto')}</p>
+          <button onClick={start} className="mt-6 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-8 py-3 text-lg font-bold text-white shadow-premium active:scale-95">
             {t('simon.start')}
           </button>
         </div>
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center">
-          <p className="mb-4 text-sm font-semibold text-slate-400">
+          <p className="mb-4 text-sm font-semibold text-white/50">
             {phase === 'play' ? t('simon.watch') : t('simon.repeat')}
           </p>
           <div className="grid grid-cols-2 gap-3" style={{ width: 'min(82vw, 320px)' }}>
@@ -175,6 +176,6 @@ export default function SimonGame(_: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }
