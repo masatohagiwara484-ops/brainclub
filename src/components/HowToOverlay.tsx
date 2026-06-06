@@ -13,10 +13,16 @@
 // prefers-reduced-motion those keyframes are disabled and the scene degrades to a
 // readable static diagram (finger parked on the first target, results visible).
 
-import type { ReactNode, CSSProperties } from 'react';
+import { lazy, Suspense, type ReactNode, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHowto } from '../lib/howto';
 import { getGame } from '../games/registry';
+import { VISUAL_TUTORIAL_GAMES } from './visualTutorialGames';
+
+// The premium 3D (Three.js) tutorials are lazy-loaded so three stays out of the
+// main bundle — it only loads when a game that has one actually opens its
+// tutorial. Games without a 3D scene keep the instant 2D gesture diagram below.
+const VisualTutorial = lazy(() => import('./VisualTutorial'));
 
 const W = 240;
 const H = 180;
@@ -269,7 +275,22 @@ export default function HowToOverlay() {
           <h2 className="font-cyber text-xl">{t(game.nameKey)}</h2>
         </div>
 
-        <StageView scene={scene} />
+        {VISUAL_TUTORIAL_GAMES.has(id) ? (
+          <Suspense
+            fallback={
+              <div
+                className="flex w-full items-center justify-center rounded-2xl bg-slate-950 ring-1 ring-white/10"
+                style={{ height: 210 }}
+              >
+                <span className="animate-[pulse_2s_ease-in-out_infinite] text-sm text-white/60">…</span>
+              </div>
+            }
+          >
+            <VisualTutorial gameId={id} />
+          </Suspense>
+        ) : (
+          <StageView scene={scene} />
+        )}
 
         <button
           onClick={() => h.close()}
