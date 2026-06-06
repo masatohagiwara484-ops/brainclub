@@ -196,7 +196,6 @@ export default function HolographicCardSelector() {
           paddingInline: 'calc(50% - var(--cardW) / 2)',
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ['--cardW' as any]: 'min(64vw, 240px)',
-          perspective: '1100px',
         }}
       >
         {DECK.map((g, i) => (
@@ -205,7 +204,10 @@ export default function HolographicCardSelector() {
             ref={(el) => { wraps.current[i] = el; }}
             onClick={() => onCardClick(i)}
             className="shrink-0 cursor-pointer"
-            style={{ width: 'var(--cardW)', scrollSnapAlign: 'center' }}
+            // Perspective MUST sit on the card's direct parent for rotateX/Y to
+            // read as a real 3D tilt (not a flat skew) — this is what makes the
+            // card actually lean on touch/gyro/idle, on mobile included.
+            style={{ width: 'var(--cardW)', scrollSnapAlign: 'center', perspective: '760px' }}
           >
             <div ref={(el) => { inners.current[i] = el; }} className="holo-card">
               <div className={`absolute inset-0 bg-gradient-to-br ${g.gradient}`}>
