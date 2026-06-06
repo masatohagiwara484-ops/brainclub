@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey } from '../../lib/difficulty';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('minesweeper')?.axes ?? {};
@@ -152,23 +153,18 @@ export default function MinesweeperGame({ difficulty = 'easy' }: GameProps) {
   const showMine = (i: number) => status === 'lost' && mines.has(i);
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">💣 {cfg.mines - flags.size}</span>
+    <GameShell
+      difficulty={difficulty}
+      stat={<>💣 {cfg.mines - flags.size}</>}
+      action={
         <button
           onClick={() => setFlagMode((v) => !v)}
-          className={`rounded-lg px-2 py-1 text-xs font-semibold ${flagMode ? 'bg-brand text-white' : 'bg-slate-100 text-slate-600'}`}
+          className={`rounded-lg px-2 py-1 text-xs font-semibold ${flagMode ? 'bg-primary text-white' : 'bg-white/10 text-white/80'}`}
         >
           🚩 {flagMode ? t('minesweeper.flagOn') : t('minesweeper.flagOff')}
         </button>
-      </div>
-
+      }
+    >
       <div className="flex flex-1 items-center justify-center">
         <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${cfg.w}, minmax(0,1fr))`, width: `min(94vw, ${cfg.w * 34}px)` }}>
           {Array.from({ length: total }, (_, i) => {
@@ -179,7 +175,7 @@ export default function MinesweeperGame({ difficulty = 'easy' }: GameProps) {
                 key={i}
                 onClick={() => tap(i)}
                 className={`grid aspect-square place-items-center rounded text-xs font-bold tabular-nums ${
-                  isRev || showMine(i) ? 'bg-slate-100' : 'bg-slate-300 active:bg-slate-200'
+                  isRev || showMine(i) ? 'bg-slate-200' : 'bg-white/[0.08] active:bg-white/15'
                 } ${isRev && c > 0 ? NUM_COLOR[c] : ''}`}
               >
                 {showMine(i) ? '💣' : flags.has(i) ? '🚩' : isRev && c > 0 ? c : ''}
@@ -212,6 +208,6 @@ export default function MinesweeperGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

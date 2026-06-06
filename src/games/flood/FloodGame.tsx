@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey } from '../../lib/difficulty';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('flood')?.axes ?? {};
@@ -91,22 +92,17 @@ export default function FloodGame({ difficulty = 'easy' }: GameProps) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      difficulty={difficulty}
+      stat={
+        <>
           {moves}/{cfg.limit}
-        </span>
-        <span className="text-xs font-semibold text-slate-400">🌊 {t('flood.fill')}</span>
-      </div>
-
+        </>
+      }
+      action={<span className="text-xs font-semibold text-white/60">🌊 {t('flood.fill')}</span>}
+    >
       <div className="flex flex-1 items-center justify-center">
-        <div className="grid gap-0.5 overflow-hidden rounded-xl" style={{ gridTemplateColumns: `repeat(${cfg.n}, minmax(0,1fr))`, width: 'min(90vw, 380px)' }}>
+        <div className="grid gap-0.5 overflow-hidden rounded-xl ring-1 ring-white/10" style={{ gridTemplateColumns: `repeat(${cfg.n}, minmax(0,1fr))`, width: 'min(90vw, 380px)' }}>
           {board.map((v, i) => (
             <div key={i} className="aspect-square" style={{ backgroundColor: PALETTE[v] }} />
           ))}
@@ -118,7 +114,7 @@ export default function FloodGame({ difficulty = 'easy' }: GameProps) {
           <button
             key={i}
             onClick={() => pick(i)}
-            className={`h-11 w-11 rounded-full shadow active:scale-90 ${board[0] === i ? 'ring-2 ring-slate-800 ring-offset-2' : ''}`}
+            className={`h-11 w-11 rounded-full shadow active:scale-90 ${board[0] === i ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0d1322]' : ''}`}
             style={{ backgroundColor: hex }}
             aria-label={`color ${i + 1}`}
           />
@@ -148,6 +144,6 @@ export default function FloodGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

@@ -6,4 +6,5 @@
 export const DARK_GAMES = new Set<string>([
   'sudoku', 'schulte', 'lightsout', 'simon', 'whack', 'memorygrid',
   'memory', 'mastermind', '2048', 'slide',
+  'flood', 'minesweeper', 'pegsolitaire', 'reaction', 'colorclash',
 ]);

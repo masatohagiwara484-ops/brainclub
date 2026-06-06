@@ -6,6 +6,7 @@ import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('reaction')?.axes ?? {};
@@ -84,30 +85,27 @@ export default function ReactionGame(_: GameProps) {
   const avg = times.length ? Math.round(times.reduce((s, x) => s + x, 0) / times.length) : 0;
 
   const bg =
-    phase === 'go' ? 'bg-green-500' : phase === 'waiting' ? 'bg-red-500' : phase === 'early' ? 'bg-amber-500' : 'bg-slate-100';
-  const fgWhite = phase === 'go' || phase === 'waiting' || phase === 'early';
+    phase === 'go' ? 'bg-green-500' : phase === 'waiting' ? 'bg-red-500' : phase === 'early' ? 'bg-amber-500' : 'bg-white/[0.06] ring-1 ring-white/10';
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      stat={
+        <>
           {times.length}/{TRIALS}
-        </span>
-        <span className="text-xs font-semibold text-slate-400">🏆 {best ? `${best}ms` : '—'}</span>
-      </div>
-
+        </>
+      }
+      action={<span className="text-xs font-semibold text-white/60">🏆 {best ? `${best}ms` : '—'}</span>}
+    >
       <button
         onClick={onTap}
-        className={`mt-3 flex w-full max-w-md flex-1 select-none flex-col items-center justify-center rounded-3xl text-center transition-colors ${bg} ${
-          fgWhite ? 'text-white' : 'text-slate-700'
-        }`}
+        className={`mt-3 flex w-full max-w-md flex-1 select-none flex-col items-center justify-center rounded-3xl text-center text-white transition-colors ${bg}`}
       >
         {phase === 'idle' && (
           <>
             <div className="text-5xl">⚡</div>
-            <h2 className="font-cyber mt-3 text-2xl text-slate-800">{t('games.reaction.name')}</h2>
-            <p className="mt-2 max-w-xs px-6 text-sm text-slate-500">{t('reaction.howto')}</p>
-            <span className="mt-5 rounded-2xl bg-brand px-8 py-3 text-lg font-bold text-white">{t('reaction.start')}</span>
+            <h2 className="font-cyber mt-3 text-2xl">{t('games.reaction.name')}</h2>
+            <p className="mt-2 max-w-xs px-6 text-sm text-white/60">{t('reaction.howto')}</p>
+            <span className="mt-5 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-8 py-3 text-lg font-bold text-white shadow-premium">{t('reaction.start')}</span>
           </>
         )}
         {phase === 'waiting' && <div className="text-2xl font-bold">{t('reaction.wait')}</div>}
@@ -120,8 +118,8 @@ export default function ReactionGame(_: GameProps) {
         )}
         {phase === 'result' && (
           <>
-            <div className="text-5xl font-black tabular-nums text-slate-800">{last}ms</div>
-            <p className="mt-2 text-sm text-slate-500">{t('reaction.again')}</p>
+            <div className="text-5xl font-black tabular-nums">{last}ms</div>
+            <p className="mt-2 text-sm text-white/60">{t('reaction.again')}</p>
           </>
         )}
       </button>
@@ -150,6 +148,6 @@ export default function ReactionGame(_: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }

@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
-import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
+import { difficultyKey } from '../../lib/difficulty';
 import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell from '../../components/GameShell';
 import { colorById, makeRound, TUNING, type ColorId, type Round } from './colorClash';
 
 const AXES = getGame('colorclash')?.axes ?? {};
@@ -151,27 +152,19 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
   const optCols = round && round.options.length === 4 ? 'grid-cols-2' : 'grid-cols-3';
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      {/* Status bar */}
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">⚡ {score}</span>
-        <span className="text-xs font-semibold text-slate-400">🏆 {best}</span>
-      </div>
-
+    <GameShell
+      difficulty={difficulty}
+      stat={<>⚡ {score}</>}
+      action={<span className="text-xs font-semibold text-white/60">🏆 {best}</span>}
+    >
       {phase === 'idle' ? (
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <div className="text-5xl">🎨</div>
           <h2 className="font-cyber mt-3 text-2xl">{t('games.colorclash.name')}</h2>
-          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500">{t('colorclash.howto')}</p>
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">{t('colorclash.howto')}</p>
           <button
             onClick={start}
-            className="mt-6 rounded-2xl bg-brand px-8 py-3 text-lg font-bold text-white shadow-lg active:scale-95"
+            className="mt-6 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-8 py-3 text-lg font-bold text-white shadow-premium active:scale-95"
           >
             {t('colorclash.start')}
           </button>
@@ -179,7 +172,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
       ) : (
         <>
           {/* Timer bar */}
-          <div className="mt-3 h-2 w-full max-w-md overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-3 h-2 w-full max-w-md overflow-hidden rounded-full bg-white/10">
             <div
               className="h-full rounded-full"
               style={{ width: `${progress * 100}%`, backgroundColor: barColor }}
@@ -188,7 +181,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
 
           {/* The Stroop word */}
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
               {t('colorclash.prompt')}
             </p>
           </div>
@@ -210,7 +203,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
                   <button
                     key={id}
                     onClick={() => answer(id)}
-                    className="flex items-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition active:scale-95"
+                    className="flex items-center gap-2 rounded-2xl border-2 border-white/15 bg-white/[0.08] px-3 py-3 text-left shadow-sm transition active:scale-95"
                   >
                     <span
                       className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-base font-bold text-white"
@@ -218,10 +211,10 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
                     >
                       {c.symbol}
                     </span>
-                    <span className="min-w-0 truncate font-semibold text-slate-800">
+                    <span className="min-w-0 truncate font-semibold text-white">
                       {t(`colorclash.colors.${id}`)}
                     </span>
-                    <span className="ml-auto text-xs text-slate-300">{i + 1}</span>
+                    <span className="ml-auto text-xs text-white/30">{i + 1}</span>
                   </button>
                 );
               })}
@@ -258,6 +251,6 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
           )}
         </GameResultScreen>
       )}
-    </div>
+    </GameShell>
   );
 }

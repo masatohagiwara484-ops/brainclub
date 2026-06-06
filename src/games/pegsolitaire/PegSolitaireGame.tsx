@@ -5,6 +5,7 @@ import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell, { ShellButton } from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('pegsolitaire')?.axes ?? {};
@@ -104,21 +105,19 @@ export default function PegSolitaireGame(_: GameProps) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center px-4 py-3">
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <button onClick={restart} className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-          {t('pegsolitaire.newGame')}
-        </button>
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      left={<ShellButton onClick={restart}>{t('pegsolitaire.newGame')}</ShellButton>}
+      stat={
+        <>
           {pegs} {t('pegsolitaire.pegs')}
-        </span>
-        <span className="text-xs font-semibold text-slate-400">🎯 1</span>
-      </div>
-
-      <p className="mt-2 text-xs text-slate-400">{t('pegsolitaire.goal')}</p>
+        </>
+      }
+      action={<span className="text-xs font-semibold text-white/60">🎯 1</span>}
+    >
+      <p className="mt-1 text-xs text-white/50">{t('pegsolitaire.goal')}</p>
 
       <div className="flex flex-1 items-center justify-center">
-        <div className="grid gap-1.5 rounded-2xl bg-amber-50 p-3" style={{ gridTemplateColumns: `repeat(${W}, minmax(0,1fr))`, width: 'min(90vw, 360px)' }}>
+        <div className="grid gap-1.5 rounded-2xl bg-amber-950/40 p-3 ring-1 ring-white/10" style={{ gridTemplateColumns: `repeat(${W}, minmax(0,1fr))`, width: 'min(90vw, 360px)' }}>
           {board.map((v, i) => {
             if (v === -1) return <div key={i} className="aspect-square" />;
             const isDest = dests.has(i);
@@ -127,13 +126,13 @@ export default function PegSolitaireGame(_: GameProps) {
                 key={i}
                 onClick={() => tap(i)}
                 className={`grid aspect-square place-items-center rounded-full transition active:scale-90 ${
-                  v === 1 ? '' : 'bg-amber-200/60'
-                } ${isDest ? 'ring-2 ring-brand' : ''}`}
+                  v === 1 ? '' : 'bg-black/30'
+                } ${isDest ? 'ring-2 ring-accent-cyan' : ''}`}
               >
                 {v === 1 && (
                   <span
                     className={`h-[78%] w-[78%] rounded-full shadow-inner ${
-                      sel === i ? 'bg-brand ring-2 ring-brand/40' : 'bg-amber-500'
+                      sel === i ? 'bg-accent-cyan ring-2 ring-accent-cyan/40' : 'bg-amber-500'
                     }`}
                   />
                 )}
@@ -161,6 +160,6 @@ export default function PegSolitaireGame(_: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }
