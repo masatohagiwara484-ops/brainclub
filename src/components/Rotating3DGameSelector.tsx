@@ -481,12 +481,78 @@ function HologramCard({
   compact: boolean;
 }) {
   const group = useRef<THREE.Group>(null);
-  const cardMat = useRef<THREE.MeshStandardMaterial>(null);
+  const edgeMat = useRef<THREE.MeshStandardMaterial>(null);
   const shineMat = useRef<THREE.MeshBasicMaterial>(null);
   const [base, accent, glow] = colors;
+  const cardShape = useMemo(() => {
+    const w = compact ? 1.5 : 1.7;
+    const h = compact ? 2.12 : 2.35;
+    const r = 0.17;
+    const x = -w / 2;
+    const y = -h / 2;
+    const shape = new THREE.Shape();
+    shape.moveTo(x + r, y);
+    shape.lineTo(x + w - r, y);
+    shape.quadraticCurveTo(x + w, y, x + w, y + r);
+    shape.lineTo(x + w, y + h - r);
+    shape.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    shape.lineTo(x + r, y + h);
+    shape.quadraticCurveTo(x, y + h, x, y + h - r);
+    shape.lineTo(x, y + r);
+    shape.quadraticCurveTo(x, y, x + r, y);
+    return shape;
+  }, [compact]);
+  const shader = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+          uActive: { value: 0 },
+          uBase: { value: new THREE.Color(base) },
+          uAccent: { value: new THREE.Color(accent) },
+          uGlow: { value: new THREE.Color(glow) },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          varying vec3 vPos;
+          void main() {
+            vUv = uv;
+            vPos = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float uTime;
+          uniform float uActive;
+          uniform vec3 uBase;
+          uniform vec3 uAccent;
+          uniform vec3 uGlow;
+          varying vec2 vUv;
+          varying vec3 vPos;
+
+          void main() {
+            vec2 uv = vUv;
+            float diagonal = sin((uv.x + uv.y) * 16.0 + uTime * 2.4) * 0.5 + 0.5;
+            float rings = sin(length(uv - 0.5) * 34.0 - uTime * 1.8) * 0.5 + 0.5;
+            float scan = smoothstep(0.03, 0.0, abs(fract(uv.y * 8.0 - uTime * 0.24) - 0.5));
+            float edge = 1.0 - smoothstep(0.0, 0.08, min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y)));
+            vec3 color = mix(uBase, uAccent, diagonal * 0.45);
+            color = mix(color, uGlow, rings * (0.18 + uActive * 0.35));
+            color += vec3(1.0, 0.95, 0.75) * scan * (0.18 + uActive * 0.22);
+            color += uGlow * edge * (0.7 + uActive * 0.8);
+            float alpha = 0.3 + diagonal * 0.12 + edge * 0.24 + uActive * 0.14;
+            gl_FragColor = vec4(color, alpha);
+          }
+        `,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [accent, base, glow],
+  );
   const sparklePositions = useMemo(
     () =>
-      Array.from({ length: compact ? 5 : 7 }, (_, i) => {
+      Array.from({ length: compact ? 3 : 5 }, (_, i) => {
         const a = i * 1.71;
         return [Math.sin(a) * 0.56, Math.cos(a * 1.23) * 0.72, 0.08] as [number, number, number];
       }),
@@ -509,9 +575,17 @@ function HologramCard({
         Math.min(dt, 0.05),
       );
     }
-    if (cardMat.current) {
-      cardMat.current.opacity = active ? 0.34 : 0.18;
-      cardMat.current.emissiveIntensity = active ? 0.45 + Math.sin(s.clock.elapsedTime * 2.2) * 0.18 : 0.18;
+    if (shader) {
+      shader.uniforms.uTime.value = s.clock.elapsedTime;
+      shader.uniforms.uActive.value = THREE.MathUtils.damp(
+        shader.uniforms.uActive.value,
+        active ? 1 : 0,
+        8,
+        Math.min(dt, 0.05),
+      );
+    }
+    if (edgeMat.current) {
+      edgeMat.current.emissiveIntensity = active ? 1.15 + Math.sin(s.clock.elapsedTime * 2.2) * 0.25 : 0.35;
     }
     if (shineMat.current) {
       shineMat.current.opacity = active ? 0.3 + Math.sin(s.clock.elapsedTime * 3.1) * 0.12 : 0.08;
@@ -519,22 +593,30 @@ function HologramCard({
   });
 
   return (
-    <group ref={group} position={[0, 0.08, -0.2]} rotation={[-0.08, 0, 0]}>
-      <mesh position={[0, 0, -0.04]}>
-        <boxGeometry args={[1.48, 2.02, 0.035]} />
+    <group ref={group} position={[0, 0.08, -0.42]} rotation={[-0.08, 0, 0]}>
+      <mesh position={[0, 0, -0.1]}>
+        <extrudeGeometry args={[cardShape, { depth: 0.08, bevelEnabled: true, bevelSize: 0.028, bevelThickness: 0.028, bevelSegments: 2 }]} />
         <meshStandardMaterial
-          ref={cardMat}
-          color={base}
+          ref={edgeMat}
+          color="#e0f2fe"
           emissive={glow}
-          emissiveIntensity={0.22}
+          emissiveIntensity={0.45}
           transparent
-          opacity={0.2}
-          roughness={0.18}
-          metalness={0.75}
+          opacity={0.48}
+          roughness={0.12}
+          metalness={0.85}
         />
       </mesh>
-      <mesh position={[0, 0.03, 0.01]} rotation={[0, 0, -0.55]}>
-        <planeGeometry args={[0.22, 2.2]} />
+      <mesh position={[0, 0, -0.03]}>
+        <shapeGeometry args={[cardShape]} />
+        <meshStandardMaterial color="#08111f" emissive={base} emissiveIntensity={0.2} transparent opacity={0.46} roughness={0.24} metalness={0.35} />
+      </mesh>
+      <mesh position={[0, 0, 0.02]}>
+        <shapeGeometry args={[cardShape]} />
+        <primitive object={shader} attach="material" />
+      </mesh>
+      <mesh position={[0, 0.05, 0.08]} rotation={[0, 0, -0.52]}>
+        <planeGeometry args={[0.25, compact ? 2.25 : 2.55]} />
         <meshBasicMaterial
           ref={shineMat}
           color="#ffffff"
@@ -543,10 +625,6 @@ function HologramCard({
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
-      </mesh>
-      <mesh position={[0, 0, 0.015]}>
-        <planeGeometry args={[1.32, 1.82]} />
-        <meshBasicMaterial color={accent} transparent opacity={0.08} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       {sparklePositions.map((p, i) => (
         <mesh key={i} position={p}>
@@ -684,9 +762,12 @@ function Slot({
     const intensity = fc * fc;
     activeRef.current = fc > 0.6;
     if (group.current) {
-      const baseScale = compact ? 0.72 : 1;
-      const s = THREE.MathUtils.damp(group.current.scale.x, baseScale * (1 + intensity * 0.36), 9, d);
+      const baseScale = compact ? 0.58 : 0.72;
+      const s = THREE.MathUtils.damp(group.current.scale.x, baseScale + intensity * (compact ? 0.74 : 0.88), 9, d);
       group.current.scale.setScalar(s);
+      group.current.position.y = THREE.MathUtils.damp(group.current.position.y, intensity * 0.36, 7, d);
+      group.current.position.z = THREE.MathUtils.damp(group.current.position.z, intensity * 0.34, 7, d);
+      group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, -0.08 * intensity, 6, d);
     }
     if (halo.current) (halo.current.material as THREE.MeshBasicMaterial).opacity = intensity * 0.55;
     if (rim.current) (rim.current.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.2 + intensity * 1.6;
@@ -696,20 +777,20 @@ function Slot({
     <group position={[x, 0, z]} rotation={[0, baseAngle, 0]}>
       <group ref={group}>
         <HologramCard colors={colors} activeRef={activeRef} compact={compact} />
-        <mesh ref={halo} position={[0, 0.3, -0.5]}>
-          <circleGeometry args={[1.15, 40]} />
+        <mesh ref={halo} position={[0, 0.28, -0.38]}>
+          <circleGeometry args={[compact ? 1.15 : 1.35, 48]} />
           <meshBasicMaterial color={glow} transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
-        <group position={[0, 0.2, 0]}>
+        <group position={[0, compact ? 0.16 : 0.2, 0.62]} scale={compact ? 1.08 : 1.2}>
           <GameModel id={game.id} colors={colors} activeRef={activeRef} />
         </group>
-        <mesh position={[0, -0.85, 0]}>
-          <cylinderGeometry args={[0.78, 0.9, 0.16, 36]} />
-          <meshStandardMaterial color="#0f172a" metalness={0.5} roughness={0.45} />
+        <mesh position={[0, -1.05, 0.18]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.62, 0.86, 48]} />
+          <meshBasicMaterial color={glow} transparent opacity={0.45} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
-        <mesh ref={rim} position={[0, -0.76, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.74, 0.03, 12, 40]} />
-          <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.3} metalness={0.3} roughness={0.4} />
+        <mesh ref={rim} position={[0, -1.05, 0.2]} rotation={[-Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.74, 0.022, 12, 48]} />
+          <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.3} metalness={0.4} roughness={0.25} />
         </mesh>
       </group>
     </group>
@@ -891,8 +972,6 @@ export default function Rotating3DGameSelector({
     haptics.tick();
   }, []);
 
-  if (reduced) return <Fallback2D games={games} t={t} nav={nav} embedded={embedded} />;
-
   const game = games[selected];
   const play = useCallback(() => {
     if (game.available) {
@@ -900,6 +979,8 @@ export default function Rotating3DGameSelector({
       nav(game.route);
     }
   }, [game, nav]);
+
+  if (reduced) return <Fallback2D games={games} t={t} nav={nav} embedded={embedded} />;
 
   const snap = () => {
     drag.current.target = Math.round(drag.current.target / slotAngle) * slotAngle;
