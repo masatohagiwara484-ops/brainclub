@@ -1,406 +1,250 @@
-import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type MutableRefObject,
-} from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useNavigate, type NavigateFunction } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
-import * as THREE from 'three';
-import { GAMES, type GameDef } from '../games/registry';
+import { GAMES } from '../games/registry';
 import { prefersReducedMotion } from '../lib/fx';
 import { haptics } from '../lib/haptics';
-import { gameColors } from '../lib/gamePalette';
-import { GameModel } from './Rotating3DGameSelector';
+import { sound } from '../lib/sound';
+import GameArt from './GameArt';
 
 // ============================================================================
-// HolographicCardSelector — the home hero, reimagined as a Pokémon-TCG-style
-// deck of HOLOGRAPHIC cards (R3F + a custom GLSL foil shader). One card fills the
-// center; neighbors peek at the sides (coverflow). Swipe snaps exactly one card
-// at a time (reliable selection), the center card tilts toward the pointer / on
-// device-tilt (gyro) with an iridescent foil + glare + sparkle, and each card
-// floats a hand-crafted 3D model of its game. Lazy-routed so three/drei/framer
-// stay out of the main bundle. Reduced-motion users get a calm 2D card rail.
+// HolographicCardSelector — the home hero as a Pokémon-TCG-style deck.
+//
+// Each GAME is a flat 2D illustration (GameArt); the CARD is a 3D holographic
+// object (pure CSS, GPU-composited — NO WebGL, so it never janks or freezes on
+// mobile). Selection rides on native horizontal scroll-snap, so one swipe always
+// lands exactly one card and every game is reliably reachable + playable. The
+// centered card lights up with an iridescent foil + glare + sparkle and tilts
+// toward the pointer (desktop) or device tilt (gyro, mobile). Reduced-motion
+// keeps the snap-rail but drops the tilt/shimmer.
 // ============================================================================
 
 const BG = 'radial-gradient(120% 90% at 50% 6%, #221c54 0%, #0b1020 58%, #060812 100%)';
-const SPACING = 2.35; // world-x gap between card centers
-const CARD_W = 2.2;
-const CARD_H = 3.1;
-const DRAG_PER_PX = 0.0055; // cards moved per pixel dragged
+// Only playable games appear in the deck — so every card you can reach, you can play.
+const DECK = GAMES.filter((g) => g.available);
 
-// ---- Holographic foil shader ----------------------------------------------
-const FOIL_VERT = /* glsl */ `
-  varying vec2 vUv;
-  varying vec3 vView;
-  void main() {
-    vUv = uv;
-    vec4 mv = modelViewMatrix * vec4(position, 1.0);
-    vView = normalize(-mv.xyz);
-    gl_Position = projectionMatrix * mv;
-  }
-`;
-const FOIL_FRAG = /* glsl */ `
-  precision highp float;
-  uniform float uTime;
-  uniform vec2 uPointer;
-  uniform float uActive;
-  uniform vec3 uA; // game base color
-  uniform vec3 uB; // deep base
-  uniform vec3 uC; // glow / rim
-  varying vec2 vUv;
-  varying vec3 vView;
-
-  vec3 hue(float h){ return clamp(abs(mod(h*6.0+vec3(0.,4.,2.),6.0)-3.0)-1.0, 0.0, 1.0); }
-  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
-
-  // signed rounded-rect for crisp card corners (uv in 0..1)
-  float roundedAlpha(vec2 uv, float r){
-    vec2 p = abs(uv-0.5)*2.0;
-    vec2 q = p - (1.0 - r);
-    float d = length(max(q,0.0)) + min(max(q.x,q.y),0.0) - r;
-    return 1.0 - smoothstep(0.0, 0.012, d);
-  }
-
-  void main(){
-    vec2 uv = vUv;
-    float a = roundedAlpha(uv, 0.10);
-    if(a < 0.01) discard;
-
-    float fres = pow(1.0 - clamp(vView.z, 0.0, 1.0), 2.0);
-    vec3 base = mix(uB, uA, uv.y*0.85 + 0.1);
-
-    // iridescent foil — hue shifts with uv, pointer (view angle) and fresnel
-    float h = uv.x*2.2 + uv.y*1.3 + uPointer.x*0.7 + uPointer.y*0.45 + uTime*0.04 + fres*1.3;
-    vec3 iris = hue(fract(h));
-    vec3 col = mix(base, iris, (0.32 + 0.42*fres) * uActive);
-
-    // moving glare band that tracks the pointer like a light reflection
-    vec2 g = uv - 0.5 - uPointer*0.42;
-    float glare = (1.0 - smoothstep(0.0, 0.42, length(g))) * (0.45*uActive + 0.12);
-    col += glare;
-
-    // twinkling sparkles on the foil
-    vec2 sp = floor(uv*vec2(38.0, 54.0));
-    float tw = step(0.965, hash(sp + floor(uTime*2.2)));
-    col += tw * uActive * 0.85 * (0.4 + 0.6*fres);
-
-    // rim light
-    col += fres * uC * 0.55;
-
-    // inner border frame
-    vec2 b = abs(uv-0.5)*2.0;
-    float frame = smoothstep(0.93, 0.95, max(b.x,b.y)) * (1.0 - smoothstep(0.985, 1.0, max(b.x,b.y)));
-    col = mix(col, uC, frame*0.6);
-
-    gl_FragColor = vec4(col, a);
-  }
-`;
-
-type ActiveRef = MutableRefObject<boolean>;
-type Pointer = MutableRefObject<{ x: number; y: number }>;
-
-function HoloCard({
-  game,
-  index,
-  progress,
-  pointer,
-  reduced,
-}: {
-  game: GameDef;
-  index: number;
-  progress: MutableRefObject<number>;
-  pointer: Pointer;
-  reduced: boolean;
-}) {
-  const group = useRef<THREE.Group>(null);
-  const activeRef = useRef(false);
-  const colors = useMemo(() => gameColors(game.id), [game.id]);
-  const [base, , glow] = colors;
-
-  const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uPointer: { value: new THREE.Vector2(0, 0) },
-      uActive: { value: 0.5 },
-      uA: { value: new THREE.Color(base) },
-      uB: { value: new THREE.Color('#0a0e1c') },
-      uC: { value: new THREE.Color(glow) },
-    }),
-    [base, glow],
-  );
-  const zero = useMemo(() => new THREE.Vector2(0, 0), []);
-
-  useFrame((state) => {
-    const g = group.current;
-    if (!g) return;
-    const d = index - progress.current;
-    const ad = Math.abs(d);
-    g.visible = ad < 2.6;
-    if (!g.visible) {
-      activeRef.current = false;
-      return;
-    }
-    const center = ad < 0.5;
-    const t = state.clock.elapsedTime;
-
-    g.position.x = d * SPACING;
-    g.position.z = -Math.min(ad, 3) * 1.2;
-    g.position.y = reduced ? 0 : Math.sin(t * 1.1 + index) * 0.05 * (center ? 1.5 : 0.6);
-
-    const scale = 1 - Math.min(ad, 1) * 0.32;
-    g.scale.setScalar(scale);
-
-    let ry = -Math.sign(d) * Math.min(ad, 1) * 0.55;
-    let rx = 0;
-    if (center && !reduced) {
-      ry += pointer.current.x * 0.38;
-      rx += -pointer.current.y * 0.3;
-    }
-    g.rotation.set(rx, ry, 0);
-
-    uniforms.uTime.value = t;
-    uniforms.uActive.value = center ? 1 : 0.45;
-    if (center) uniforms.uPointer.value.set(pointer.current.x, pointer.current.y);
-    else uniforms.uPointer.value.lerp(zero, 0.08);
-
-    activeRef.current = center && !reduced;
-  });
-
-  return (
-    <group ref={group}>
-      {/* soft glow halo */}
-      <mesh position={[0, 0, -0.08]}>
-        <planeGeometry args={[CARD_W + 0.5, CARD_H + 0.5]} />
-        <meshBasicMaterial color={glow} transparent opacity={0.16} blending={THREE.AdditiveBlending} depthWrite={false} />
-      </mesh>
-      {/* holographic foil card */}
-      <mesh>
-        <planeGeometry args={[CARD_W, CARD_H, 1, 1]} />
-        <shaderMaterial vertexShader={FOIL_VERT} fragmentShader={FOIL_FRAG} uniforms={uniforms} transparent />
-      </mesh>
-      {/* the game's hand-crafted 3D model, floating in front of the card */}
-      <group position={[0, 0.35, 0.42]} scale={1.18}>
-        <GameModel id={game.id} colors={colors} activeRef={activeRef as ActiveRef} />
-      </group>
-    </group>
-  );
-}
-
-function Scene({
-  games,
-  progress,
-  target,
-  pointer,
-  reduced,
-  onSelect,
-}: {
-  games: GameDef[];
-  progress: MutableRefObject<number>;
-  target: MutableRefObject<number>;
-  pointer: Pointer;
-  reduced: boolean;
-  onSelect: (i: number) => void;
-}) {
-  const last = useRef(-1);
-  useFrame((_, dt) => {
-    progress.current = THREE.MathUtils.damp(progress.current, target.current, 9, Math.min(dt, 0.05));
-    const sel = Math.max(0, Math.min(games.length - 1, Math.round(progress.current)));
-    if (sel !== last.current) {
-      last.current = sel;
-      onSelect(sel);
-    }
-  });
-  return (
-    <>
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[3, 5, 6]} intensity={2.1} />
-      <pointLight position={[-5, 2, 3]} intensity={26} color="#67e8f9" distance={26} />
-      <pointLight position={[5, -2, 3]} intensity={18} color="#f472b6" distance={26} />
-      {games.map((g, i) => (
-        <HoloCard key={g.id} game={g} index={i} progress={progress} pointer={pointer} reduced={reduced} />
-      ))}
-    </>
-  );
-}
-
-// ---- 2D fallback (reduced motion) — a calm horizontal card rail -------------
-function Fallback2D({ games, t, nav }: { games: GameDef[]; t: TFunction; nav: NavigateFunction }) {
-  return (
-    <div className="h-full w-full overflow-x-auto" style={{ background: BG }}>
-      <div className="flex h-full snap-x snap-mandatory items-center gap-4 px-[20vw]">
-        {games.map((g) => (
-          <button
-            key={g.id}
-            onClick={() => g.available && nav(g.route)}
-            className={`flex aspect-[5/7] w-52 shrink-0 snap-center flex-col rounded-3xl bg-gradient-to-br ${g.gradient} p-5 text-left text-white shadow-elevated transition-premium active:scale-95`}
-          >
-            <div className="text-5xl">{g.emoji}</div>
-            <div className="mt-auto">
-              <div className="font-display text-xl">{t(g.nameKey)}</div>
-              <div className="text-sm text-white/80">{t(g.taglineKey)}</div>
-              {!g.available && <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-white/70">{t('home.comingSoon')}</div>}
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
+const STARS: Record<string, number> = { 'must-have': 3, recommended: 2, innovative: 1 };
+const clamp = (x: number, lo: number, hi: number) => (x < lo ? lo : x > hi ? hi : x);
 
 export default function HolographicCardSelector() {
   const { t } = useTranslation();
   const nav = useNavigate();
   const reduced = useMemo(() => prefersReducedMotion(), []);
-  const games = GAMES;
+  const canHover = useMemo(
+    () => typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches,
+    [],
+  );
 
-  const progress = useRef(0);
-  const target = useRef(0);
-  const pointer = useRef({ x: 0, y: 0 });
-  const drag = useRef({ active: false, startX: 0, startTarget: 0, moved: false });
-  const gyro = useRef(false);
+  const scroller = useRef<HTMLDivElement>(null);
+  const wraps = useRef<(HTMLDivElement | null)[]>([]);
+  const inners = useRef<(HTMLDivElement | null)[]>([]);
+  const rafId = useRef(0);
+  const pointer = useRef<{ i: number; x: number; y: number } | null>(null);
+  const selRef = useRef(0);
   const [selected, setSelected] = useState(0);
 
-  // Device-tilt parallax (gyro). iOS needs a permission gesture; we try silently.
+  // The single layout pass: place every card by its distance from center and
+  // light up the centered one. Reads refs only, so it never goes stale.
+  const layout = () => {
+    const sc = scroller.current;
+    if (!sc) return;
+    const cr = sc.getBoundingClientRect();
+    const center = cr.left + cr.width / 2;
+    let best = 0;
+    let bestD = Infinity;
+    for (let i = 0; i < DECK.length; i++) {
+      const wrap = wraps.current[i];
+      const inner = inners.current[i];
+      if (!wrap || !inner) continue;
+      const r = wrap.getBoundingClientRect();
+      const d = (r.left + r.width / 2 - center) / r.width;
+      const ad = Math.abs(d);
+      if (ad < bestD) {
+        bestD = ad;
+        best = i;
+      }
+      const active = ad < 0.5;
+      const scale = 1 - Math.min(ad, 1.6) * 0.12;
+      let ry = clamp(-d * 18, -26, 26);
+      let rx = 0;
+      let px = '50%';
+      let py = '38%';
+      if (active && !reduced && pointer.current && pointer.current.i === i) {
+        ry = (pointer.current.x - 0.5) * 30;
+        rx = -(pointer.current.y - 0.5) * 26;
+        px = `${pointer.current.x * 100}%`;
+        py = `${pointer.current.y * 100}%`;
+      }
+      inner.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+      inner.style.opacity = (1 - Math.min(ad, 1.7) * 0.34).toFixed(3);
+      inner.style.zIndex = String(100 - Math.round(ad * 10));
+      inner.style.setProperty('--holo', active && !reduced ? '1' : '0.12');
+      inner.style.setProperty('--px', px);
+      inner.style.setProperty('--py', py);
+    }
+    if (best !== selRef.current) {
+      selRef.current = best;
+      setSelected(best);
+      haptics.tick();
+    }
+  };
+
+  const layoutRef = useRef(layout);
+  layoutRef.current = layout;
+  const schedule = () => {
+    if (rafId.current) return;
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = 0;
+      layoutRef.current();
+    });
+  };
+
+  useEffect(() => {
+    layoutRef.current();
+    const onResize = () => schedule();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Device-tilt parallax (mobile). iOS needs a permission gesture (requested on tap).
   useEffect(() => {
     if (reduced) return;
     const onTilt = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
-      gyro.current = true;
-      // only feed gyro when the finger isn't driving the pointer
-      if (!drag.current.active) {
-        pointer.current.x = THREE.MathUtils.clamp(e.gamma / 28, -1, 1);
-        pointer.current.y = THREE.MathUtils.clamp((e.beta - 45) / 28, -1, 1);
-      }
+      pointer.current = {
+        i: selRef.current,
+        x: clamp(e.gamma / 30 + 0.5, 0, 1),
+        y: clamp((e.beta - 40) / 30 + 0.5, 0, 1),
+      };
+      schedule();
     };
     window.addEventListener('deviceorientation', onTilt);
     return () => window.removeEventListener('deviceorientation', onTilt);
   }, [reduced]);
 
-  if (reduced) return <Fallback2D games={games} t={t} nav={nav} />;
+  const centerCard = (i: number) =>
+    wraps.current[i]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
 
-  const clampTarget = () => {
-    target.current = Math.max(0, Math.min(games.length - 1, target.current));
-  };
-  const setPointerFromEvent = (e: React.PointerEvent, rect: DOMRect) => {
-    pointer.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    pointer.current.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-  };
-  const onDown = (e: React.PointerEvent) => {
-    drag.current = { active: true, startX: e.clientX, startTarget: target.current, moved: false };
-    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
-    // iOS 13+ gyro permission (best-effort, requires a gesture).
-    const DOE = window.DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
-    if (!gyro.current && typeof DOE?.requestPermission === 'function') void DOE.requestPermission().catch(() => {});
-  };
-  const onMove = (e: React.PointerEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    if (drag.current.active) {
-      const dx = e.clientX - drag.current.startX;
-      if (Math.abs(dx) > 4) drag.current.moved = true;
-      target.current = drag.current.startTarget - dx * DRAG_PER_PX;
-      clampTarget();
-    }
-    if (!gyro.current) setPointerFromEvent(e, rect); // pointer parallax on desktop
-  };
-  const endDrag = () => {
-    if (!drag.current.active) return;
-    drag.current.active = false;
-    target.current = Math.round(target.current); // snap exactly one card
-    clampTarget();
-    if (!gyro.current) {
-      pointer.current.x = 0;
-      pointer.current.y = 0;
-    }
-  };
-  const onWheel = (e: React.WheelEvent) => {
-    target.current = Math.round(target.current) + Math.sign(e.deltaY);
-    clampTarget();
-  };
-  const report = (i: number) => {
-    setSelected(i);
-    haptics.tick();
+  const onCardClick = (i: number) => {
+    if (i === selRef.current) play();
+    else centerCard(i);
   };
 
-  const game = games[selected];
   const play = () => {
-    if (!drag.current.moved && game.available) nav(game.route);
+    const g = DECK[selRef.current];
+    if (!g) return;
+    sound.playSelectGame();
+    nav(g.route);
   };
+
+  // Desktop pointer tilt on the centered card.
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!canHover || reduced) return;
+    const wrap = wraps.current[selRef.current];
+    if (!wrap) return;
+    const r = wrap.getBoundingClientRect();
+    pointer.current = {
+      i: selRef.current,
+      x: clamp((e.clientX - r.left) / r.width, 0, 1),
+      y: clamp((e.clientY - r.top) / r.height, 0, 1),
+    };
+    schedule();
+  };
+  const onPointerLeave = () => {
+    if (!canHover) return;
+    pointer.current = null;
+    schedule();
+  };
+  const requestGyro = () => {
+    const DOE = window.DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
+    if (typeof DOE?.requestPermission === 'function') void DOE.requestPermission().catch(() => {});
+  };
+
+  const game = DECK[selected];
 
   return (
-    <div
-      className="relative h-full w-full select-none overflow-hidden"
-      style={{ touchAction: 'none', background: BG }}
-      onPointerDown={onDown}
-      onPointerMove={onMove}
-      onPointerUp={endDrag}
-      onPointerLeave={endDrag}
-      onPointerCancel={endDrag}
-      onWheel={onWheel}
-    >
-      <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }} camera={{ position: [0, 0, 6.6], fov: 40 }}>
-        <Suspense fallback={null}>
-          <Scene games={games} progress={progress} target={target} pointer={pointer} reduced={reduced} onSelect={report} />
-        </Suspense>
-      </Canvas>
-
+    <div className="relative flex h-full w-full flex-col overflow-hidden" style={{ background: BG }}>
       {/* Hint */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center pt-4">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center pt-3">
         <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70 backdrop-blur-sm">
-          {t('selector.hint', { defaultValue: 'Swipe to explore' })}
+          {t('selector.hint', { defaultValue: 'Swipe to explore · tap to play' })}
         </span>
       </div>
 
-      {/* Name + tagline + big PLAY */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-6 pb-7">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selected}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -14 }}
-            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col items-center text-center"
+      {/* The holographic deck — native scroll-snap carousel. */}
+      <div
+        ref={scroller}
+        onScroll={schedule}
+        onPointerDown={requestGyro}
+        onPointerMove={onPointerMove}
+        onPointerLeave={onPointerLeave}
+        className="flex min-h-0 flex-1 items-center gap-4 overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        style={{
+          scrollSnapType: 'x mandatory',
+          paddingInline: 'calc(50% - var(--cardW) / 2)',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ['--cardW' as any]: 'min(64vw, 240px)',
+          perspective: '1100px',
+        }}
+      >
+        {DECK.map((g, i) => (
+          <div
+            key={g.id}
+            ref={(el) => { wraps.current[i] = el; }}
+            onClick={() => onCardClick(i)}
+            className="shrink-0 cursor-pointer"
+            style={{ width: 'var(--cardW)', scrollSnapAlign: 'center' }}
           >
-            <h2 className="font-display text-2xl text-white drop-shadow-lg">{t(game.nameKey)}</h2>
-            <p className="mt-1 max-w-xs text-sm text-white/70">{t(game.taglineKey)}</p>
-          </motion.div>
-        </AnimatePresence>
+            <div ref={(el) => { inners.current[i] = el; }} className="holo-card">
+              {/* 2D game illustration on a bespoke gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${g.gradient}`}>
+                <div className="absolute inset-0 bg-neural opacity-20" />
+                {/* rarity stars */}
+                <div className="absolute left-3 top-3 flex gap-0.5 text-amber-200/90 drop-shadow">
+                  {Array.from({ length: STARS[g.category] ?? 1 }).map((_, s) => (
+                    <span key={s} className="text-xs leading-none">★</span>
+                  ))}
+                </div>
+                {/* central art */}
+                <div className="flex h-[64%] items-center justify-center px-6 pt-6 text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.45)]">
+                  <GameArt id={g.id} className="h-24 w-24" />
+                </div>
+                {/* name plate */}
+                <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/15 bg-black/25 px-3 py-2 text-center backdrop-blur-sm">
+                  <div className="font-display text-lg leading-tight text-white">{t(g.nameKey)}</div>
+                  <div className="text-[11px] leading-tight text-white/75">{t(g.taglineKey)}</div>
+                </div>
+              </div>
+              {/* holographic layers */}
+              <div className="holo-layer holo-foil" />
+              <div className="holo-layer holo-sparkle" />
+              <div className="holo-layer holo-glare" />
+              <div className="holo-layer holo-frame" />
+            </div>
+          </div>
+        ))}
+      </div>
 
-        {/* progress dots */}
-        <div className="flex items-center gap-1">
-          {games.map((g, i) => (
+      {/* Bottom overlay: progress dots + big PLAY. */}
+      <div className="relative z-10 shrink-0 px-6 pb-6 pt-2">
+        <div className="mb-3 flex items-center justify-center gap-1">
+          {DECK.map((g, i) => (
             <span
               key={g.id}
               className={`h-1.5 rounded-full transition-all duration-300 ${i === selected ? 'w-5 bg-white' : 'w-1.5 bg-white/30'}`}
             />
           ))}
         </div>
-
-        <motion.button
+        <button
           onClick={play}
-          disabled={!game.available}
-          whileTap={game.available ? { scale: 0.95 } : undefined}
-          whileHover={game.available ? { scale: 1.015 } : undefined}
-          transition={{ type: 'spring', stiffness: 480, damping: 26 }}
-          className={`pointer-events-auto mt-1 flex h-16 w-full max-w-xs items-center justify-center gap-2 rounded-3xl font-display text-xl uppercase tracking-[0.2em] text-white ${
-            game.available ? 'bg-gradient-to-r from-primary to-accent-cyan shadow-premium' : 'cursor-not-allowed bg-white/10 tracking-wider text-white/50'
-          }`}
+          className="mx-auto flex h-16 w-full max-w-xs items-center justify-center gap-2 rounded-3xl bg-gradient-to-r from-primary to-accent-cyan font-display text-xl uppercase tracking-[0.2em] text-white shadow-premium transition-premium active:scale-95"
         >
-          {game.available ? (
-            <>
-              <span aria-hidden className="text-lg leading-none">▶</span>
-              {t('selector.play', { defaultValue: 'Play' })}
-            </>
-          ) : (
-            t('home.comingSoon')
-          )}
-        </motion.button>
+          <span aria-hidden className="text-lg leading-none">▶</span>
+          {t('selector.play', { defaultValue: 'Play' })}
+        </button>
+        {game && (
+          <p className="mt-2 text-center text-xs text-white/50">{t(game.taglineKey)}</p>
+        )}
       </div>
     </div>
   );

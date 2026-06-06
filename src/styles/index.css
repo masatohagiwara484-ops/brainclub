@@ -162,6 +162,76 @@ canvas {
   .hero-float, .hero-orb { animation: none !important; }
 }
 
+/* ============================================================
+   Holographic game cards — the home selector (Pokémon-TCG style)
+   ============================================================
+   Each game is a flat 2D illustration; the CARD is a 3D holographic
+   object. Pure CSS (GPU-composited) so it stays buttery on mobile with
+   zero WebGL. JS sets --px/--py (pointer, %) and the inline transform
+   (tilt/scale); these layers paint the foil/glare/sparkle. Blend modes
+   are contained via `isolation` so the shine reads on the card only. */
+.holo-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  transition: transform 130ms ease-out, opacity 220ms ease-out;
+  will-change: transform, opacity;
+  box-shadow: 0 22px 48px -18px rgba(0, 0, 0, 0.75), 0 6px 16px -8px rgba(0, 0, 0, 0.55);
+}
+.holo-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+/* iridescent rainbow foil that travels with the pointer */
+.holo-foil {
+  background-image: linear-gradient(
+    115deg,
+    transparent 18%,
+    hsla(0, 100%, 66%, 0.55), hsla(48, 100%, 66%, 0.55), hsla(120, 100%, 66%, 0.55),
+    hsla(190, 100%, 66%, 0.55), hsla(280, 100%, 66%, 0.55), hsla(330, 100%, 66%, 0.55),
+    transparent 82%
+  );
+  background-size: 220% 220%;
+  background-position: var(--px, 50%) var(--py, 50%);
+  mix-blend-mode: color-dodge;
+  filter: brightness(0.85) contrast(1.5) saturate(1.25);
+  opacity: calc(var(--holo, 0) * 0.62);
+}
+/* fine glitter that sparkles near the highlight */
+.holo-sparkle {
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.85) 1px, transparent 1.7px),
+    radial-gradient(rgba(190, 225, 255, 0.7) 1px, transparent 1.7px);
+  background-size: 15px 15px, 23px 23px;
+  background-position: var(--px, 50%) var(--py, 50%), calc(var(--px, 50%) + 9px) calc(var(--py, 50%) + 7px);
+  mix-blend-mode: color-dodge;
+  opacity: calc(var(--holo, 0) * 0.5);
+}
+/* soft directional glare following the pointer */
+.holo-glare {
+  background-image: radial-gradient(
+    farthest-corner circle at var(--px, 50%) var(--py, 50%),
+    rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.12) 22%, rgba(0, 0, 0, 0) 60%
+  );
+  mix-blend-mode: overlay;
+  opacity: calc(0.22 + var(--holo, 0) * 0.42);
+}
+/* embossed inner frame + edge gloss for a "real card" feel */
+.holo-frame {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2), inset 0 0 26px rgba(255, 255, 255, 0.08),
+    inset 0 2px 2px rgba(255, 255, 255, 0.28);
+}
+@media (prefers-reduced-motion: reduce) {
+  .holo-card { transition: none; }
+  .holo-foil, .holo-sparkle { opacity: 0.12 !important; }
+}
+
 /* ---- Word Guess animations ---- */
 /* Pop when a letter is typed into a tile. */
 @keyframes wg-pop {
