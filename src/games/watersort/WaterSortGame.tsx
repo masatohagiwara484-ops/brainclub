@@ -9,12 +9,13 @@ import {
   isSolved,
   type State,
 } from './waterSort';
-import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
+import { difficultyKey, type Difficulty } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { haptics } from '../../lib/haptics';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell, { ShellButton } from '../../components/GameShell';
 
 const AXES = getGame('watersort')?.axes ?? {};
 // Target move counts per difficulty — solving in fewer moves nudges quality up.
@@ -129,26 +130,15 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center overflow-y-auto px-4 py-3">
-      {/* Header */}
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      difficulty={difficulty}
+      stat={
+        <>
           {moves} {t('watersort.moves')}
-        </span>
-        <button
-          onClick={newLevel}
-          className="rounded-xl bg-slate-100 px-3 py-1.5 font-semibold text-slate-700 shadow-sm hover:bg-slate-200 active:scale-95"
-        >
-          {t('watersort.newGame')}
-        </button>
-      </div>
-
+        </>
+      }
+      action={<ShellButton onClick={newLevel}>{t('watersort.newGame')}</ShellButton>}
+    >
       {/* Tubes */}
       <div className="mt-6 flex flex-1 flex-wrap items-center justify-center gap-3 sm:gap-4">
         {tubes.map((tube, i) => (
@@ -185,7 +175,7 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }
 
@@ -203,8 +193,8 @@ function Tube({
   return (
     <button
       onClick={onClick}
-      className={`relative flex w-12 flex-col-reverse overflow-hidden rounded-b-2xl rounded-t-md border-2 bg-white/60 transition sm:w-14 ${
-        selected ? '-translate-y-3 border-brand shadow-lg' : 'border-slate-300'
+      className={`relative flex w-12 flex-col-reverse overflow-hidden rounded-b-2xl rounded-t-md border-2 bg-white/10 backdrop-blur transition sm:w-14 ${
+        selected ? '-translate-y-3 border-accent-cyan shadow-lg shadow-accent-cyan/30' : 'border-white/20'
       }`}
       style={{ height: 160 }}
       aria-label="tube"
@@ -224,7 +214,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-200 active:scale-95"
+      className="rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/12 transition hover:bg-white/15 active:scale-95"
     >
       {children}
     </button>

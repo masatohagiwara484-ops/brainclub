@@ -9,6 +9,7 @@ import {
 import type { GameDef } from '../games/registry';
 import { sound } from '../lib/sound';
 import GameArt from './GameArt';
+import { GAME_BG } from './GameShell';
 
 // A dedicated screen between the game grid and play: pick a difficulty (★1–★4,
 // green→red) before the game starts. Headings use the cyber-silver dot font.
@@ -22,14 +23,14 @@ export default function DifficultyScreen({ game }: { game: GameDef }) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center overflow-y-auto px-5 py-8">
+    <div className="flex h-full flex-col items-center overflow-y-auto px-5 py-8 text-white" style={{ background: GAME_BG }}>
       <div className="flex w-full max-w-md flex-col items-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-brand text-white shadow-md">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent-cyan text-white shadow-premium">
           <GameArt id={game.id} className="h-12 w-12" />
         </div>
 
         <h1 className="font-cyber mt-4 text-2xl">{t(game.nameKey)}</h1>
-        <p className="font-dot mt-1 flex items-center gap-1 text-sm text-slate-500">
+        <p className="font-dot mt-1 flex items-center gap-1 text-sm text-white/60">
           <span className="text-amber-400">★</span>
           {t('difficulty.choose')}
         </p>

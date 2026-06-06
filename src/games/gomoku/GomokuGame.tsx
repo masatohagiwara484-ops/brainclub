@@ -304,13 +304,13 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
         >
           {t(difficultyKey(difficulty))}
         </span>
-        <div className="rounded-xl bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm">
+        <div className="rounded-xl bg-slate-900/70 px-3 py-1.5 text-sm font-semibold text-white shadow-sm ring-1 ring-white/10 backdrop-blur">
           {status === 'playing' ? (
             <span>
-              <span className={turn === BLACK ? 'text-slate-900' : 'text-slate-400'}>⚫ {t('gomoku.you')}</span>
-              <span className="mx-2 text-slate-300">·</span>
-              <span className={turn === WHITE ? 'text-slate-900' : 'text-slate-400'}>⚪ {t('gomoku.ai')}</span>
-              <span className="ml-3 text-brand">{turnLabel}</span>
+              <span className={turn === BLACK ? 'text-white' : 'text-white/40'}>⚫ {t('gomoku.you')}</span>
+              <span className="mx-2 text-white/30">·</span>
+              <span className={turn === WHITE ? 'text-white' : 'text-white/40'}>⚪ {t('gomoku.ai')}</span>
+              <span className="ml-3 text-accent-cyan">{turnLabel}</span>
             </span>
           ) : (
             <span>{t('gomoku.gameOver')}</span>
@@ -363,7 +363,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-200 active:scale-95"
+      className="rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/12 backdrop-blur transition hover:bg-white/15 active:scale-95"
     >
       {children}
     </button>

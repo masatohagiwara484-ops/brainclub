@@ -14,13 +14,14 @@ import {
   type Loc,
   type Card,
 } from './klondike';
-import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
+import { difficultyKey, type Difficulty } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell, { ShellButton } from '../../components/GameShell';
 
 const AXES = getGame('solitaire')?.axes ?? {};
 // Target completion times (seconds) per difficulty.
@@ -198,26 +199,16 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
   };
 
   return (
-    <div className="flex h-full flex-col items-center overflow-hidden px-2 py-3">
-      {/* Header */}
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
-        <span className="font-semibold tabular-nums text-slate-700">
+    <GameShell
+      difficulty={difficulty}
+      stat={
+        <>
           ⏱ {fmt(seconds)} · {moves} {t('solitaire.moves')}
-        </span>
-        <button
-          onClick={newGame}
-          className="rounded-xl bg-slate-100 px-3 py-1.5 font-semibold text-slate-700 shadow-sm hover:bg-slate-200 active:scale-95"
-        >
-          {t('solitaire.newGame')}
-        </button>
-      </div>
-
+        </>
+      }
+      action={<ShellButton onClick={newGame}>{t('solitaire.newGame')}</ShellButton>}
+      scroll={false}
+    >
       {/* Board */}
       <div ref={wrapRef} className="mt-3 w-full max-w-md flex-1 overflow-y-auto">
         {/* Top row: stock, waste, spacer, 4 foundations */}
@@ -227,7 +218,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
             {game.stock.length > 0 ? (
               <CardBack w={cardW} h={cardH} />
             ) : (
-              <span className="text-lg text-slate-400">{canRecycle(game) ? '↻' : ''}</span>
+              <span className="text-lg text-white/40">{canRecycle(game) ? '↻' : ''}</span>
             )}
           </Slot>
           {/* waste */}
@@ -255,7 +246,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
                   selected={isSel({ kind: 'foundation', i })}
                 />
               ) : (
-                <span className="text-base text-slate-300">{SUIT_CHAR[i]}</span>
+                <span className="text-base text-white/30">{SUIT_CHAR[i]}</span>
               )}
             </Slot>
           ))}
@@ -277,7 +268,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
                 {col.length === 0 && (
                   <button
                     onClick={() => onTableauEmpty(c)}
-                    className="absolute inset-0 rounded-md border-2 border-dashed border-slate-200"
+                    className="absolute inset-0 rounded-md border-2 border-dashed border-white/20"
                     style={{ height: cardH }}
                     aria-label="empty column"
                   />
@@ -338,7 +329,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
           shareMsg={shareMsg}
         />
       )}
-    </div>
+    </GameShell>
   );
 }
 
@@ -357,7 +348,7 @@ function Slot({
   return (
     <button
       onClick={onClick}
-      className="flex items-center justify-center rounded-md border border-slate-200 bg-slate-50"
+      className="flex items-center justify-center rounded-md border border-white/15 bg-white/[0.05]"
       style={{ width: w, height: h }}
     >
       {children}
@@ -425,7 +416,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-200 active:scale-95"
+      className="rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/12 transition hover:bg-white/15 active:scale-95"
     >
       {children}
     </button>

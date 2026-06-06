@@ -86,27 +86,27 @@ export default function CubeGame() {
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[radial-gradient(circle_at_50%_18%,#f8fbff_0%,#eef4ff_44%,#ffffff_100%)]">
+    <div className="relative h-full w-full overflow-hidden bg-[radial-gradient(circle_at_50%_16%,#1b2440_0%,#0d1322_52%,#080b14_100%)]">
       <canvas ref={canvasRef} className="block h-full w-full touch-none" />
 
       {/* Top stats */}
       <div className="pointer-events-none absolute left-0 right-0 top-0 flex justify-center gap-2 p-3 sm:gap-3">
-        <div className="rounded-2xl border border-slate-200/70 bg-white/78 px-3 py-1.5 text-sm font-bold tabular-nums text-slate-700 shadow-game backdrop-blur-xl">
+        <div className="rounded-2xl border border-white/10 bg-slate-900/60 px-3 py-1.5 text-sm font-bold tabular-nums text-white shadow-game backdrop-blur-xl">
           ⏱ {fmt(stats.seconds)}
         </div>
-        <div className="rounded-2xl border border-slate-200/70 bg-white/78 px-3 py-1.5 text-sm font-bold tabular-nums text-slate-700 shadow-game backdrop-blur-xl">
+        <div className="rounded-2xl border border-white/10 bg-slate-900/60 px-3 py-1.5 text-sm font-bold tabular-nums text-white shadow-game backdrop-blur-xl">
           {stats.moves} {t('cube.moves')}
         </div>
       </div>
 
       {/* Size selector */}
-      <div className="absolute left-1/2 top-14 flex -translate-x-1/2 gap-1 rounded-2xl border border-slate-200/70 bg-white/78 p-1 shadow-game backdrop-blur-xl">
+      <div className="absolute left-1/2 top-14 flex -translate-x-1/2 gap-1 rounded-2xl border border-white/10 bg-slate-900/60 p-1 shadow-game backdrop-blur-xl">
         {SIZES.map((n) => (
           <button
             key={n}
             onClick={() => changeSize(n)}
             className={`rounded-xl px-3 py-1.5 text-sm font-semibold transition ${
-              size === n ? 'bg-brand text-white shadow-premium' : 'text-slate-500 hover:text-slate-900'
+              size === n ? 'bg-brand text-white shadow-premium' : 'text-white/55 hover:text-white'
             }`}
           >
             {n}×{n}
@@ -152,7 +152,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-2xl border border-slate-200/70 bg-white/82 px-4 py-2 text-sm font-bold text-slate-700 shadow-game backdrop-blur-xl transition-premium hover:bg-white active:scale-95"
+      className="rounded-2xl border border-white/12 bg-white/[0.08] px-4 py-2 text-sm font-bold text-white shadow-game backdrop-blur-xl transition-premium hover:bg-white/15 active:scale-95"
     >
       {children}
     </button>

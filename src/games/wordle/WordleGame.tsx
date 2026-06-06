@@ -14,6 +14,7 @@ import {
   triggerSolveFeedback,
 } from '../../lib/feedback';
 import GameResultScreen from '../../components/GameResultScreen';
+import GameShell, { ShellButton } from '../../components/GameShell';
 
 const AXES = getGame('wordle')?.axes ?? {};
 import {
@@ -312,44 +313,36 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
   const winRate = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
 
   return (
-    <div className="flex h-full flex-col items-center overflow-y-auto px-3 py-3">
-      {/* Header: difficulty + mode toggle */}
-      <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
+    <GameShell
+      left={
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.08] px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white ring-1 ring-white/10">
+          <span className="h-2 w-2 rounded-full" style={{ background: DIFFICULTY_STYLE[difficulty].color }} />
           {t(difficultyKey(difficulty))} · {length}
         </span>
-
-        <div className="flex overflow-hidden rounded-xl bg-slate-100 p-0.5 text-xs font-semibold">
+      }
+      stat={
+        <div className="flex overflow-hidden rounded-xl bg-white/10 p-0.5 text-xs font-semibold">
           {(['daily', 'practice'] as Mode[]).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`rounded-lg px-3 py-1.5 transition ${
-                mode === m ? 'bg-brand text-white shadow-sm' : 'text-slate-600'
-              }`}
+              className={`rounded-lg px-3 py-1.5 transition ${mode === m ? 'bg-brand text-white shadow-sm' : 'text-white/60'}`}
             >
               {t(`wordle.${m}`)}
             </button>
           ))}
         </div>
-
-        {mode === 'practice' ? (
-          <button
-            onClick={startPractice}
-            className="rounded-xl bg-slate-100 px-3 py-1.5 font-semibold text-slate-700 shadow-sm hover:bg-slate-200 active:scale-95"
-          >
-            {t('wordle.newGame')}
-          </button>
+      }
+      action={
+        mode === 'practice' ? (
+          <ShellButton onClick={startPractice}>{t('wordle.newGame')}</ShellButton>
         ) : (
-          <span className="w-[68px] text-right text-xs text-slate-400">
+          <span className="text-xs text-white/50">
             {Math.min(guesses.length + (status === 'playing' ? 1 : 0), maxGuesses)}/{maxGuesses}
           </span>
-        )}
-      </div>
-
+        )
+      }
+    >
       {/* Board */}
       <div ref={boardRef} className="mt-4 flex flex-col gap-1.5" style={{ perspective: '800px' }}>
         {Array.from({ length: maxGuesses }).map((_, r) => {
@@ -378,8 +371,8 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
 
                 let look: string;
                 if (submitted && st) look = tileColor(st[i]);
-                else if (filled) look = 'bg-white border-slate-400 text-slate-900';
-                else look = 'bg-white border-slate-200 text-slate-900';
+                else if (filled) look = 'bg-white/[0.10] border-white/40 text-white';
+                else look = 'bg-white/[0.04] border-white/15 text-white';
 
                 const anim = won ? 'wg-bounce' : flipping ? 'wg-flip' : '';
                 const delay = (won || flipping) ? `${i * 120}ms` : undefined;
@@ -406,10 +399,10 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
             {row.map((k) => {
               const wide = k === 'enter' || k === 'back';
               const s = keyState[k];
-              let bg = 'bg-slate-200 text-slate-800';
+              let bg = 'bg-white/[0.12] text-white';
               if (s === 'correct') bg = `${okBg} text-white`;
               else if (s === 'present') bg = `${midBg} text-white`;
-              else if (s === 'absent') bg = 'bg-slate-400 text-white';
+              else if (s === 'absent') bg = 'bg-white/[0.06] text-white/40';
               return (
                 <button
                   key={k}
@@ -475,6 +468,6 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
           closeLabel={t('nav.back')}
         />
       )}
-    </div>
+    </GameShell>
   );
 }
