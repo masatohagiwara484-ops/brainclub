@@ -5,24 +5,25 @@ import { GAMES } from '../games/registry';
 import { prefersReducedMotion } from '../lib/fx';
 import { haptics } from '../lib/haptics';
 import { sound } from '../lib/sound';
+import { getSetting } from '../lib/storage';
 import GameArt from './GameArt';
 
 // ============================================================================
 // HolographicCardSelector — the home hero as a Pokémon-TCG-style deck.
 //
 // Each GAME is a flat 2D illustration (GameArt); the CARD is a 3D holographic
-// object (pure CSS, GPU-composited — NO WebGL, so it never janks or freezes on
-// mobile). Selection rides on native horizontal scroll-snap, so one swipe always
-// lands exactly one card and every game is reliably reachable + playable. The
-// centered card lights up with an iridescent foil + glare + sparkle and tilts
-// toward the pointer (desktop) or device tilt (gyro, mobile). Reduced-motion
-// keeps the snap-rail but drops the tilt/shimmer.
+// object (pure CSS, GPU-composited — NO WebGL, so it never janks/freezes on
+// mobile). Selection rides native horizontal scroll-snap, so one swipe lands
+// exactly one card and every game is reliably reachable + playable. A continuous
+// rAF animates the centered card: its iridescent foil drifts on its own (so it
+// reads as holographic at rest), follows the finger/mouse when touched, and
+// tilts to device-tilt (gyro) — on mobile and desktop alike. The deck opens on
+// the last game you played. Reduced-motion keeps the snap-rail, no tilt/shimmer.
 // ============================================================================
 
 const BG = 'radial-gradient(120% 90% at 50% 6%, #221c54 0%, #0b1020 58%, #060812 100%)';
-// Only playable games appear in the deck — so every card you can reach, you can play.
+// Only playable games appear — so every card you can reach, you can play.
 const DECK = GAMES.filter((g) => g.available);
-
 const STARS: Record<string, number> = { 'must-have': 3, recommended: 2, innovative: 1 };
 const clamp = (x: number, lo: number, hi: number) => (x < lo ? lo : x > hi ? hi : x);
 
@@ -30,57 +31,48 @@ export default function HolographicCardSelector() {
   const { t } = useTranslation();
   const nav = useNavigate();
   const reduced = useMemo(() => prefersReducedMotion(), []);
-  const canHover = useMemo(
-    () => typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches,
-    [],
-  );
 
   const scroller = useRef<HTMLDivElement>(null);
   const wraps = useRef<(HTMLDivElement | null)[]>([]);
   const inners = useRef<(HTMLDivElement | null)[]>([]);
-  const rafId = useRef(0);
-  const pointer = useRef<{ i: number; x: number; y: number } | null>(null);
+  const rafLayout = useRef(0);
+  const pointer = useRef<{ x: number; y: number } | null>(null); // finger / mouse on the active card
+  const gyro = useRef<{ x: number; y: number } | null>(null);
   const selRef = useRef(0);
   const [selected, setSelected] = useState(0);
 
-  // The single layout pass: place every card by its distance from center and
-  // light up the centered one. Reads refs only, so it never goes stale.
+  // Position every card by its distance from center; the centered card's tilt is
+  // owned by the continuous tick() below. Called on scroll + resize only.
   const layout = () => {
     const sc = scroller.current;
     if (!sc) return;
     const cr = sc.getBoundingClientRect();
     const center = cr.left + cr.width / 2;
+    const rects = wraps.current.map((w) => w?.getBoundingClientRect());
     let best = 0;
     let bestD = Infinity;
     for (let i = 0; i < DECK.length; i++) {
-      const wrap = wraps.current[i];
-      const inner = inners.current[i];
-      if (!wrap || !inner) continue;
-      const r = wrap.getBoundingClientRect();
+      const r = rects[i];
+      if (!r) continue;
       const d = (r.left + r.width / 2 - center) / r.width;
       const ad = Math.abs(d);
-      if (ad < bestD) {
-        bestD = ad;
-        best = i;
-      }
-      const active = ad < 0.5;
-      const scale = 1 - Math.min(ad, 1.6) * 0.12;
-      let ry = clamp(-d * 18, -26, 26);
-      let rx = 0;
-      let px = '50%';
-      let py = '38%';
-      if (active && !reduced && pointer.current && pointer.current.i === i) {
-        ry = (pointer.current.x - 0.5) * 30;
-        rx = -(pointer.current.y - 0.5) * 26;
-        px = `${pointer.current.x * 100}%`;
-        py = `${pointer.current.y * 100}%`;
-      }
-      inner.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+      if (ad < bestD) { bestD = ad; best = i; }
+    }
+    for (let i = 0; i < DECK.length; i++) {
+      const inner = inners.current[i];
+      const r = rects[i];
+      if (!inner || !r) continue;
+      const d = (r.left + r.width / 2 - center) / r.width;
+      const ad = Math.abs(d);
       inner.style.opacity = (1 - Math.min(ad, 1.7) * 0.34).toFixed(3);
       inner.style.zIndex = String(100 - Math.round(ad * 10));
-      inner.style.setProperty('--holo', active && !reduced ? '1' : '0.12');
-      inner.style.setProperty('--px', px);
-      inner.style.setProperty('--py', py);
+      if (i === best) continue; // centered card is animated by tick()
+      const scale = 1 - Math.min(ad, 1.6) * 0.12;
+      const ry = clamp(-d * 18, -26, 26);
+      inner.style.transform = `rotateY(${ry.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+      inner.style.setProperty('--holo', '0.12');
+      inner.style.setProperty('--px', '50%');
+      inner.style.setProperty('--py', '38%');
     }
     if (best !== selRef.current) {
       selRef.current = best;
@@ -88,48 +80,91 @@ export default function HolographicCardSelector() {
       haptics.tick();
     }
   };
-
   const layoutRef = useRef(layout);
   layoutRef.current = layout;
-  const schedule = () => {
-    if (rafId.current) return;
-    rafId.current = requestAnimationFrame(() => {
-      rafId.current = 0;
+  const scheduleLayout = () => {
+    if (rafLayout.current) return;
+    rafLayout.current = requestAnimationFrame(() => {
+      rafLayout.current = 0;
       layoutRef.current();
     });
   };
 
+  // Mount: open on the last-played game, lay out, and start the shimmer loop.
   useEffect(() => {
+    const last = getSetting<string>('lastGame', '');
+    const idx = Math.max(0, DECK.findIndex((g) => g.id === last));
+    const sc = scroller.current;
+    const w = wraps.current[idx];
+    if (idx > 0 && sc && w) {
+      sc.scrollLeft = w.offsetLeft - (sc.clientWidth - w.clientWidth) / 2;
+      selRef.current = idx;
+      setSelected(idx);
+    }
     layoutRef.current();
-    const onResize = () => schedule();
+
+    if (reduced) return;
+    let raf = 0;
+    const tick = () => {
+      const inner = inners.current[selRef.current];
+      if (inner) {
+        const tt = performance.now() / 1000;
+        let px: number;
+        let py: number;
+        if (pointer.current) { px = pointer.current.x; py = pointer.current.y; }
+        else if (gyro.current) { px = gyro.current.x; py = gyro.current.y; }
+        else { px = 0.5 + Math.sin(tt * 0.7) * 0.3; py = 0.42 + Math.cos(tt * 0.55) * 0.2; }
+        const ry = (px - 0.5) * 30;
+        const rx = -(py - 0.5) * 24;
+        inner.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(1)`;
+        inner.style.setProperty('--holo', '1');
+        inner.style.setProperty('--px', `${(px * 100).toFixed(1)}%`);
+        inner.style.setProperty('--py', `${(py * 100).toFixed(1)}%`);
+        inner.style.opacity = '1';
+        inner.style.zIndex = '120';
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    const onResize = () => scheduleLayout();
     window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Device-tilt parallax (mobile). iOS needs a permission gesture (requested on tap).
+  // Device-tilt parallax (mobile). iOS needs a permission gesture (on first tap).
   useEffect(() => {
     if (reduced) return;
     const onTilt = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
-      pointer.current = {
-        i: selRef.current,
-        x: clamp(e.gamma / 30 + 0.5, 0, 1),
-        y: clamp((e.beta - 40) / 30 + 0.5, 0, 1),
-      };
-      schedule();
+      gyro.current = { x: clamp(e.gamma / 30 + 0.5, 0, 1), y: clamp((e.beta - 40) / 30 + 0.5, 0, 1) };
     };
     window.addEventListener('deviceorientation', onTilt);
     return () => window.removeEventListener('deviceorientation', onTilt);
   }, [reduced]);
 
-  const centerCard = (i: number) =>
-    wraps.current[i]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
-
-  const onCardClick = (i: number) => {
-    if (i === selRef.current) play();
-    else centerCard(i);
+  const setPointer = (e: React.PointerEvent) => {
+    if (reduced) return;
+    const w = wraps.current[selRef.current];
+    if (!w) return;
+    const r = w.getBoundingClientRect();
+    pointer.current = {
+      x: clamp((e.clientX - r.left) / r.width, 0, 1),
+      y: clamp((e.clientY - r.top) / r.height, 0, 1),
+    };
+  };
+  const clearPointer = () => { pointer.current = null; };
+  const requestGyro = () => {
+    const DOE = window.DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
+    if (typeof DOE?.requestPermission === 'function') void DOE.requestPermission().catch(() => {});
   };
 
+  const centerCard = (i: number) =>
+    wraps.current[i]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  const onCardClick = (i: number) => (i === selRef.current ? play() : centerCard(i));
   const play = () => {
     const g = DECK[selRef.current];
     if (!g) return;
@@ -137,47 +172,24 @@ export default function HolographicCardSelector() {
     nav(g.route);
   };
 
-  // Desktop pointer tilt on the centered card.
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!canHover || reduced) return;
-    const wrap = wraps.current[selRef.current];
-    if (!wrap) return;
-    const r = wrap.getBoundingClientRect();
-    pointer.current = {
-      i: selRef.current,
-      x: clamp((e.clientX - r.left) / r.width, 0, 1),
-      y: clamp((e.clientY - r.top) / r.height, 0, 1),
-    };
-    schedule();
-  };
-  const onPointerLeave = () => {
-    if (!canHover) return;
-    pointer.current = null;
-    schedule();
-  };
-  const requestGyro = () => {
-    const DOE = window.DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
-    if (typeof DOE?.requestPermission === 'function') void DOE.requestPermission().catch(() => {});
-  };
-
   const game = DECK[selected];
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden" style={{ background: BG }}>
-      {/* Hint */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center pt-3">
         <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70 backdrop-blur-sm">
           {t('selector.hint', { defaultValue: 'Swipe to explore · tap to play' })}
         </span>
       </div>
 
-      {/* The holographic deck — native scroll-snap carousel. */}
       <div
         ref={scroller}
-        onScroll={schedule}
-        onPointerDown={requestGyro}
-        onPointerMove={onPointerMove}
-        onPointerLeave={onPointerLeave}
+        onScroll={scheduleLayout}
+        onPointerDown={(e) => { requestGyro(); setPointer(e); }}
+        onPointerMove={setPointer}
+        onPointerUp={clearPointer}
+        onPointerLeave={clearPointer}
+        onPointerCancel={clearPointer}
         className="flex min-h-0 flex-1 items-center gap-4 overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style={{
           scrollSnapType: 'x mandatory',
@@ -196,26 +208,21 @@ export default function HolographicCardSelector() {
             style={{ width: 'var(--cardW)', scrollSnapAlign: 'center' }}
           >
             <div ref={(el) => { inners.current[i] = el; }} className="holo-card">
-              {/* 2D game illustration on a bespoke gradient */}
               <div className={`absolute inset-0 bg-gradient-to-br ${g.gradient}`}>
                 <div className="absolute inset-0 bg-neural opacity-20" />
-                {/* rarity stars */}
                 <div className="absolute left-3 top-3 flex gap-0.5 text-amber-200/90 drop-shadow">
                   {Array.from({ length: STARS[g.category] ?? 1 }).map((_, s) => (
                     <span key={s} className="text-xs leading-none">★</span>
                   ))}
                 </div>
-                {/* central art */}
                 <div className="flex h-[64%] items-center justify-center px-6 pt-6 text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.45)]">
                   <GameArt id={g.id} className="h-24 w-24" />
                 </div>
-                {/* name plate */}
                 <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/15 bg-black/25 px-3 py-2 text-center backdrop-blur-sm">
                   <div className="font-display text-lg leading-tight text-white">{t(g.nameKey)}</div>
                   <div className="text-[11px] leading-tight text-white/75">{t(g.taglineKey)}</div>
                 </div>
               </div>
-              {/* holographic layers */}
               <div className="holo-layer holo-foil" />
               <div className="holo-layer holo-sparkle" />
               <div className="holo-layer holo-glare" />
@@ -225,7 +232,6 @@ export default function HolographicCardSelector() {
         ))}
       </div>
 
-      {/* Bottom overlay: progress dots + big PLAY. */}
       <div className="relative z-10 shrink-0 px-6 pb-6 pt-2">
         <div className="mb-3 flex items-center justify-center gap-1">
           {DECK.map((g, i) => (
@@ -242,9 +248,7 @@ export default function HolographicCardSelector() {
           <span aria-hidden className="text-lg leading-none">▶</span>
           {t('selector.play', { defaultValue: 'Play' })}
         </button>
-        {game && (
-          <p className="mt-2 text-center text-xs text-white/50">{t(game.taglineKey)}</p>
-        )}
+        {game && <p className="mt-2 text-center text-xs text-white/50">{t(game.taglineKey)}</p>}
       </div>
     </div>
   );

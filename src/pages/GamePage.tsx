@@ -3,6 +3,7 @@ import { useParams, Navigate } from 'react-router-dom';
 import { getGame, type GameDef } from '../games/registry';
 import { isDifficulty, type Difficulty } from '../lib/difficulty';
 import { howto } from '../lib/howto';
+import { setSetting } from '../lib/storage';
 import DifficultyScreen from '../components/DifficultyScreen';
 
 // Lazy so framer-motion stays out of the main bundle; GamePage paints an
@@ -19,9 +20,11 @@ function GameLauncher({ game, difficulty }: { game: GameDef; difficulty?: Diffic
   const [started, setStarted] = useState(false); // game mounted? (flips at GO!)
   const [counting, setCounting] = useState(true); // overlay present?
 
-  // Warm the game's code chunk while the countdown plays.
+  // Warm the game's code chunk while the countdown plays, and remember this as
+  // the last game so the home deck reopens on it (not back to the first card).
   useEffect(() => {
     void game.load?.();
+    setSetting('lastGame', game.id);
   }, [game]);
 
   // Auto-play the textless tutorial once the countdown has fully cleared, so it

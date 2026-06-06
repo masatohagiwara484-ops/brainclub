@@ -41,15 +41,25 @@ export default function Layout({ children }: { children: ReactNode }) {
   const h = useHowto();
   const onPlay = loc.pathname.startsWith('/play/');
   const playId = onPlay ? loc.pathname.split('/')[2] : null;
+  // The home is one immersive dark surface — give it transparent/dark chrome so
+  // the header + bottom bar blend into the hero instead of clashing as a white
+  // strip. Light pages (games/score/settings) keep the frosted-white chrome.
+  const darkChrome = loc.pathname === '/';
 
   return (
     <div
       data-theme={theme}
       data-skin={skin === 'default' ? undefined : skin}
       data-contrast={colorBlind ? 'high' : undefined}
-      className="flex h-[100dvh] flex-col bg-white text-slate-900"
+      className={`flex h-[100dvh] flex-col ${darkChrome ? 'bg-[#0b1020] text-white' : 'bg-white text-slate-900'}`}
     >
-      <header className="z-20 flex items-center justify-between border-b border-slate-200/80 px-3 py-2.5 backdrop-blur-md supports-[backdrop-filter]:bg-white/80">
+      <header
+        className={`z-20 flex items-center justify-between border-b px-3 py-2.5 ${
+          darkChrome
+            ? 'border-white/10 bg-transparent'
+            : 'border-slate-200/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/80'
+        }`}
+      >
         {/* Left: profile avatar (or back chevron during a game). Fixed width keeps the brand centered. */}
         <div className="flex w-16 items-center">
           {onPlay ? (
@@ -67,7 +77,9 @@ export default function Layout({ children }: { children: ReactNode }) {
           ) : (
             <Link
               to="/profile"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-slate-500 hover:bg-slate-100"
+              className={`flex h-9 w-9 items-center justify-center rounded-full border ${
+                darkChrome ? 'border-white/25 text-white/80 hover:bg-white/10' : 'border-slate-300 text-slate-500 hover:bg-slate-100'
+              }`}
               aria-label={t('nav.profile')}
               title={t('nav.profile')}
             >
@@ -102,7 +114,9 @@ export default function Layout({ children }: { children: ReactNode }) {
           ) : (
             <Link
               to="/premium"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-amber-500 hover:bg-amber-50"
+              className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                darkChrome ? 'text-amber-300 hover:bg-white/10' : 'text-amber-500 hover:bg-amber-50'
+              }`}
               aria-label={t('monet.premiumTitle')}
               title={t('monet.premiumTitle')}
             >
