@@ -86,27 +86,27 @@ export default function CubeGame() {
   };
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden bg-[radial-gradient(circle_at_50%_18%,#f8fbff_0%,#eef4ff_44%,#ffffff_100%)]">
       <canvas ref={canvasRef} className="block h-full w-full touch-none" />
 
       {/* Top stats */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 flex justify-center gap-3 p-3">
-        <div className="rounded-xl bg-black/30 px-3 py-1.5 text-sm font-semibold tabular-nums text-white backdrop-blur">
+      <div className="pointer-events-none absolute left-0 right-0 top-0 flex justify-center gap-2 p-3 sm:gap-3">
+        <div className="rounded-2xl border border-slate-200/70 bg-white/78 px-3 py-1.5 text-sm font-bold tabular-nums text-slate-700 shadow-game backdrop-blur-xl">
           ⏱ {fmt(stats.seconds)}
         </div>
-        <div className="rounded-xl bg-black/30 px-3 py-1.5 text-sm font-semibold tabular-nums text-white backdrop-blur">
+        <div className="rounded-2xl border border-slate-200/70 bg-white/78 px-3 py-1.5 text-sm font-bold tabular-nums text-slate-700 shadow-game backdrop-blur-xl">
           {stats.moves} {t('cube.moves')}
         </div>
       </div>
 
       {/* Size selector */}
-      <div className="absolute left-1/2 top-14 flex -translate-x-1/2 gap-1 rounded-2xl bg-black/30 p-1 backdrop-blur">
+      <div className="absolute left-1/2 top-14 flex -translate-x-1/2 gap-1 rounded-2xl border border-slate-200/70 bg-white/78 p-1 shadow-game backdrop-blur-xl">
         {SIZES.map((n) => (
           <button
             key={n}
             onClick={() => changeSize(n)}
             className={`rounded-xl px-3 py-1.5 text-sm font-semibold transition ${
-              size === n ? 'bg-brand text-white' : 'text-white/70 hover:text-white'
+              size === n ? 'bg-brand text-white shadow-premium' : 'text-slate-500 hover:text-slate-900'
             }`}
           >
             {n}×{n}
@@ -115,7 +115,7 @@ export default function CubeGame() {
       </div>
 
       {/* Controls */}
-      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-wrap justify-center gap-2">
+      <div className="absolute bottom-4 left-1/2 grid w-[min(18rem,calc(100%-2rem))] -translate-x-1/2 grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:justify-center">
         <Btn onClick={() => engineRef.current?.scramble()}>{t('cube.scramble')}</Btn>
         <Btn onClick={() => engineRef.current?.undo()}>{t('cube.undo')}</Btn>
         <Btn onClick={() => { setWin(null); setLevelUp(null); engineRef.current?.reset(); }}>{t('cube.reset')}</Btn>
@@ -152,7 +152,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-xl bg-black/30 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/45 active:scale-95"
+      className="rounded-2xl border border-slate-200/70 bg-white/82 px-4 py-2 text-sm font-bold text-slate-700 shadow-game backdrop-blur-xl transition-premium hover:bg-white active:scale-95"
     >
       {children}
     </button>
