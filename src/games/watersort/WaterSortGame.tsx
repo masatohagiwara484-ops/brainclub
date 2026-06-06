@@ -14,7 +14,7 @@ import type { GameProps } from '../types';
 import { haptics } from '../../lib/haptics';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 
 const AXES = getGame('watersort')?.axes ?? {};
 // Target move counts per difficulty — solving in fewer moves nudges quality up.
@@ -169,7 +169,7 @@ export default function WaterSortGame({ difficulty = 'easy' }: GameProps) {
 
       {/* Win modal */}
       {won && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji="🎉"
           title={t('watersort.solved')}
           subtitle={

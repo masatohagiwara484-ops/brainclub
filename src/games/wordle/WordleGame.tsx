@@ -13,7 +13,7 @@ import {
   triggerIncorrectFeedback,
   triggerSolveFeedback,
 } from '../../lib/feedback';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 
 const AXES = getGame('wordle')?.axes ?? {};
 import {
@@ -429,14 +429,14 @@ export default function WordleGame({ difficulty = 'medium' }: GameProps) {
 
       {/* Result modal */}
       {showResult && status !== 'playing' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={status === 'won' ? '🎉' : '😅'}
           title={status === 'won' ? t('wordle.won') : t('wordle.lost')}
           celebrate={status === 'won'}
           subtitle={
             <>
               {t('wordle.answer')}:{' '}
-              <span className="font-bold uppercase tracking-widest text-slate-800">{answer}</span>
+              <span className="font-bold uppercase tracking-widest text-white">{answer}</span>
             </>
           }
           stats={

@@ -5,7 +5,7 @@ import { getSetting, setSetting } from '../../lib/storage';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('whack')?.axes ?? {};
@@ -127,10 +127,11 @@ export default function WhackGame(_: GameProps) {
       )}
 
       {phase === 'over' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={isBest ? '🏆' : '🐹'}
           title={isBest ? t('whack.newBest') : t('whack.gameOver')}
           celebrate={isBest}
+          isNewBest={isBest}
           levelUp={levelUp}
           stats={[
             { value: score, label: '⭐' },

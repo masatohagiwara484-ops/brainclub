@@ -20,7 +20,7 @@ import { saveBest } from '../../lib/storage';
 import { haptics } from '../../lib/haptics';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 
 const AXES = getGame('solitaire')?.axes ?? {};
 // Target completion times (seconds) per difficulty.
@@ -322,7 +322,7 @@ export default function SolitaireGame({ difficulty = 'easy' }: GameProps) {
 
       {/* Win modal */}
       {won && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji="🎉"
           title={t('solitaire.solved')}
           subtitle={

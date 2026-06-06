@@ -6,7 +6,7 @@ import { share } from '../../lib/share';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
 import type { Difficulty } from '../../lib/difficulty';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 
 const SIZES = [2, 3, 4, 5];
 
@@ -124,7 +124,7 @@ export default function CubeGame() {
 
       {/* Win modal */}
       {win && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji="🎉"
           title={t('cube.solved')}
           subtitle={

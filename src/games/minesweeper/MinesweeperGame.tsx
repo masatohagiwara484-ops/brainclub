@@ -6,7 +6,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('minesweeper')?.axes ?? {};
@@ -101,7 +101,6 @@ export default function MinesweeperGame({ difficulty = 'easy' }: GameProps) {
   const finish = (win: boolean, secs: number) => {
     setStatus(win ? 'won' : 'lost');
     if (win) {
-      fx.win();
       const par = total * 0.6;
       const res = recordPlay({ gameId: 'minesweeper', axes: AXES, quality: clamp01(0.4 + 0.4 * clamp01(par / Math.max(1, secs))), weight: XP_WEIGHT[difficulty] });
       setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
@@ -191,7 +190,7 @@ export default function MinesweeperGame({ difficulty = 'easy' }: GameProps) {
       </div>
 
       {status !== 'play' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={status === 'won' ? '🏁' : '💥'}
           title={status === 'won' ? t('minesweeper.won') : t('minesweeper.lost')}
           celebrate={status === 'won'}

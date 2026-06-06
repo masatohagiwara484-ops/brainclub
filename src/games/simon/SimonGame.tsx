@@ -6,7 +6,7 @@ import { fx } from '../../lib/fx';
 import { sound } from '../../lib/sound';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('simon')?.axes ?? {};
@@ -154,7 +154,7 @@ export default function SimonGame(_: GameProps) {
       )}
 
       {phase === 'over' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji="🎶"
           title={t('simon.gameOver')}
           subtitle={`${t('simon.reached')} ${score}`}

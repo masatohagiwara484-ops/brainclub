@@ -7,7 +7,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('memory')?.axes ?? {};
@@ -58,7 +58,6 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
 
   useEffect(() => {
     if (!won) return;
-    fx.win();
     const prev = getSetting<number>(bestKey, 0);
     const better = prev === 0 || moves < prev;
     if (better) {
@@ -137,9 +136,10 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
       </div>
 
       {won && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={isBest ? '🏆' : '🧠'}
           title={isBest ? t('memory.newBest') : t('memory.solved')}
+          isNewBest={isBest}
           celebrate
           levelUp={levelUp}
           stats={[

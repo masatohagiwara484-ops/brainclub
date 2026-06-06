@@ -5,7 +5,7 @@ import { getSetting, setSetting } from '../../lib/storage';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('reaction')?.axes ?? {};
@@ -127,7 +127,7 @@ export default function ReactionGame(_: GameProps) {
       </button>
 
       {phase === 'over' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji="⚡"
           title={t('reaction.done')}
           subtitle={t('reaction.avg')}

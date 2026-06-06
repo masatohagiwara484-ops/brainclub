@@ -7,7 +7,7 @@ import { saveBest } from '../../lib/storage';
 import { fx } from '../../lib/fx';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 
 const AXES = getGame('sudoku')?.axes ?? {};
 // Target solve times (seconds) per difficulty — beating them nudges quality up.
@@ -312,7 +312,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
 
       {/* Solved modal */}
       {solved && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji="🎉"
           title={t('sudoku.solved')}
           subtitle={

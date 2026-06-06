@@ -5,7 +5,7 @@ import { getSetting, setSetting } from '../../lib/storage';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('memorygrid')?.axes ?? {};
@@ -79,7 +79,6 @@ export default function MemoryGridGame(_: GameProps) {
       if (np.length === pattern.length) {
         // Cleared the level → advance.
         const nextLv = level + 1;
-        fx.win();
         setLevel(nextLv);
         window.setTimeout(() => showLevel(nextLv), 450);
       }
@@ -135,7 +134,7 @@ export default function MemoryGridGame(_: GameProps) {
       )}
 
       {phase === 'over' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji="🧠"
           title={t('memorygrid.gameOver')}
           subtitle={`${t('memorygrid.reached')} ${t('memorygrid.level')} ${reached}`}

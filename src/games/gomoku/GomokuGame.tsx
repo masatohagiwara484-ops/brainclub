@@ -16,7 +16,7 @@ import { haptics } from '../../lib/haptics';
 import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import { recordPlay, difficultyQuality, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import type { GameProps } from '../types';
 
 const AXES = getGame('gomoku')?.axes ?? {};
@@ -326,7 +326,7 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
 
       {/* Result modal */}
       {status !== 'playing' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={status === 'black' ? '🏆' : status === 'white' ? '🤖' : '🤝'}
           title={status === 'black' ? t('gomoku.youWin') : status === 'white' ? t('gomoku.youLose') : t('gomoku.draw')}
           celebrate={status === 'black'}

@@ -4,7 +4,7 @@ import type { GameProps } from '../types';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01 } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('pegsolitaire')?.axes ?? {};
@@ -79,7 +79,6 @@ export default function PegSolitaireGame(_: GameProps) {
     if (validJumps(b).length > 0) return;
     setOver(true);
     const left = pegCount(b);
-    if (left === 1) fx.win();
     // Fewer pegs left = better. 1 peg → ~1.0; the full board never reaches here.
     const quality = clamp01(1 - (left - 1) / 12);
     const res = recordPlay({ gameId: 'pegsolitaire', axes: AXES, quality, weight: 1.6 });
@@ -145,7 +144,7 @@ export default function PegSolitaireGame(_: GameProps) {
       </div>
 
       {over && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={pegs === 1 ? '🏆' : '🪵'}
           title={pegs === 1 ? t('pegsolitaire.perfect') : t('pegsolitaire.stuck')}
           celebrate={pegs === 1}

@@ -6,7 +6,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('flood')?.axes ?? {};
@@ -78,7 +78,6 @@ export default function FloodGame({ difficulty = 'easy' }: GameProps) {
     setMoves(nm);
     if (isOneColor(nb)) {
       setStatus('won');
-      fx.win();
       const perf = clamp01((cfg.limit - nm) / cfg.limit + 0.4);
       const res = recordPlay({ gameId: 'flood', axes: AXES, quality: clamp01(0.35 + 0.55 * perf), weight: XP_WEIGHT[difficulty] });
       setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
@@ -127,7 +126,7 @@ export default function FloodGame({ difficulty = 'easy' }: GameProps) {
       </div>
 
       {status !== 'play' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={status === 'won' ? '🌊' : '🫧'}
           title={status === 'won' ? t('flood.won') : t('flood.lost')}
           celebrate={status === 'won'}

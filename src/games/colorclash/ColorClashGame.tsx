@@ -7,7 +7,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { colorById, makeRound, TUNING, type ColorId, type Round } from './colorClash';
 
 const AXES = getGame('colorclash')?.axes ?? {};
@@ -232,10 +232,11 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
 
       {/* Game over */}
       {phase === 'over' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={newBest ? '🏆' : '🎨'}
           title={newBest ? t('colorclash.newBest') : t('colorclash.gameOver')}
           celebrate={newBest}
+          isNewBest={newBest}
           levelUp={levelUp}
           actions={[
             { label: t('colorclash.again'), onClick: start, variant: 'primary' },
@@ -243,19 +244,19 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
           ]}
           shareMsg={shareMsg}
         >
-          <p className="mt-2 text-3xl font-black tabular-nums text-brand">{score}</p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-2 text-3xl font-black tabular-nums text-white">{score}</p>
+          <p className="mt-1 text-sm text-white/60">
             {t('colorclash.best')}: {best}
           </p>
           {round && (
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-white/50">
               {t('colorclash.answerWas')}{' '}
               <span className="font-bold" style={{ color: colorById(round.ink).hex }}>
                 {t(`colorclash.colors.${round.ink}`)}
               </span>
             </p>
           )}
-        </ProgressResultModal>
+        </GameResultScreen>
       )}
     </div>
   );

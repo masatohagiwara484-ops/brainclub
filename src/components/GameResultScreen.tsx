@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { motion, AnimatePresence, useReducedMotion, animate, type Variants, type Transition } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { gameColors } from '../lib/gamePalette';
 import { sound } from '../lib/sound';
@@ -27,9 +28,15 @@ import { tierProgress } from '../lib/tiers';
 
 export type ResultStat = { value: ReactNode; label: ReactNode };
 
+export type ResultAction = { label: ReactNode; onClick: () => void; variant?: 'primary' | 'secondary' };
+
+export type ResultBar = { rowLabel: ReactNode; value: number; highlight?: boolean };
+export type Distribution = { label: ReactNode; bars: ResultBar[]; highlightClass?: string };
+
 type Props = {
-  /** Drives the themed confetti + accent gradient (lib/gamePalette). */
-  gameId: string;
+  /** Drives the themed confetti + accent gradient (lib/gamePalette). Optional —
+   *  falls back to the current /play/:id route param when omitted. */
+  gameId?: string;
   /** The big headline, e.g. "SOLVED" / "EXCELLENT". */
   title: ReactNode;
   subtitle?: ReactNode;
@@ -42,9 +49,21 @@ type Props = {
   /** Show the "New Personal Best" badge with its entrance pop. */
   isNewBest?: boolean;
   stats?: ResultStat[];
+  /** A histogram (e.g. Word Guess's guess distribution). */
+  distribution?: Distribution;
+  /** A small grey footnote below the content. */
+  note?: ReactNode;
+  /** Extra custom content, rendered between the stats and the Synapse panel. */
+  children?: ReactNode;
   /** Show the animated Synapse score + tier + axis meters. Default true. */
   synapse?: boolean;
-  onPlayAgain: () => void;
+  /**
+   * Buttons to show. When provided, these are rendered (primary = gradient slab,
+   * secondary = glass). When omitted, the convenience `onPlayAgain` / `onShare`
+   * pair below is used instead.
+   */
+  actions?: ResultAction[];
+  onPlayAgain?: () => void;
   playAgainLabel?: ReactNode;
   onShare?: () => void;
   shareLabel?: ReactNode;
@@ -67,6 +86,46 @@ function fireConfetti(colors: string[]) {
   window.setTimeout(() => confetti({ ...opts, particleCount: 46, angle: 120, spread: 72, origin: { x: 1, y: 0.66 } }), 160);
 }
 
+// A single large, spring-pressed action button. `primary` gets the game's
+// gradient slab + glow; otherwise it's the glass secondary.
+function ActionButton({
+  label,
+  onClick,
+  primary,
+  share = false,
+  reduced,
+  base,
+  accent,
+  glow,
+}: {
+  label: ReactNode;
+  onClick: () => void;
+  primary: boolean;
+  share?: boolean;
+  reduced: boolean;
+  base: string;
+  accent: string;
+  glow: string;
+}) {
+  return (
+    <motion.button
+      onClick={onClick}
+      whileTap={reduced ? undefined : { scale: 0.96 }}
+      whileHover={reduced ? undefined : { scale: 1.015 }}
+      transition={{ type: 'spring', stiffness: 480, damping: 26 }}
+      className={`flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-display text-lg uppercase tracking-wide text-white ${
+        primary ? '' : 'bg-white/[0.07] ring-1 ring-white/15'
+      }`}
+      style={primary ? { background: `linear-gradient(100deg, ${base}, ${accent})`, boxShadow: `0 12px 30px -10px ${glow}99` } : undefined}
+    >
+      {share && (
+        <span aria-hidden>↗</span>
+      )}
+      {label}
+    </motion.button>
+  );
+}
+
 export default function GameResultScreen({
   gameId,
   title,
@@ -76,7 +135,11 @@ export default function GameResultScreen({
   levelUp,
   isNewBest = false,
   stats,
+  distribution,
+  note,
+  children,
   synapse = true,
+  actions,
   onPlayAgain,
   playAgainLabel,
   onShare,
@@ -86,12 +149,14 @@ export default function GameResultScreen({
   closeLabel,
 }: Props) {
   const { t } = useTranslation();
+  const params = useParams<{ id?: string }>();
   const reduced = useReducedMotion() ?? false;
-  const [base, accent, glow] = gameColors(gameId);
+  const [base, accent, glow] = gameColors(gameId ?? params.id ?? '');
   const profile = useSynapse();
   const hasSynapse = synapse && profile.plays > 0;
   const score = synapseScore(profile);
   const { tier, next, frac, toNext } = tierProgress(score);
+  const maxBar = distribution ? Math.max(1, ...distribution.bars.map((b) => b.value)) : 1;
 
   // ---- Beat 2: Synapse score count-up. ----
   const [shownScore, setShownScore] = useState(reduced ? score : 0);
@@ -231,6 +296,36 @@ export default function GameResultScreen({
             </motion.div>
           )}
 
+          {/* Optional histogram (e.g. Word Guess's guess distribution). */}
+          {distribution && (
+            <motion.div variants={item} className="mt-4 text-left">
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-white/40">{distribution.label}</div>
+              <div className="mt-1.5 flex flex-col gap-1">
+                {distribution.bars.map((b, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs">
+                    <span className="w-3 text-white/40">{b.rowLabel}</span>
+                    <div className="flex-1">
+                      <div
+                        className={`flex h-5 items-center justify-end rounded px-1.5 text-xs font-bold text-white ${
+                          b.highlight ? distribution.highlightClass ?? '' : 'bg-white/15'
+                        }`}
+                        style={{
+                          width: `${Math.max(8, (b.value / maxBar) * 100)}%`,
+                          ...(b.highlight && !distribution.highlightClass ? { background: base } : {}),
+                        }}
+                      >
+                        {b.value}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Extra game-supplied content. */}
+          {children != null && <motion.div variants={item}>{children}</motion.div>}
+
           {/* Synapse reward — score count-up + tier progress + axis meters. */}
           {hasSynapse && (
             <motion.div variants={item} className="mt-5 rounded-2xl bg-white/[0.04] p-4 ring-1 ring-white/10">
@@ -301,30 +396,52 @@ export default function GameResultScreen({
             </motion.div>
           )}
 
-          {/* Actions — large, satisfying, spring-pressed. */}
+          {/* Footnote. */}
+          {note != null && <motion.p variants={item} className="mt-3 text-xs text-white/35">{note}</motion.p>}
+
+          {/* Actions — large, satisfying, spring-pressed. Either an explicit
+              `actions` list or the convenience Play Again / Share pair. */}
           <motion.div variants={item} className="mt-6 flex flex-col gap-2.5">
-            <motion.button
-              onClick={onPlayAgain}
-              whileTap={reduced ? undefined : { scale: 0.96 }}
-              whileHover={reduced ? undefined : { scale: 1.015 }}
-              transition={{ type: 'spring', stiffness: 480, damping: 26 }}
-              className="flex h-14 w-full items-center justify-center rounded-2xl font-display text-lg uppercase tracking-wide text-white"
-              style={{ background: `linear-gradient(100deg, ${base}, ${accent})`, boxShadow: `0 12px 30px -10px ${glow}99` }}
-            >
-              {playAgainLabel ?? t('result.playAgain', { defaultValue: 'Play Again' })}
-            </motion.button>
-            {onShare && (
-              <motion.button
-                onClick={onShare}
-                whileTap={reduced ? undefined : { scale: 0.96 }}
-                whileHover={reduced ? undefined : { scale: 1.015 }}
-                transition={{ type: 'spring', stiffness: 480, damping: 26 }}
-                className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-white/[0.07] font-display text-lg uppercase tracking-wide text-white ring-1 ring-white/15"
-              >
-                <span aria-hidden>↗</span>
-                {shareLabel ?? t('result.share', { defaultValue: 'Share Result' })}
-              </motion.button>
-            )}
+            {actions && actions.length > 0
+              ? actions.map((a, i) => (
+                  <ActionButton
+                    key={i}
+                    label={a.label}
+                    onClick={a.onClick}
+                    primary={a.variant !== 'secondary'}
+                    reduced={reduced}
+                    base={base}
+                    accent={accent}
+                    glow={glow}
+                  />
+                ))
+              : (
+                  <>
+                    {onPlayAgain && (
+                      <ActionButton
+                        label={playAgainLabel ?? t('result.playAgain', { defaultValue: 'Play Again' })}
+                        onClick={onPlayAgain}
+                        primary
+                        reduced={reduced}
+                        base={base}
+                        accent={accent}
+                        glow={glow}
+                      />
+                    )}
+                    {onShare && (
+                      <ActionButton
+                        label={shareLabel ?? t('result.share', { defaultValue: 'Share Result' })}
+                        onClick={onShare}
+                        primary={false}
+                        share
+                        reduced={reduced}
+                        base={base}
+                        accent={accent}
+                        glow={glow}
+                      />
+                    )}
+                  </>
+                )}
           </motion.div>
 
           <AnimatePresence>

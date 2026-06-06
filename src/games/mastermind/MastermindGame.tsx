@@ -6,7 +6,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
-import ProgressResultModal from '../../components/ProgressResultModal';
+import GameResultScreen from '../../components/GameResultScreen';
 import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('mastermind')?.axes ?? {};
@@ -95,7 +95,6 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
     setCur(Array<number>(cfg.pegs).fill(-1));
     if (exact === cfg.pegs) {
       setStatus('won');
-      fx.win();
       const perf = clamp01((cfg.tries - nrows.length + 1) / cfg.tries);
       const res = recordPlay({ gameId: 'mastermind', axes: AXES, quality: clamp01(0.4 + 0.5 * perf), weight: XP_WEIGHT[difficulty] });
       setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
@@ -181,7 +180,7 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
       )}
 
       {status !== 'play' && (
-        <ProgressResultModal
+        <GameResultScreen
           emoji={status === 'won' ? '🎯' : '🔓'}
           title={status === 'won' ? t('mastermind.won') : t('mastermind.lost')}
           celebrate={status === 'won'}
@@ -206,7 +205,7 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
               <span key={i} className="h-6 w-6 rounded-full" style={{ backgroundColor: PALETTE[s] }} />
             ))}
           </div>
-        </ProgressResultModal>
+        </GameResultScreen>
       )}
     </div>
   );
