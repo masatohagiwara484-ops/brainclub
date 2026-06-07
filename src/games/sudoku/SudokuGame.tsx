@@ -83,14 +83,29 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const [data, setData] = useState<Puzzle | null>(null);
   const [values, setValues] = useState<Grid>([]);
   const [selected, setSelected] = useState<number | null>(null);
+  // The digit the player last tapped — every matching cell lights up so it's
+  // easy to see where that number already lives on the board.
+  const [activeDigit, setActiveDigit] = useState<number | null>(null);
   const [seconds, setSeconds] = useState(0);
   const [solved, setSolved] = useState(false);
   const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   // Cells that just completed a unit — they briefly glow + pop.
   const [glow, setGlow] = useState<{ cells: Set<number>; key: number }>({ cells: new Set(), key: 0 });
+  // Combo banner (GOOD / GREAT / AMAZING) for consecutive unit completions.
+  const [combo, setCombo] = useState<{ label: string; key: number } | null>(null);
   const streakRef = useRef(0); // unit-completions this puzzle (drives the pitch ramp)
+  const comboRef = useRef(0); // consecutive completing moves (resets on a plain move)
+  const comboKeyRef = useRef(0);
   const glowKeyRef = useRef(0);
+
+  // How many of each digit (1–9) are on the board. A digit placed all 9 times
+  // is "used up" and disappears from the number pad.
+  const counts = useMemo(() => {
+    const c = Array(10).fill(0) as number[];
+    for (const v of values) if (v >= 1 && v <= 9) c[v]++;
+    return c;
+  }, [values]);
 
   const givenMask = useMemo(
     () => (data ? data.puzzle.map((v) => v !== 0) : []),
@@ -106,11 +121,14 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
       setData(p);
       setValues(p.puzzle.slice());
       setSelected(null);
+      setActiveDigit(null);
       setSeconds(0);
       setSolved(false);
       setLevelUp(null);
       setGlow({ cells: new Set(), key: 0 });
+      setCombo(null);
       streakRef.current = 0;
+      comboRef.current = 0;
     }, 20);
   }, []);
 
@@ -120,6 +138,13 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
     const id = setTimeout(() => setGlow({ cells: new Set(), key: 0 }), 720);
     return () => clearTimeout(id);
   }, [glow]);
+
+  // Clear the combo banner after its pop animation.
+  useEffect(() => {
+    if (!combo) return;
+    const id = setTimeout(() => setCombo(null), 1000);
+    return () => clearTimeout(id);
+  }, [combo]);
 
   useEffect(() => {
     generate(difficulty);
@@ -164,15 +189,31 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
         streakRef.current += 1;
         fx.correct({ streak: streakRef.current }); // rising chime + escalating haptic
         setGlow({ cells: new Set(newly), key: ++glowKeyRef.current });
+        // Combo: each consecutive completing move climbs the ladder.
+        comboRef.current += 1;
+        if (comboRef.current >= 3) {
+          const label = comboRef.current >= 5 ? 'AMAZING' : comboRef.current === 4 ? 'GREAT' : 'GOOD';
+          setCombo({ label, key: ++comboKeyRef.current });
+        }
       } else {
         fx.tick(); // soft blip on a normal placement
+        comboRef.current = 0; // a non-completing move breaks the combo chain
       }
       return next;
     });
   };
 
+  // Tapping a pad digit highlights every matching cell AND (if a cell is
+  // selected) places it. Highlighting works even with no cell selected, so the
+  // player can peek where a number already lives.
+  const onPadDigit = (n: number) => {
+    setActiveDigit(n);
+    place(n);
+  };
+
   const erase = () => {
     if (selected == null || !data || givenMask[selected]) return;
+    comboRef.current = 0;
     setValues((prev) => {
       const next = prev.slice();
       next[selected] = 0;
@@ -183,7 +224,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   // Keyboard support.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key >= '1' && e.key <= '9') place(Number(e.key));
+      if (e.key >= '1' && e.key <= '9') onPadDigit(Number(e.key));
       else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') erase();
     };
     window.addEventListener('keydown', onKey);
@@ -218,6 +259,9 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const selVal = selected != null ? values[selected] : 0;
   const selRow = selected != null ? Math.floor(selected / N) : -1;
   const selCol = selected != null ? selected % N : -1;
+  // A tapped pad digit wins; otherwise the selected cell's own value lights up
+  // its twins.
+  const highlightVal = activeDigit ?? selVal;
 
   return (
     <GameShell
@@ -239,7 +283,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
               const isGiven = givenMask[i];
               const isSel = selected === i;
               const inLine = r === selRow || c === selCol;
-              const sameVal = v !== 0 && v === selVal;
+              const sameVal = v !== 0 && v === highlightVal;
               const conflict = conflicts.has(i);
 
               const borders = [
@@ -250,7 +294,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
 
               let bg = 'bg-transparent';
               if (isSel) bg = 'bg-primary/40';
-              else if (sameVal) bg = 'bg-primary/20';
+              else if (sameVal) bg = 'bg-accent-cyan/25 ring-1 ring-inset ring-accent-cyan/40';
               else if (inLine) bg = 'bg-white/[0.06]';
 
               const text = conflict
@@ -264,7 +308,10 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
               return (
                 <button
                   key={i}
-                  onClick={() => setSelected(i)}
+                  onClick={() => {
+                    setSelected(i);
+                    setActiveDigit(null); // selecting a cell hands highlight back to its own value
+                  }}
                   data-evolve={glowing ? 'unit' : undefined}
                   className={`flex aspect-square items-center justify-center border text-lg font-semibold sm:text-xl ${borders} ${bg} ${text} ${
                     isGiven ? 'font-bold' : ''
@@ -276,19 +323,44 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
             })}
           </div>
         )}
+
+        {/* Combo banner — GOOD / GREAT / AMAZING for consecutive completions. */}
+        {combo && (
+          <div key={combo.key} className="pointer-events-none absolute inset-0 z-20 flex items-start justify-center pt-12">
+            <span className="combo-pop font-display text-5xl uppercase tracking-tight text-transparent" style={{
+              backgroundImage: 'linear-gradient(100deg, #67e8f9, #818cf8, #f472b6)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+            }}>
+              {combo.label}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Number pad */}
       <div className="mt-4 grid w-full max-w-md grid-cols-5 gap-2 sm:grid-cols-10">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
-          <button
-            key={n}
-            onClick={() => place(n)}
-            className="aspect-square rounded-xl bg-white/[0.08] text-xl font-bold text-white shadow-sm ring-1 ring-white/10 transition hover:bg-primary/30 active:scale-95"
-          >
-            {n}
-          </button>
-        ))}
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
+          const usedUp = counts[n] >= 9; // all placed → remove from the pad
+          const isActive = activeDigit === n;
+          return (
+            <button
+              key={n}
+              onClick={() => onPadDigit(n)}
+              disabled={usedUp}
+              aria-hidden={usedUp}
+              className={`aspect-square rounded-xl text-xl font-bold shadow-sm ring-1 transition active:scale-95 ${
+                usedUp
+                  ? 'invisible'
+                  : isActive
+                    ? 'bg-accent-cyan/30 text-white ring-accent-cyan/50'
+                    : 'bg-white/[0.08] text-white ring-white/10 hover:bg-primary/30'
+              }`}
+            >
+              {n}
+            </button>
+          );
+        })}
         <button
           onClick={erase}
           className="aspect-square rounded-xl bg-white/[0.08] text-lg text-white/70 shadow-sm ring-1 ring-white/10 transition hover:bg-white/[0.16] active:scale-95"
