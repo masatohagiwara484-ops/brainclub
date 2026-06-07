@@ -6,34 +6,39 @@ import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
+import { monet } from '../../lib/monetization';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
 import GameShell from '../../components/GameShell';
-import { colorById, makeRound, TUNING, type ColorId, type Round } from './colorClash';
+import { colorById, makeRound, TUNING, windowForScore, type ColorId, type Round } from './colorClash';
 
 const AXES = getGame('colorclash')?.axes ?? {};
 // Score that reads as a strong run. Lower at higher difficulty (the timer is
 // tighter), so reaching it reflects more reflex skill.
 const SCORE_TARGET: Record<string, number> = { easy: 25, medium: 18, hard: 13, expert: 9 };
+const AD_MS = 1600; // mock "ad" length (free tier); premium continues instantly.
 
 export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
   const { t } = useTranslation();
   const tuning = TUNING[difficulty];
   const bestKey = `colorclash.best.${difficulty}`;
 
-  const [phase, setPhase] = useState<'idle' | 'playing' | 'over'>('idle');
+  const [phase, setPhase] = useState<'idle' | 'playing' | 'revive' | 'reviving' | 'over'>('idle');
   const [round, setRound] = useState<Round | null>(null);
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(() => getSetting<number>(bestKey, 0));
   const [progress, setProgress] = useState(1); // 1 → 0 over the round window
   const [roundSeq, setRoundSeq] = useState(0);
   const [newBest, setNewBest] = useState(false);
+  const [revived, setRevived] = useState(false); // one revive per run
+  const [adProgress, setAdProgress] = useState(0);
   const [levelUp, setLevelUp] = useState<string | null>(null);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
 
   const rngRef = useRef<() => number>(() => Math.random());
   const scoreRef = useRef(0);
   const bestRef = useRef(best);
+  const revivedRef = useRef(false);
   const deadlineRef = useRef(0);
 
   const nextRound = useCallback(() => {
@@ -44,15 +49,18 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
   const start = useCallback(() => {
     rngRef.current = makeRng((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0);
     scoreRef.current = 0;
+    revivedRef.current = false;
     setScore(0);
+    setRevived(false);
     setNewBest(false);
     setLevelUp(null);
     setPhase('playing');
     nextRound();
   }, [nextRound]);
 
-  const endGame = useCallback(() => {
-    setPhase('over');
+  // Finalize the run for real: bank the best + log a Synapse play. Called once
+  // when the run truly ends (no revive, or revive already spent).
+  const finalize = useCallback(() => {
     const finalScore = scoreRef.current;
     const isBest = finalScore > bestRef.current;
     if (isBest) {
@@ -60,17 +68,37 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
       setBest(finalScore);
       setSetting(bestKey, finalScore);
       setNewBest(true);
-      // Celebrate ONLY a new best — never the failure itself (non-exploitative).
-      // The celebration is fired centrally by the result modal (celebrate={newBest}).
     } else {
       setNewBest(false);
     }
-    // Log a Synapse play every game: quality scales with the run, anchored by
-    // difficulty. A level-up is only surfaced on a new best (never a loss).
     const quality = clamp01(0.15 + 0.8 * clamp01(finalScore / SCORE_TARGET[difficulty]));
     const res = recordPlay({ gameId: 'colorclash', axes: AXES, quality, weight: XP_WEIGHT[difficulty] });
     setLevelUp(isBest && finalScore > 0 && res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
+    setPhase('over');
   }, [bestKey, difficulty, t]);
+
+  // A miss/timeout. Offer a one-time revive (continue the same run) if the
+  // player has a score to protect; otherwise end the run immediately.
+  const die = useCallback(() => {
+    if (!revivedRef.current && scoreRef.current > 0) setPhase('revive');
+    else finalize();
+  }, [finalize]);
+
+  // Watch the (mock) ad, then resume the SAME run with the score intact.
+  const revive = useCallback(() => {
+    setPhase('reviving');
+    setAdProgress(0);
+    const adMs = monet.showAds() ? AD_MS : 300; // premium skips the ad
+    const startT = Date.now();
+    const iv = window.setInterval(() => setAdProgress(Math.min(1, (Date.now() - startT) / adMs)), 60);
+    window.setTimeout(() => {
+      window.clearInterval(iv);
+      revivedRef.current = true;
+      setRevived(true);
+      setPhase('playing');
+      nextRound();
+    }, adMs);
+  }, [nextRound]);
 
   const answer = useCallback(
     (choice: ColorId) => {
@@ -83,31 +111,33 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
         nextRound();
       } else {
         fx.wrong();
-        endGame();
+        die();
       }
     },
-    [phase, round, nextRound, endGame],
+    [phase, round, nextRound, die],
   );
 
-  // Per-round countdown (rAF). Resets every round; running out ends the game.
+  // Per-round countdown (rAF). The window shrinks as the score climbs (shuttle
+  // run); running out ends the round.
   useEffect(() => {
     if (phase !== 'playing') return;
-    deadlineRef.current = Date.now() + tuning.windowMs;
+    const windowMs = windowForScore(tuning, scoreRef.current);
+    deadlineRef.current = Date.now() + windowMs;
     setProgress(1);
     let raf = 0;
     const tick = () => {
       const remain = deadlineRef.current - Date.now();
-      setProgress(Math.max(0, remain / tuning.windowMs));
+      setProgress(Math.max(0, remain / windowMs));
       if (remain <= 0) {
         fx.wrong();
-        endGame();
+        die();
         return;
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [roundSeq, phase, tuning.windowMs, endGame]);
+  }, [roundSeq, phase, tuning, die]);
 
   // Keyboard: number keys pick a choice while playing; Enter/Space (re)starts.
   useEffect(() => {
@@ -116,7 +146,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
         const n = Number(e.key);
         if (n >= 1 && n <= round.options.length) answer(round.options[n - 1]);
       } else if (e.key === 'Enter' || e.key === ' ') {
-        start();
+        if (phase === 'idle' || phase === 'over') start();
       }
     };
     window.addEventListener('keydown', onKey);
@@ -223,6 +253,42 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
         </>
       )}
 
+      {/* Revive offer — continue the same run (free: watch a mock ad). */}
+      {phase === 'revive' && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/80 p-6 backdrop-blur-xl">
+          <div className="w-full max-w-sm rounded-3xl bg-gradient-to-b from-[#1a2238] to-[#0c1322] p-6 text-center ring-1 ring-white/10">
+            <div className="text-4xl">🎬</div>
+            <h3 className="font-display mt-2 text-2xl uppercase tracking-tight text-white">{t('colorclash.reviveTitle')}</h3>
+            <p className="mt-1 text-sm text-white/60">{t('colorclash.reviveSub')}</p>
+            <p className="mt-3 text-4xl font-black tabular-nums text-accent-cyan">{score}</p>
+            <button
+              onClick={revive}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan py-3.5 font-bold uppercase tracking-wide text-white shadow-premium active:scale-95"
+            >
+              ▶ {monet.showAds() ? t('colorclash.revive') : t('colorclash.continueFree')}
+            </button>
+            <button onClick={finalize} className="mt-3 text-sm font-semibold text-white/50 underline underline-offset-2">
+              {t('colorclash.endRun')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Mock ad overlay (placeholder until real ads are wired up). */}
+      {phase === 'reviving' && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/95 p-6 text-center">
+          <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-white/50">
+            {t('colorclash.adLabel')}
+          </span>
+          <div className="mt-6 grid h-40 w-full max-w-sm place-items-center rounded-2xl bg-gradient-to-br from-primary/30 to-accent-pink/20 ring-1 ring-white/10">
+            <span className="font-display text-xl uppercase tracking-wide text-white/70">{t('colorclash.adNote')}</span>
+          </div>
+          <div className="mt-5 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-accent-cyan transition-[width]" style={{ width: `${adProgress * 100}%` }} />
+          </div>
+        </div>
+      )}
+
       {/* Game over */}
       {phase === 'over' && (
         <GameResultScreen
@@ -241,6 +307,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
           <p className="mt-1 text-sm text-white/60">
             {t('colorclash.best')}: {best}
           </p>
+          {revived && <p className="mt-1 text-xs text-white/40">{t('colorclash.revivedNote')}</p>}
           {round && (
             <p className="mt-2 text-xs text-white/50">
               {t('colorclash.answerWas')}{' '}

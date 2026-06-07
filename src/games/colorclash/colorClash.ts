@@ -31,19 +31,29 @@ export function colorById(id: ColorId): ColorDef {
 }
 
 export type Tuning = {
-  /** How long the player has to answer this round (ms). */
-  windowMs: number;
+  /** Answer window at score 0 — the slow, generous start (ms). */
+  startMs: number;
+  /** How much the window shrinks per correct answer (ms). */
+  stepMs: number;
+  /** The fastest the window ever gets — a floor so it stays playable (ms). */
+  minMs: number;
   /** Number of answer choices shown. */
   optionCount: number;
 };
 
-// Faster windows and more choices as difficulty climbs.
+// Shuttle-run pacing: every difficulty STARTS slow and speeds up each round.
+// Harder difficulties start faster and accelerate harder, with more choices.
 export const TUNING: Record<Difficulty, Tuning> = {
-  easy: { windowMs: 1600, optionCount: 3 },
-  medium: { windowMs: 1150, optionCount: 4 },
-  hard: { windowMs: 850, optionCount: 5 },
-  expert: { windowMs: 600, optionCount: 6 },
+  easy: { startMs: 2400, stepMs: 45, minMs: 700, optionCount: 3 },
+  medium: { startMs: 2000, stepMs: 55, minMs: 600, optionCount: 4 },
+  hard: { startMs: 1700, stepMs: 65, minMs: 500, optionCount: 5 },
+  expert: { startMs: 1400, stepMs: 80, minMs: 420, optionCount: 6 },
 };
+
+/** The answer window for the current score — shrinks toward `minMs` as you go. */
+export function windowForScore(tuning: Tuning, score: number): number {
+  return Math.max(tuning.minMs, tuning.startMs - score * tuning.stepMs);
+}
 
 export type Round = {
   /** The text that is displayed (a color NAME). */
