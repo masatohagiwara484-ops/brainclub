@@ -250,6 +250,22 @@ canvas {
   .combo-pop { animation: none; opacity: 1; }
 }
 
+/* ---- Schulte time bomb ---- */
+@keyframes bomb-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px) rotate(-1deg); }
+  75% { transform: translateX(2px) rotate(1deg); }
+}
+.bomb-danger { animation: bomb-shake 220ms ease-in-out infinite; }
+@keyframes bomb-spark {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.bomb-spark { animation: bomb-spark 180ms steps(2, end) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .bomb-danger, .bomb-spark { animation: none; }
+}
+
 /* ---- Word Guess animations ---- */
 /* Pop when a letter is typed into a tile. */
 @keyframes wg-pop {

@@ -252,6 +252,9 @@
     "find": "Find",
     "solved": "Cleared!",
     "newBest": "New best!",
+    "boards": "Boards",
+    "defused": "Defused!",
+    "boom": "Boom!",
     "again": "Play again",
     "share": "Share"
   },

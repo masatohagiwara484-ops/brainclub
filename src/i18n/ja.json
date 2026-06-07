@@ -252,6 +252,9 @@
     "find": "探す",
     "solved": "クリア！",
     "newBest": "自己ベスト更新！",
+    "boards": "クリア数",
+    "defused": "解除！",
+    "boom": "爆発！",
     "again": "もう一度",
     "share": "シェア"
   },
