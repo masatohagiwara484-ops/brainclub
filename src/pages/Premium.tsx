@@ -9,6 +9,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMonetization, PLANS, ALL_FEATURES, planHas } from '../lib/monetization';
+import { GAME_BG } from '../components/GameShell';
 
 export default function Premium() {
   const { t } = useTranslation();
@@ -18,12 +19,12 @@ export default function Premium() {
   const paid = plan !== 'free';
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto text-white" style={{ background: GAME_BG }}>
       <div className="mx-auto max-w-md px-5 py-6">
         <div className="text-center">
           <div className="text-4xl">✨</div>
           <h1 className="font-cyber mt-1 text-2xl">{t('monet.premiumTitle')}</h1>
-          <p className="mt-1 text-sm text-slate-500">{t('monet.premiumTagline')}</p>
+          <p className="mt-1 text-sm text-white/60">{t('monet.premiumTagline')}</p>
         </div>
 
         {/* Two plan cards, side by side (Plus left, Pro right). */}
@@ -33,8 +34,8 @@ export default function Premium() {
             return (
               <div
                 key={p.id}
-                className="relative flex flex-col rounded-3xl border-2 bg-white p-4 shadow-sm"
-                style={{ borderColor: current || p.featured ? p.accent : '#e2e8f0' }}
+                className="relative flex flex-col rounded-3xl border-2 bg-white/[0.05] p-4 shadow-elevated"
+                style={{ borderColor: current || p.featured ? p.accent : 'rgba(255,255,255,0.12)' }}
               >
                 {p.featured && (
                   <span
@@ -48,15 +49,15 @@ export default function Premium() {
                   <div className="text-sm font-black" style={{ color: p.accent }}>
                     {t(`${p.i18n}.name`)}
                   </div>
-                  <div className="mt-1 text-2xl font-black tabular-nums text-slate-900">
+                  <div className="mt-1 text-2xl font-black tabular-nums text-white">
                     {t(`${p.i18n}.price`)}
                   </div>
-                  <div className="text-[11px] text-slate-400">{t(`${p.i18n}.per`)}</div>
+                  <div className="text-[11px] text-white/40">{t(`${p.i18n}.per`)}</div>
                 </div>
 
                 <ul className="mt-3 flex flex-1 flex-col gap-1.5">
                   {p.perks.map((perk) => (
-                    <li key={perk} className="flex items-start gap-1.5 text-[12px] leading-snug text-slate-700">
+                    <li key={perk} className="flex items-start gap-1.5 text-[12px] leading-snug text-white/75">
                       <span className="mt-0.5 shrink-0" style={{ color: p.accent }}>
                         ✔
                       </span>
@@ -80,25 +81,25 @@ export default function Premium() {
 
         {paid ? (
           <div className="mt-4 text-center">
-            <div className="rounded-2xl bg-accent/10 px-4 py-3 text-sm font-bold text-accent">
+            <div className="rounded-2xl bg-success/15 px-4 py-3 text-sm font-bold text-success">
               🎉 {t('monet.thanks')}
             </div>
-            <button onClick={() => m.cancel()} className="mt-3 text-xs text-slate-400 underline">
+            <button onClick={() => m.cancel()} className="mt-3 text-xs text-white/45 underline">
               {t('monet.cancelDemo')}
             </button>
           </div>
         ) : (
-          <p className="mt-3 text-center text-[11px] text-slate-400">{t('monet.mockNote')}</p>
+          <p className="mt-3 text-center text-[11px] text-white/40">{t('monet.mockNote')}</p>
         )}
 
         {/* Comparison table */}
-        <h2 className="font-dot mt-7 mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="font-dot mt-7 mb-2 text-xs font-semibold uppercase tracking-wide text-white/40">
           {t('monet.compare')}
         </h2>
-        <div className="overflow-hidden rounded-2xl border border-slate-200">
+        <div className="overflow-hidden rounded-2xl border border-white/10">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-slate-50 text-xs text-slate-500">
+              <tr className="bg-white/[0.05] text-xs text-white/50">
                 <th className="px-3 py-2 text-left font-semibold">{t('monet.feature')}</th>
                 {PLANS.map((p) => (
                   <th key={p.id} className="px-2 py-2 text-center font-semibold" style={{ color: p.accent }}>
@@ -109,14 +110,14 @@ export default function Premium() {
             </thead>
             <tbody>
               {ALL_FEATURES.map((f) => (
-                <tr key={f} className="border-t border-slate-100">
-                  <td className="px-3 py-2 text-left text-slate-700">{t(`monet.perks.${f}`)}</td>
+                <tr key={f} className="border-t border-white/10">
+                  <td className="px-3 py-2 text-left text-white/80">{t(`monet.perks.${f}`)}</td>
                   {PLANS.map((p) => (
                     <td key={p.id} className="px-2 py-2 text-center">
                       {planHas(p.id, f) ? (
                         <span style={{ color: p.accent }}>✔</span>
                       ) : (
-                        <span className="text-slate-300">–</span>
+                        <span className="text-white/25">–</span>
                       )}
                     </td>
                   ))}
@@ -128,12 +129,12 @@ export default function Premium() {
 
         <button
           onClick={() => m.openShop()}
-          className="mt-6 w-full rounded-xl bg-slate-100 px-4 py-2.5 font-semibold text-slate-700"
+          className="mt-6 w-full rounded-xl bg-white/[0.08] px-4 py-2.5 font-semibold text-white ring-1 ring-white/10 hover:bg-white/15"
         >
           🎨 {t('monet.shopTitle')}
         </button>
 
-        <button onClick={() => nav('/')} className="mt-3 w-full text-xs text-slate-400 underline">
+        <button onClick={() => nav('/')} className="mt-3 w-full text-xs text-white/45 underline">
           {t('nav.home')}
         </button>
       </div>

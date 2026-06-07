@@ -13,6 +13,7 @@ import { Icon } from './Icons';
 import Button from './Button';
 import { useTheme } from '../lib/theme';
 import { DARK_GAMES } from './darkGames';
+import { BrandGlyph, BrandWordmark } from './BrandMark';
 
 // Universal layout (chess.com-style shell): a slim header with the profile on
 // the left, brand in the center, and a Premium shortcut on the right, plus a
@@ -42,12 +43,12 @@ export default function Layout({ children }: { children: ReactNode }) {
   const h = useHowto();
   const onPlay = loc.pathname.startsWith('/play/');
   const playId = onPlay ? loc.pathname.split('/')[2] : null;
-  // Dark chrome on the immersive home and on any game already migrated to the
-  // dark premium GameShell — so the shared header + root blend in rather than
-  // clashing as a white strip. Light pages (and not-yet-migrated games) keep the
-  // frosted-white chrome. As each game is converted (added to DARK_GAMES) its
-  // header darkens automatically.
-  const darkChrome = loc.pathname === '/' || (onPlay && !!playId && DARK_GAMES.has(playId));
+  // The whole app now wears the dark premium theme: every non-game route (home,
+  // score, settings, subscription, profile) is dark, and game routes are dark
+  // once migrated to the dark GameShell (all 20 are, via DARK_GAMES). So the
+  // shared header + root blend in everywhere rather than clashing as a white
+  // strip.
+  const darkChrome = onPlay ? !!playId && DARK_GAMES.has(playId) : true;
 
   return (
     <div
@@ -91,14 +92,10 @@ export default function Layout({ children }: { children: ReactNode }) {
           )}
         </div>
 
-        <Link to="/" className="group flex items-center gap-2 tracking-tight">
-          <span className="text-xl transition-premium group-hover:scale-110 group-hover:drop-shadow-[0_0_10px_rgba(99,102,241,0.55)]">
-            🧠
-          </span>
-          {/* Premium wordmark: Inter display weight with an indigo→cyan→pink gradient. */}
-          <span className="bg-gradient-to-r from-primary via-accent-cyan to-accent-pink bg-clip-text font-display text-xl text-transparent">
-            {t('app.name')}
-          </span>
+        {/* Brand lockup: the custom synapse monogram + tracked wordmark (no emoji). */}
+        <Link to="/" className="group flex items-center gap-2" aria-label={t('app.name')}>
+          <BrandGlyph className="h-7 w-7 transition-premium group-hover:scale-110 group-hover:drop-shadow-[0_0_10px_rgba(99,102,241,0.55)]" />
+          <BrandWordmark className="text-base sm:text-lg" />
         </Link>
 
         {/* Right: game help (during play) or a Premium shortcut. */}

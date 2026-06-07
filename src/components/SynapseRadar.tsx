@@ -48,12 +48,12 @@ export default function SynapseRadar({ profile, radius = 80, className }: Props)
     >
       {/* grid rings */}
       {rings.map((rr, i) => (
-        <polygon key={i} points={ringPoints(rr)} fill="none" stroke="#e2e8f0" strokeWidth={1} />
+        <polygon key={i} points={ringPoints(rr)} fill="none" stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
       ))}
       {/* spokes */}
       {AXES.map((a) => {
         const [x, y] = point(cx, cy, R, ANGLES[a]);
-        return <line key={a} x1={cx} y1={cy} x2={x} y2={y} stroke="#e2e8f0" strokeWidth={1} />;
+        return <line key={a} x1={cx} y1={cy} x2={x} y2={y} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />;
       })}
       {/* data polygon */}
       <polygon
@@ -77,10 +77,10 @@ export default function SynapseRadar({ profile, radius = 80, className }: Props)
         const anchor = a === 'memory' ? 'middle' : lx < cx ? 'end' : 'start';
         return (
           <g key={a}>
-            <text x={lx} y={ly} textAnchor={anchor} dominantBaseline="middle" fontSize={12} fontWeight={700} className="fill-slate-600">
+            <text x={lx} y={ly} textAnchor={anchor} dominantBaseline="middle" fontSize={12} fontWeight={700} className="fill-white/75">
               {t(`synapse.${a}`)}
             </text>
-            <text x={lx} y={ly + 14} textAnchor={anchor} dominantBaseline="middle" fontSize={11} className="fill-slate-400 tabular-nums">
+            <text x={lx} y={ly + 14} textAnchor={anchor} dominantBaseline="middle" fontSize={11} className="fill-white/45 tabular-nums">
               {Math.round(profile[a])}
             </text>
           </g>

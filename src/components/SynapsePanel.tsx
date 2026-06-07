@@ -18,7 +18,7 @@ export default function SynapsePanel({ compact = false }: { compact?: boolean })
 
   if (profile.plays === 0) {
     if (compact) return null;
-    return <p className="py-8 text-center text-sm text-slate-400">{t('synapse.play')}</p>;
+    return <p className="py-8 text-center text-sm text-white/50">{t('synapse.play')}</p>;
   }
 
   const score = synapseScore(profile);
@@ -27,18 +27,18 @@ export default function SynapsePanel({ compact = false }: { compact?: boolean })
 
   if (compact) {
     return (
-      <div className="mt-4 flex items-center justify-center gap-4 rounded-2xl bg-slate-50 p-3">
+      <div className="mt-4 flex items-center justify-center gap-4 rounded-2xl bg-white/[0.06] p-3">
         <SynapseRadar profile={profile} radius={50} />
         <div className="text-left">
-          <div className="font-dot text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+          <div className="font-dot text-[10px] font-semibold uppercase tracking-wide text-white/40">
             {t('synapse.score')}
           </div>
-          <div className="text-3xl font-black leading-none tabular-nums text-brand">{score}</div>
-          <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-bold text-accent">
+          <div className="text-3xl font-black leading-none tabular-nums text-accent-cyan">{score}</div>
+          <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-xs font-bold text-success">
             ⚡ {t('synapse.level')} {profile.level}
           </div>
-          <div className="mt-1.5 h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
-            <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
+          <div className="mt-1.5 h-1.5 w-24 overflow-hidden rounded-full bg-white/15">
+            <div className="h-full rounded-full bg-success transition-all" style={{ width: `${pct}%` }} />
           </div>
         </div>
       </div>
@@ -46,26 +46,26 @@ export default function SynapsePanel({ compact = false }: { compact?: boolean })
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200 p-5 shadow-sm">
+    <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-5 shadow-elevated">
       <div className="flex justify-center">
         <SynapseRadar profile={profile} radius={92} />
       </div>
       <div className="mt-5 grid grid-cols-3 gap-3 text-center">
         <div>
-          <div className="text-2xl font-black tabular-nums text-brand">{score}</div>
-          <div className="text-[10px] leading-tight text-slate-400">{t('synapse.score')}</div>
+          <div className="text-2xl font-black tabular-nums text-accent-cyan">{score}</div>
+          <div className="text-[10px] leading-tight text-white/40">{t('synapse.score')}</div>
         </div>
         <div>
-          <div className="text-2xl font-black tabular-nums text-accent">{profile.level}</div>
-          <div className="text-[10px] leading-tight text-slate-400">{t('synapse.level')}</div>
+          <div className="text-2xl font-black tabular-nums text-success">{profile.level}</div>
+          <div className="text-[10px] leading-tight text-white/40">{t('synapse.level')}</div>
         </div>
         <div>
-          <div className="text-2xl font-black tabular-nums text-slate-700">{profile.plays}</div>
-          <div className="text-[10px] leading-tight text-slate-400">{t('synapse.plays')}</div>
+          <div className="text-2xl font-black tabular-nums text-white">{profile.plays}</div>
+          <div className="text-[10px] leading-tight text-white/40">{t('synapse.plays')}</div>
         </div>
       </div>
-      <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-200">
-        <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
+      <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/15">
+        <div className="h-full rounded-full bg-success transition-all" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

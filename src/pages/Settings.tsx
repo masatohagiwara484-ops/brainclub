@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { setSetting } from '../lib/storage';
 import { useSettings } from '../lib/settings';
 import { useMonetization } from '../lib/monetization';
+import { GAME_BG } from '../components/GameShell';
 
 // A labeled on/off switch row.
 function Toggle({
@@ -18,8 +19,8 @@ function Toggle({
   return (
     <div className="flex items-center justify-between gap-4 py-3.5">
       <div className="min-w-0">
-        <div className="font-semibold text-slate-800">{label}</div>
-        {note && <p className="mt-0.5 text-xs leading-snug text-slate-400">{note}</p>}
+        <div className="font-semibold text-white">{label}</div>
+        {note && <p className="mt-0.5 text-xs leading-snug text-white/45">{note}</p>}
       </div>
       <button
         role="switch"
@@ -27,7 +28,7 @@ function Toggle({
         aria-label={label}
         onClick={() => onChange(!checked)}
         className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
-          checked ? 'bg-brand' : 'bg-slate-300'
+          checked ? 'bg-brand' : 'bg-white/20'
         }`}
       >
         <span
@@ -52,13 +53,13 @@ export default function Settings() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto text-white" style={{ background: GAME_BG }}>
       <div className="mx-auto max-w-md px-5 py-6">
         <h1 className="font-cyber text-2xl">{t('settings.title')}</h1>
 
         {/* Language */}
         <section className="mt-6">
-          <h2 className="font-dot mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="font-dot mb-1 text-xs font-semibold uppercase tracking-wide text-white/40">
             {t('settings.language')}
           </h2>
           <div className="flex gap-2 py-2">
@@ -69,7 +70,7 @@ export default function Settings() {
                   key={lang}
                   onClick={() => setLang(lang)}
                   className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                    active ? 'bg-brand text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    active ? 'bg-brand text-white' : 'bg-white/[0.08] text-white/80 hover:bg-white/15'
                   }`}
                 >
                   {lang === 'ja' ? '日本語' : 'English'}
@@ -80,8 +81,8 @@ export default function Settings() {
         </section>
 
         {/* Sound */}
-        <section className="mt-5 divide-y divide-slate-100">
-          <h2 className="font-dot pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <section className="mt-5 divide-y divide-white/10">
+          <h2 className="font-dot pb-1 text-xs font-semibold uppercase tracking-wide text-white/40">
             {t('settings.sound')}
           </h2>
           <Toggle
@@ -98,8 +99,8 @@ export default function Settings() {
           />
           <div className="py-3.5">
             <div className="flex items-center justify-between gap-4">
-              <div className="font-semibold text-slate-800">{t('settings.volume')}</div>
-              <div className="text-xs tabular-nums text-slate-400">{Math.round(s.getVolume() * 100)}</div>
+              <div className="font-semibold text-white">{t('settings.volume')}</div>
+              <div className="text-xs tabular-nums text-white/45">{Math.round(s.getVolume() * 100)}</div>
             </div>
             <input
               type="range"
@@ -114,8 +115,8 @@ export default function Settings() {
         </section>
 
         {/* Feedback & accessibility */}
-        <section className="mt-5 divide-y divide-slate-100">
-          <h2 className="font-dot pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <section className="mt-5 divide-y divide-white/10">
+          <h2 className="font-dot pb-1 text-xs font-semibold uppercase tracking-wide text-white/40">
             {t('settings.feedback')}
           </h2>
           <Toggle
@@ -140,19 +141,19 @@ export default function Settings() {
 
         {/* Cosmetics */}
         <section className="mt-5">
-          <h2 className="font-dot mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="font-dot mb-1 text-xs font-semibold uppercase tracking-wide text-white/40">
             {t('monet.shopTitle')}
           </h2>
           <button
             onClick={() => m.openShop()}
-            className="mt-1 flex w-full items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-left hover:bg-slate-50"
+            className="mt-1 flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left hover:bg-white/10"
           >
-            <span className="font-semibold text-slate-800">🎨 {t('monet.shopTitle')}</span>
-            <span className="text-sm text-slate-400">›</span>
+            <span className="font-semibold text-white">🎨 {t('monet.shopTitle')}</span>
+            <span className="text-sm text-white/40">›</span>
           </button>
         </section>
 
-        <p className="mt-8 text-center text-xs text-slate-300">
+        <p className="mt-8 text-center text-xs text-white/30">
           {t('app.name')} · {t('app.tagline')}
         </p>
       </div>

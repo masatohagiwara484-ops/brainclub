@@ -21,9 +21,9 @@ export default function BottomNav() {
 
   const isActive = (to: string) =>
     to === '/' ? loc.pathname === '/' : loc.pathname.startsWith(to);
-  // On the immersive dark home, the tab bar blends into the hero; light pages
-  // keep the frosted-white bar.
-  const dark = loc.pathname === '/';
+  // The whole app wears the dark premium theme now, so the tab bar is dark on
+  // every route (it's already hidden during gameplay above).
+  const dark = true;
 
   return (
     <nav

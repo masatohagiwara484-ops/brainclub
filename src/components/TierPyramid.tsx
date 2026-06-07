@@ -16,7 +16,7 @@ export default function TierPyramid({ score = 52 }: { score?: number }) {
   const rows = [...TIERS].reverse(); // master (top) → novice (bottom)
 
   return (
-    <div className="rounded-3xl border border-slate-200 p-5 shadow-game">
+    <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-5 shadow-elevated">
       <div className="flex flex-col items-center gap-2">
         {rows.map((tier, rowFromTop) => {
           const active = tier.id === current.id;
@@ -37,7 +37,7 @@ export default function TierPyramid({ score = 52 }: { score?: number }) {
                 className={`relative flex items-center justify-center overflow-hidden rounded-xl py-2.5 text-sm font-bold transition-all duration-200 ease-out ${
                   reached
                     ? `bg-gradient-to-br ${tier.gradient} ${tier.text}`
-                    : 'bg-slate-100 text-slate-400'
+                    : 'bg-white/[0.06] text-white/40'
                 } ${active ? 'scale-[1.035] ring-2 ring-white' : ''}`}
               >
                 {/* Glossy top sheen — the metallic highlight on reached rungs. */}
@@ -72,11 +72,11 @@ export default function TierPyramid({ score = 52 }: { score?: number }) {
           <>
             <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
               <span style={{ color: current.color }}>{t(current.nameKey)}</span>
-              <span className="tabular-nums text-slate-600">
+              <span className="tabular-nums text-white/60">
                 {t('tier.toNext', { n: toNext, tier: t(next.nameKey) })}
               </span>
             </div>
-            <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/15">
               <div
                 className="h-full rounded-full bg-gradient-to-r transition-all duration-500 ease-out"
                 style={{

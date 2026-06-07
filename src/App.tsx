@@ -1,6 +1,7 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import SplashScreen from './components/SplashScreen';
 import Home from './pages/Home';
 import GamePage from './pages/GamePage';
 import Settings from './pages/Settings';
@@ -14,6 +15,10 @@ import { initCloud } from './lib/cloud';
 const Rotating3DGameSelector = lazy(() => import('./components/HolographicCardSelector'));
 
 export default function App() {
+  // The opening splash (chess.com-style). Mounted once per page load, so it
+  // shows on every cold launch and dismisses itself after ~2.5s.
+  const [splash, setSplash] = useState(true);
+
   // Restore any cloud session and start syncing (no-op without Supabase env).
   useEffect(() => {
     void initCloud();
@@ -21,6 +26,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      {splash && <SplashScreen onDone={() => setSplash(false)} />}
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
