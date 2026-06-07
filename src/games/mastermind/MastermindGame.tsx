@@ -108,7 +108,7 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
   };
 
   const pegDot = (i: number, n: number, cls: string) =>
-    Array.from({ length: n }, (_, k) => <span key={`${i}-${k}`} className={`h-2 w-2 rounded-full ${cls}`} />);
+    Array.from({ length: n }, (_, k) => <span key={`${i}-${k}`} className={`h-2.5 w-2.5 rounded-full ${cls}`} />);
 
   return (
     <GameShell
@@ -129,7 +129,9 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
                 <span key={k} className="h-6 w-6 rounded-full" style={{ backgroundColor: PALETTE[g] }} />
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-0.5">
+            {/* Feedback pegs in ONE horizontal row (exact → color → empty) so
+                the player can read how many are matched at a glance. */}
+            <div className="flex items-center gap-1">
               {pegDot(i, r.exact, 'bg-white')}
               {pegDot(i, r.color, 'bg-white/50')}
               {pegDot(i, cfg.pegs - r.exact - r.color, 'bg-white/15')}

@@ -237,7 +237,8 @@
     "done": "Nice reflexes!",
     "avg": "Average",
     "best": "Fastest",
-    "share": "Share"
+    "share": "Share",
+    "roundOf": "Round {{n}}/{{total}} · tap to continue"
   },
   "schulte": {
     "find": "Find",

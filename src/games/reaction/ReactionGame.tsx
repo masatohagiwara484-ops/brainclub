@@ -11,7 +11,8 @@ import { useShareMsg } from '../shareHook';
 
 const AXES = getGame('reaction')?.axes ?? {};
 const TRIALS = 5;
-const BEST_KEY = 'reaction.best'; // lowest average ms
+const BEST_KEY = 'reaction.best'; // lowest average ms (across the 5 rounds)
+const BEST_FAST_KEY = 'reaction.bestSingle'; // fastest single tap ever
 
 // Faster is better: 450ms → 0 quality, 180ms → 1. Pure (mirrored in verify).
 export function reactionQuality(avgMs: number): number {
@@ -26,7 +27,8 @@ export default function ReactionGame(_: GameProps) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [times, setTimes] = useState<number[]>([]);
   const [last, setLast] = useState<number | null>(null);
-  const [best, setBest] = useState(() => getSetting<number>(BEST_KEY, 0));
+  const [bestFast, setBestFast] = useState(() => getSetting<number>(BEST_FAST_KEY, 0));
+  const [newFast, setNewFast] = useState(false);
   const [levelUp, setLevelUp] = useState<string | null>(null);
   const goAt = useRef(0);
   const timer = useRef<number | undefined>(undefined);
@@ -44,12 +46,18 @@ export default function ReactionGame(_: GameProps) {
     (all: number[]) => {
       setPhase('over');
       const avg = Math.round(all.reduce((s, x) => s + x, 0) / all.length);
-      const prevBest = getSetting<number>(BEST_KEY, 0);
-      const isBest = prevBest === 0 || avg < prevBest;
-      if (isBest) {
-        setBest(avg);
-        setSetting(BEST_KEY, avg);
+      const fastest = Math.min(...all);
+      // All-time fastest SINGLE tap — the headline personal best.
+      const prevFast = getSetting<number>(BEST_FAST_KEY, 0);
+      const isFast = prevFast === 0 || fastest < prevFast;
+      if (isFast) {
+        setBestFast(fastest);
+        setSetting(BEST_FAST_KEY, fastest);
       }
+      setNewFast(isFast);
+      // Also keep the best 5-round average (secondary record, persisted only).
+      const prevBest = getSetting<number>(BEST_KEY, 0);
+      if (prevBest === 0 || avg < prevBest) setSetting(BEST_KEY, avg);
       const res = recordPlay({ gameId: 'reaction', axes: AXES, quality: reactionQuality(avg), weight: 1.3 });
       setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
     },
@@ -58,9 +66,14 @@ export default function ReactionGame(_: GameProps) {
 
   const onTap = useCallback(() => {
     if (phase === 'idle' || phase === 'over' || phase === 'result') {
-      setTimes([]);
-      setLast(null);
-      setLevelUp(null);
+      // Start a fresh 5-round session (but don't wipe the in-progress strip
+      // when simply continuing to the next round from a 'result' pause).
+      if (phase !== 'result') {
+        setTimes([]);
+        setLast(null);
+        setNewFast(false);
+        setLevelUp(null);
+      }
       arm();
     } else if (phase === 'waiting') {
       // Tapped before green — a false start. Re-arm this trial.
@@ -94,7 +107,7 @@ export default function ReactionGame(_: GameProps) {
           {times.length}/{TRIALS}
         </>
       }
-      action={<span className="text-xs font-semibold text-white/60">🏆 {best ? `${best}ms` : '—'}</span>}
+      action={<span className="text-xs font-semibold tabular-nums text-white/60">🏆 {bestFast ? `${bestFast}ms` : '—'}</span>}
     >
       <button
         onClick={onTap}
@@ -119,34 +132,82 @@ export default function ReactionGame(_: GameProps) {
         {phase === 'result' && (
           <>
             <div className="text-5xl font-black tabular-nums">{last}ms</div>
-            <p className="mt-2 text-sm text-white/60">{t('reaction.again')}</p>
+            <p className="mt-2 text-sm text-white/60">
+              {t('reaction.roundOf', { n: times.length, total: TRIALS, defaultValue: `Round ${times.length}/${TRIALS} · tap to continue` })}
+            </p>
           </>
         )}
       </button>
+
+      {/* Live 5-chance strip: each round's time fills in as you go. */}
+      {phase !== 'idle' && (
+        <div className="mt-3 flex w-full max-w-md justify-center gap-1.5">
+          {Array.from({ length: TRIALS }).map((_, i) => {
+            const v = times[i];
+            const pending = i === times.length && (phase === 'waiting' || phase === 'go' || phase === 'early');
+            return (
+              <div
+                key={i}
+                className={`flex h-9 flex-1 items-center justify-center rounded-xl text-xs font-bold tabular-nums ring-1 ${
+                  v != null
+                    ? 'bg-white/[0.08] text-white ring-white/15'
+                    : pending
+                      ? 'bg-accent-cyan/15 text-accent-cyan ring-accent-cyan/40'
+                      : 'bg-white/[0.03] text-white/25 ring-white/10'
+                }`}
+              >
+                {v != null ? v : i + 1}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {phase === 'over' && (
         <GameResultScreen
           emoji="⚡"
           title={t('reaction.done')}
-          subtitle={t('reaction.avg')}
+          subtitle={`${t('reaction.avg')} ${avg}ms`}
           celebrate
+          isNewBest={newFast}
           levelUp={levelUp}
           stats={[
             { value: `${avg}ms`, label: t('reaction.avg') },
-            { value: `${Math.min(...times)}ms`, label: t('reaction.best') },
-            { value: best ? `${best}ms` : '—', label: '🏆' },
+            { value: `${times.length ? Math.min(...times) : 0}ms`, label: t('reaction.best') },
+            { value: bestFast ? `${bestFast}ms` : '—', label: '🏆' },
           ]}
           actions={[
             { label: t('reaction.again'), onClick: onTap, variant: 'primary' },
             {
               label: t('reaction.share'),
               onClick: () =>
-                doShare(`BrainClub · ${t('games.reaction.name')}\n⚡ ${avg}ms\n${window.location.origin}`),
+                doShare(
+                  `BrainClub · ${t('games.reaction.name')}\n⚡ ${t('reaction.best')} ${
+                    times.length ? Math.min(...times) : 0
+                  }ms (avg ${avg}ms)\n${window.location.origin}`,
+                ),
               variant: 'secondary',
             },
           ]}
           shareMsg={shareMsg}
-        />
+        >
+          {/* Per-round breakdown — the fastest tap is highlighted. */}
+          <div className="mt-3 flex justify-center gap-1.5">
+            {times.map((v, i) => {
+              const isMin = v === Math.min(...times);
+              return (
+                <div
+                  key={i}
+                  className={`flex h-9 w-11 items-center justify-center rounded-xl text-xs font-bold tabular-nums ring-1 ${
+                    isMin ? 'bg-accent-cyan/20 text-accent-cyan ring-accent-cyan/40' : 'bg-white/[0.06] text-white/80 ring-white/10'
+                  }`}
+                >
+                  {v}
+                </div>
+              );
+            })}
+          </div>
+        </GameResultScreen>
       )}
     </GameShell>
   );
