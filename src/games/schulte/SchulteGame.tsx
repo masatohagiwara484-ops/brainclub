@@ -132,10 +132,20 @@ export default function SchulteGame({ difficulty = 'easy' }: GameProps) {
     setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
   }, [bestKey, difficulty, t]);
 
+  // Arm the first board exactly when the game mounts. This component isn't
+  // mounted until GO! (the universal 3·2·1 countdown gates it), so the fuse
+  // starts the instant the countdown finishes — and never before it's armed,
+  // which previously made the very first play detonate immediately.
+  useEffect(() => {
+    arm(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Count the fuse down; reaching zero detonates.
   useEffect(() => {
     if (phase !== 'play') return;
     const id = window.setInterval(() => {
+      if (deadlineRef.current === 0) return; // not armed yet — never explode
       const remain = (deadlineRef.current - Date.now()) / 1000;
       if (remain <= 0) {
         setRemaining(0);

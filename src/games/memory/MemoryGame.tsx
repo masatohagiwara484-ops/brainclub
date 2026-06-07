@@ -7,6 +7,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
+import { howto, useHowto } from '../../lib/howto';
 import GameResultScreen from '../../components/GameResultScreen';
 import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
@@ -20,7 +21,7 @@ const PAR_SECONDS: Record<string, number> = { easy: 18, medium: 28, hard: 42, ex
 // How long the opening flash shows every card before it flips away. A touch
 // longer when there are more cards to memorize.
 function previewMs(pairs: number): number {
-  return Math.min(1600, 700 + pairs * 70);
+  return Math.min(3200, 1400 + pairs * 140);
 }
 
 // A shuffled deck where every face appears exactly twice (pure; mirrored in verify).
@@ -56,6 +57,17 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
   const lock = useRef(false);
   const startRef = useRef(0);
 
+  // Hold the opening flash until the visual tutorial (which auto-opens on the
+  // first play, just after the countdown) has been dismissed — otherwise the
+  // flash plays underneath the tutorial and is wasted.
+  const ht = useHowto();
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (ht.openId() === 'memory') return; // tutorial currently open → wait
+    if (!howto.hasSeen('memory')) return; // tutorial about to auto-open → wait
+    setArmed(true);
+  }, [ht.openId()]);
+
   const restart = useCallback(() => {
     setSeed((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0);
     setMatched(new Set());
@@ -72,7 +84,9 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
   const won = matched.size === deck.length && deck.length > 0;
 
   // Opening flash: show every card, then flip them down and start the clock.
+  // Only runs once armed (i.e. after any first-play tutorial is dismissed).
   useEffect(() => {
+    if (!armed) return;
     setPhase('preview');
     const id = window.setTimeout(() => {
       setPhase('play');
@@ -80,7 +94,7 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
       setElapsed(0);
     }, previewMs(pairs));
     return () => window.clearTimeout(id);
-  }, [seed, pairs]);
+  }, [seed, pairs, armed]);
 
   // Tick the clock while playing.
   useEffect(() => {
@@ -142,7 +156,9 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
     }
   };
 
-  const preview = phase === 'preview';
+  // Cards only reveal during the flash once we're armed; before that (tutorial
+  // still up, or pre-flash) they stay face-down.
+  const preview = armed && phase === 'preview';
 
   return (
     <GameShell

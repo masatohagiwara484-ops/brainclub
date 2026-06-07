@@ -14,6 +14,12 @@ const AXES = getGame('sudoku')?.axes ?? {};
 // Target solve times (seconds) per difficulty — beating them nudges quality up.
 const TARGET: Record<Difficulty, number> = { easy: 300, medium: 420, hard: 600, expert: 900 };
 
+// Escalating combo names for consecutive unit completions (combo starts at 3).
+const COMBO_WORDS = ['GOOD', 'GREAT', 'AMAZING', 'FANTASTIC', 'INCREDIBLE', 'UNSTOPPABLE', 'LEGENDARY'];
+function comboLabel(n: number): string {
+  return n >= 10 ? 'GODLIKE' : (COMBO_WORDS[n - 3] ?? 'GODLIKE');
+}
+
 // Cells of the row / column / 3×3 box that contain index `i`.
 function rowCells(i: number): number[] {
   const r = Math.floor(i / N);
@@ -92,8 +98,8 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   // Cells that just completed a unit — they briefly glow + pop.
   const [glow, setGlow] = useState<{ cells: Set<number>; key: number }>({ cells: new Set(), key: 0 });
-  // Combo banner (GOOD / GREAT / AMAZING) for consecutive unit completions.
-  const [combo, setCombo] = useState<{ label: string; key: number } | null>(null);
+  // Combo banner (GOOD … GODLIKE) for consecutive unit completions.
+  const [combo, setCombo] = useState<{ label: string; count: number; key: number } | null>(null);
   const streakRef = useRef(0); // unit-completions this puzzle (drives the pitch ramp)
   const comboRef = useRef(0); // consecutive completing moves (resets on a plain move)
   const comboKeyRef = useRef(0);
@@ -192,8 +198,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
         // Combo: each consecutive completing move climbs the ladder.
         comboRef.current += 1;
         if (comboRef.current >= 3) {
-          const label = comboRef.current >= 5 ? 'AMAZING' : comboRef.current === 4 ? 'GREAT' : 'GOOD';
-          setCombo({ label, key: ++comboKeyRef.current });
+          setCombo({ label: comboLabel(comboRef.current), count: comboRef.current, key: ++comboKeyRef.current });
         }
       } else {
         fx.tick(); // soft blip on a normal placement
@@ -292,9 +297,10 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
                 r % 3 === 0 && r !== 0 ? 'border-t-2 border-t-white/30' : '',
               ].join(' ');
 
+              // Twin cells glow WARM (orange) so they pop against the navy theme.
               let bg = 'bg-transparent';
               if (isSel) bg = 'bg-primary/40';
-              else if (sameVal) bg = 'bg-accent-cyan/25 ring-1 ring-inset ring-accent-cyan/40';
+              else if (sameVal) bg = 'bg-orange-500/30 ring-1 ring-inset ring-orange-400/60';
               else if (inLine) bg = 'bg-white/[0.06]';
 
               const text = conflict
@@ -324,11 +330,12 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
           </div>
         )}
 
-        {/* Combo banner — GOOD / GREAT / AMAZING for consecutive completions. */}
+        {/* Combo banner — shows the streak count (e.g. "5 COMBO") + its name. */}
         {combo && (
-          <div key={combo.key} className="pointer-events-none absolute inset-0 z-20 flex items-start justify-center pt-12">
-            <span className="combo-pop font-display text-5xl uppercase tracking-tight text-transparent" style={{
-              backgroundImage: 'linear-gradient(100deg, #67e8f9, #818cf8, #f472b6)',
+          <div key={combo.key} className="combo-pop pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-start pt-10">
+            <span className="font-display text-2xl font-black tabular-nums text-amber-300 drop-shadow">{combo.count} COMBO</span>
+            <span className="font-display text-5xl uppercase tracking-tight text-transparent" style={{
+              backgroundImage: 'linear-gradient(100deg, #fb923c, #f472b6, #f59e0b)',
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
             }}>
@@ -353,7 +360,7 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
                 usedUp
                   ? 'invisible'
                   : isActive
-                    ? 'bg-accent-cyan/30 text-white ring-accent-cyan/50'
+                    ? 'bg-orange-500/30 text-white ring-orange-400/60'
                     : 'bg-white/[0.08] text-white ring-white/10 hover:bg-primary/30'
               }`}
             >
