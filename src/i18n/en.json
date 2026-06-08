@@ -213,6 +213,25 @@
     "goal": "Link your two cyan edges — top to bottom.",
     "help": "Place stones to build one unbroken chain linking your two coloured edges (top to bottom). Block the AI's left-to-right path while you build yours. There are no draws — someone always connects."
   },
+  "ludo": {
+    "roll": "Roll",
+    "newGame": "New game",
+    "yourRoll": "Your turn — tap Roll",
+    "tapToken": "Tap a highlighted token",
+    "aiTurn": "AI is playing…",
+    "noMove": "No move",
+    "rollAgain": "Roll again!",
+    "threeSixes": "Three 6s — skipped",
+    "gameOver": "Game over",
+    "youWin": "You win!",
+    "youLose": "You lost",
+    "youWinSub": "All four tokens home!",
+    "winnerIs": "{{color}} got all four home",
+    "share": "Share",
+    "again": "Play again",
+    "colors": { "0": "Red", "1": "Green", "2": "Yellow", "3": "Blue" },
+    "help": "Roll a 6 to bring a token out, then race all four around the board and up your colour's lane to the centre. Land on an opponent (off a ★ safe cell) to send it back home. Roll a 6, capture, or finish a token for another roll. First to get all four home wins."
+  },
   "wordle": {
     "daily": "Daily",
     "practice": "Practice",
@@ -412,6 +431,7 @@
     "watersort": { "name": "Water Sort", "tagline": "Color logic · satisfying" },
     "gomoku": { "name": "Gomoku", "tagline": "Five in a row · quick" },
     "hex": { "name": "Hex", "tagline": "Strategy · connect your sides" },
+    "ludo": { "name": "Ludo", "tagline": "Race · roll & capture" },
     "memory": { "name": "Memory Match", "tagline": "Recall · focus" },
     "reaction": { "name": "Reaction", "tagline": "Reflex · how fast are you?" },
     "simon": { "name": "Echo", "tagline": "Memory · repeat the tune" },

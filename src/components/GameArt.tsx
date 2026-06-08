@@ -57,6 +57,17 @@ const ART: Record<string, (className?: string) => React.ReactNode> = {
       </>,
       c,
     ),
+  ludo: (c) =>
+    base(
+      <>
+        {/* the cross board + a central home and two tokens */}
+        <path d="M24 8h16v16h16v16H40v16H24V40H8V24h16z" strokeWidth={2.5} />
+        <circle cx="32" cy="32" r="5" fill="currentColor" stroke="none" />
+        <circle cx="20" cy="20" r="2.6" fill="currentColor" stroke="none" />
+        <circle cx="44" cy="44" r="2.6" fill="currentColor" stroke="none" />
+      </>,
+      c,
+    ),
   wordle: (c) =>
     base(
       <>

@@ -176,6 +176,18 @@ const SCENES: Record<string, Scene> = {
     finger: { mode: 'tap1', a: { x: 135, y: 91 } },
   },
 
+  // Roll the die, then tap your token to race it along the track.
+  ludo: {
+    board: [
+      { x: 60, y: 70, w: 40, h: 40, cls: 'bg-white text-slate-800 text-2xl', label: '🎲' },
+      ...[120, 150, 180].map((x) => ({ x, y: 110, w: 22, h: 22, round: true, cls: 'bg-slate-200' })),
+      { x: 120, y: 110, w: 24, h: 24, round: true, cls: 'bg-[#ef4444]' },
+    ],
+    reveals: [{ x: 180, y: 110, w: 24, h: 24, round: true, cls: 'bg-[#ef4444]', timing: 'late' }],
+    pulses: [{ x: 120, y: 110 }],
+    finger: { mode: 'tap1', a: { x: 120, y: 110 } },
+  },
+
   // Swipe to merge matching tiles (2048).
   '2048': {
     board: [

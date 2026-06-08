@@ -17,6 +17,7 @@ export const GAME_COLORS: Record<string, Trio> = {
   watersort: ['#06b6d4', '#2563eb', '#22d3ee'],
   gomoku: ['#d9a441', '#b45309', '#fbbf24'],
   hex: ['#22d3ee', '#fb7185', '#a78bfa'],
+  ludo: ['#ef4444', '#22c55e', '#eab308'],
   colorclash: ['#ec4899', '#f97316', '#f472b6'],
   reaction: ['#84cc16', '#16a34a', '#a3e635'],
   simon: ['#f43f5e', '#db2777', '#fb7185'],

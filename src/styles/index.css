@@ -265,6 +265,14 @@ canvas {
 @media (prefers-reduced-motion: reduce) {
   .bomb-danger, .bomb-spark { animation: none; }
 }
+/* Ludo die tumble while rolling. */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-9deg) translateY(0); }
+  50% { transform: rotate(9deg) translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [class*="wiggle"] { animation: none !important; }
+}
 
 /* ---- Word Guess animations ---- */
 /* Pop when a letter is typed into a tile. */
