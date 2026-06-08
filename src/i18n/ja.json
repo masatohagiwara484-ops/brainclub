@@ -80,6 +80,9 @@
   },
   "account": {
     "title": "アカウント",
+    "continueGoogle": "Google",
+    "continueApple": "Apple",
+    "or": "または",
     "cloudHint": "サインインすると進捗が保存され、複数の端末で同期できます。",
     "emailPlaceholder": "you@example.com",
     "sendLink": "リンクを送る",

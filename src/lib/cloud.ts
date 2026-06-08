@@ -124,6 +124,19 @@ export async function signIn(email: string): Promise<void> {
   patch({ busy: false, linkSentTo: error ? null : email, error: error?.message ?? null });
 }
 
+/** One-tap OAuth sign-in (Google / Apple). Redirects to the provider. */
+export async function signInWithProvider(provider: 'google' | 'apple'): Promise<void> {
+  if (!supabase) return;
+  patch({ busy: true, error: null });
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: window.location.origin },
+  });
+  // On success the browser navigates away to the provider, so we only land here
+  // on failure.
+  if (error) patch({ busy: false, error: error.message });
+}
+
 export async function signOut(): Promise<void> {
   if (!supabase) return;
   await supabase.auth.signOut();

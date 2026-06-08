@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   AVATARS,
   signIn,
+  signInWithProvider,
   signOut,
   syncNow,
   updateProfile,
@@ -40,8 +41,31 @@ export default function AccountPanel() {
       <div className={card}>
         <h2 className="font-dot text-sm font-semibold text-white/80">{t('account.title')}</h2>
         <p className="mt-1 text-xs leading-snug text-white/45">{t('account.cloudHint')}</p>
+
+        {/* One-tap OAuth (lowest friction) */}
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => void signInWithProvider('google')}
+            disabled={cloud.busy}
+            className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] py-2 text-sm font-semibold text-white transition hover:bg-white/[0.1] disabled:opacity-50"
+          >
+            <span aria-hidden>🔵</span> {t('account.continueGoogle')}
+          </button>
+          <button
+            onClick={() => void signInWithProvider('apple')}
+            disabled={cloud.busy}
+            className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] py-2 text-sm font-semibold text-white transition hover:bg-white/[0.1] disabled:opacity-50"
+          >
+            <span aria-hidden></span> {t('account.continueApple')}
+          </button>
+        </div>
+
+        <div className="my-3 flex items-center gap-2 text-[10px] uppercase tracking-wide text-white/30">
+          <span className="h-px flex-1 bg-white/10" /> {t('account.or')} <span className="h-px flex-1 bg-white/10" />
+        </div>
+
         <form
-          className="mt-3 flex gap-2"
+          className="flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
             if (email.trim()) void signIn(email.trim());

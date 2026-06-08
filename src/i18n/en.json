@@ -80,6 +80,9 @@
   },
   "account": {
     "title": "Account",
+    "continueGoogle": "Google",
+    "continueApple": "Apple",
+    "or": "or",
     "cloudHint": "Sign in to save your progress and sync across your devices.",
     "emailPlaceholder": "you@example.com",
     "sendLink": "Email me a link",
