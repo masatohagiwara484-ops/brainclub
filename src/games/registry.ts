@@ -147,6 +147,18 @@ export const GAMES: GameDef[] = [
     ...lazyGame(() => import('./ludo/LudoGame')),
   },
   {
+    id: 'yacht',
+    nameKey: 'games.yacht.name',
+    taglineKey: 'games.yacht.tagline',
+    route: '/play/yacht',
+    category: 'recommended',
+    emoji: '🎲',
+    gradient: 'from-emerald-500 to-cyan-600',
+    available: true,
+    axes: { logic: 0.8, memory: 0.2 },
+    ...lazyGame(() => import('./yacht/YachtGame')),
+  },
+  {
     id: 'colorclash',
     nameKey: 'games.colorclash.name',
     taglineKey: 'games.colorclash.tagline',

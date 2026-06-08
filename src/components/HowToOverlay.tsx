@@ -188,6 +188,22 @@ const SCENES: Record<string, Scene> = {
     finger: { mode: 'tap1', a: { x: 120, y: 110 } },
   },
 
+  // Keep the matching dice, then bank them in a category.
+  yacht: {
+    board: [
+      { x: 64, y: 64, w: 26, h: 26, cls: 'bg-white text-slate-800 text-lg font-bold', label: '5' },
+      { x: 96, y: 64, w: 26, h: 26, cls: 'bg-white text-slate-800 text-lg font-bold', label: '5' },
+      { x: 128, y: 64, w: 26, h: 26, cls: 'bg-white text-slate-800 text-lg font-bold', label: '5' },
+      { x: 160, y: 64, w: 26, h: 26, cls: 'bg-white text-slate-400 text-lg font-bold', label: '2' },
+      { x: 120, y: 128, w: 70, h: 26, cls: 'bg-slate-200 text-slate-500 text-sm font-bold', label: '15' },
+    ],
+    reveals: [
+      { x: 120, y: 128, w: 70, h: 26, cls: 'bg-[#06b6d4] text-white text-sm font-bold', label: '15', timing: 'late' },
+    ],
+    pulses: [{ x: 120, y: 128 }],
+    finger: { mode: 'tap1', a: { x: 120, y: 128 } },
+  },
+
   // Swipe to merge matching tiles (2048).
   '2048': {
     board: [

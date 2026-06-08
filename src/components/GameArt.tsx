@@ -68,6 +68,20 @@ const ART: Record<string, (className?: string) => React.ReactNode> = {
       </>,
       c,
     ),
+  yacht: (c) =>
+    base(
+      <>
+        {/* two dice */}
+        <rect x="8" y="14" width="30" height="30" rx="6" strokeWidth={2.5} />
+        <circle cx="16" cy="22" r="2.6" fill="currentColor" stroke="none" />
+        <circle cx="23" cy="29" r="2.6" fill="currentColor" stroke="none" />
+        <circle cx="30" cy="36" r="2.6" fill="currentColor" stroke="none" />
+        <rect x="34" y="32" width="22" height="22" rx="5" strokeWidth={2.5} />
+        <circle cx="40" cy="38" r="2.1" fill="currentColor" stroke="none" />
+        <circle cx="50" cy="48" r="2.1" fill="currentColor" stroke="none" />
+      </>,
+      c,
+    ),
   wordle: (c) =>
     base(
       <>
