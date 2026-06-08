@@ -52,7 +52,16 @@ src/
 scripts/verify-cube.mjs    キューブ崩壊バグの自動検証（node scripts/verify-cube.mjs）
 scripts/verify-wordle.mjs  Word Guessの単語リスト＆採点ロジック検証（node scripts/verify-wordle.mjs）
 scripts/verify-tiers.mjs   ティア閾値/進捗ロジックの境界値検証（node scripts/verify-tiers.mjs）
+scripts/verify-hex.mjs     ヘックスの隣接/接続判定/接続距離AI/自己対戦の決着保証を検証（node scripts/verify-hex.mjs）
 ```
+
+## 🆕 新ゲーム追加バッチ（進行中・確定）
+ユーザー指示で6本を**1本ずつ完璧に仕上げて**追加中（30本同時開発はしない方針）。
+順番: **①ヘックス ②ルドー ③ヨット ④ブラックジャック ⑤テキサスポーカー ⑥テトリス**。
+- **対戦相手**: 現状は全てAI。**オンライン対戦実装完了後**に、これら（BJ/ポーカー等）含む全ゲームをオンライン対応へ。→AIは将来オンラインへ差し替えやすい**純ロジック**で実装する。
+- **難易度4段階(EASY/MEDIUM/HARD/EXPERT)を付ける**: ヘックス/ルドー/ポーカー・BJ/テトリス。**ヨットは一人用スコアアタックなので難易度なし**。
+- **①ヘックス = 実装完了 ✅**（`games/hex/`）。N×N菱形盤(7/9/11/13＝難易度)。人間=上下のシアン辺、AI=左右のローズ辺。AIは**接続距離ヒューリスティック**（Dial法0-1 BFSで「接続に必要な残り石数」を評価）＋難易度別（easy:乱択多め / medium:貪欲+ジッタ / hard:確定貪欲 / expert:上位手で2-ply minimax）。`hasConnection`はフラッドフィル。引き分けは原理的に無い。canvas描画（`HexGame.tsx`）はGomoku流。`node scripts/verify-hex.mjs`で全PASS。
+- **ゲーム追加時に触る6箇所**（registry自動配線のためApp.tsx不要）: ①`games/<id>/`(本体+純ロジック) ②`games/registry.ts`(GameDef, available:true) ③`i18n/en|ja.json`(`<id>`セクション+`games.<id>`) ④`components/GameArt.tsx`(2D SVG) ⑤`lib/gamePalette.ts`(配色trio) ⑥`components/darkGames.ts`。任意で`HowToOverlay.tsx`のSCENESに2Dチュートリアル、`scripts/verify-<id>.mjs`。
 
 ## ✅ 決定事項（ユーザーとの合意）
 1. 技術土台: React+Vite+TS+Tailwind

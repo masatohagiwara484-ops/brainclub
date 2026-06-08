@@ -198,6 +198,21 @@
     "again": "Play again",
     "help": "Tap an intersection to place a stone. Get five in a row to win."
   },
+  "hex": {
+    "newGame": "New game",
+    "undo": "Undo",
+    "you": "You",
+    "ai": "AI",
+    "yourTurn": "Your turn",
+    "aiTurn": "AI thinking…",
+    "gameOver": "Game over",
+    "youWin": "You win!",
+    "youLose": "AI wins",
+    "share": "Share",
+    "again": "Play again",
+    "goal": "Link your two cyan edges — top to bottom.",
+    "help": "Place stones to build one unbroken chain linking your two coloured edges (top to bottom). Block the AI's left-to-right path while you build yours. There are no draws — someone always connects."
+  },
   "wordle": {
     "daily": "Daily",
     "practice": "Practice",
@@ -396,6 +411,7 @@
     "solitaire": { "name": "Solitaire", "tagline": "Card sorting · relaxing" },
     "watersort": { "name": "Water Sort", "tagline": "Color logic · satisfying" },
     "gomoku": { "name": "Gomoku", "tagline": "Five in a row · quick" },
+    "hex": { "name": "Hex", "tagline": "Strategy · connect your sides" },
     "memory": { "name": "Memory Match", "tagline": "Recall · focus" },
     "reaction": { "name": "Reaction", "tagline": "Reflex · how fast are you?" },
     "simon": { "name": "Echo", "tagline": "Memory · repeat the tune" },

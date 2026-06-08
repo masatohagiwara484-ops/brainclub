@@ -198,6 +198,21 @@
     "again": "もう一度",
     "help": "交点をタップして石を置きます。先に5つ並べたら勝ちです。"
   },
+  "hex": {
+    "newGame": "新しい対局",
+    "undo": "戻す",
+    "you": "あなた",
+    "ai": "AI",
+    "yourTurn": "あなたの番",
+    "aiTurn": "AI思考中…",
+    "gameOver": "対局終了",
+    "youWin": "あなたの勝ち！",
+    "youLose": "AIの勝ち",
+    "share": "シェア",
+    "again": "もう一度",
+    "goal": "上下のシアン色の辺をつなげよう",
+    "help": "石を置いて、自分の色の2辺（上と下）をつなぐ一本の道を作ります。AIの左右の道を妨害しながら、自分の道を作りましょう。引き分けはなく、必ずどちらかがつながります。"
+  },
   "wordle": {
     "daily": "デイリー",
     "practice": "練習",
@@ -396,6 +411,7 @@
     "solitaire": { "name": "ソリティア", "tagline": "カード整理 · ゆったり" },
     "watersort": { "name": "色水ソート", "tagline": "色の論理 · 爽快" },
     "gomoku": { "name": "五目並べ", "tagline": "五目 · サクッと" },
+    "hex": { "name": "ヘックス", "tagline": "戦略 · 辺をつなぐ" },
     "memory": { "name": "神経衰弱", "tagline": "記憶 · 集中" },
     "reaction": { "name": "反応速度", "tagline": "反射 · 速さ勝負" },
     "simon": { "name": "エコー", "tagline": "記憶 · 音をまねる" },

@@ -47,6 +47,16 @@ const ART: Record<string, (className?: string) => React.ReactNode> = {
       </>,
       c,
     ),
+  hex: (c) =>
+    base(
+      <>
+        {/* three honeycomb cells, the middle one filled — a connecting path */}
+        <path d="M29 32 24.5 39.8 15.5 39.8 11 32 15.5 24.2 24.5 24.2Z" strokeWidth={2.5} />
+        <path d="M42.5 24 38 31.8 29 31.8 24.5 24 29 16.2 38 16.2Z" fill="currentColor" stroke="none" />
+        <path d="M56 32 51.5 39.8 42.5 39.8 38 32 42.5 24.2 51.5 24.2Z" strokeWidth={2.5} />
+      </>,
+      c,
+    ),
   wordle: (c) =>
     base(
       <>

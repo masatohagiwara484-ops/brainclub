@@ -150,6 +150,32 @@ const SCENES: Record<string, Scene> = {
     finger: { mode: 'tap1', a: { x: 110, y: 85 } },
   },
 
+  // Tap empty cells to build a chain linking your two (cyan) edges, top to bottom.
+  hex: {
+    board: [
+      { x: 120, y: 40, w: 96, h: 6, cls: 'bg-[#22d3ee]' },
+      { x: 150, y: 140, w: 96, h: 6, cls: 'bg-[#22d3ee]' },
+      ...[
+        [90, 62],
+        [120, 62],
+        [150, 62],
+        [105, 91],
+        [135, 91],
+        [165, 91],
+        [120, 120],
+        [150, 120],
+        [180, 120],
+      ].map(([x, y]) => ({ x, y, w: 24, h: 24, round: true, cls: 'bg-slate-200' })),
+    ],
+    reveals: [
+      { x: 120, y: 62, w: 24, h: 24, round: true, cls: 'bg-[#22d3ee]', timing: 'early' },
+      { x: 135, y: 91, w: 24, h: 24, round: true, cls: 'bg-[#22d3ee]', timing: 'early', delay: 0.2 },
+      { x: 150, y: 120, w: 24, h: 24, round: true, cls: 'bg-[#22d3ee]', timing: 'early', delay: 0.4 },
+    ],
+    pulses: [{ x: 135, y: 91 }],
+    finger: { mode: 'tap1', a: { x: 135, y: 91 } },
+  },
+
   // Swipe to merge matching tiles (2048).
   '2048': {
     board: [
