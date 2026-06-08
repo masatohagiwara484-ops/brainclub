@@ -8,6 +8,7 @@ import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
 import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
+import { submitScore } from '../../lib/leaderboard';
 
 const AXES = getGame('reaction')?.axes ?? {};
 const TRIALS = 5;
@@ -55,6 +56,8 @@ export default function ReactionGame(_: GameProps) {
         setSetting(BEST_FAST_KEY, fastest);
       }
       setNewFast(isFast);
+      // Submit to today's leaderboard (faster tap → higher score; server keeps best).
+      void submitScore('reaction', '', Math.max(1, 1_000_000 - fastest), { ms: fastest });
       // Also keep the best 5-round average (secondary record, persisted only).
       const prevBest = getSetting<number>(BEST_KEY, 0);
       if (prevBest === 0 || avg < prevBest) setSetting(BEST_KEY, avg);

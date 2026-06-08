@@ -11,6 +11,7 @@ export type IconName =
   | 'user'
   | 'back'
   | 'help'
+  | 'trophy'
   | 'diamond';
 
 export function Icon({
@@ -92,6 +93,16 @@ export function Icon({
           <circle cx="12" cy="12" r="9" />
           <path d="M9.4 9.3a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.1.9-1.1 1.8" />
           <line x1="12" y1="16.6" x2="12" y2="16.61" />
+        </svg>
+      );
+    case 'trophy':
+      // A trophy cup — the leaderboard / ranks tab.
+      return (
+        <svg {...common}>
+          <path d="M7 4h10v4a5 5 0 0 1-10 0V4z" />
+          <path d="M7 6H4.5a2.5 2.5 0 0 0 2.5 2.5M17 6h2.5a2.5 2.5 0 0 1-2.5 2.5" />
+          <line x1="12" y1="13" x2="12" y2="16.5" />
+          <path d="M8.5 20h7M9.5 20v-1.5a2.5 2.5 0 0 1 5 0V20" />
         </svg>
       );
   }

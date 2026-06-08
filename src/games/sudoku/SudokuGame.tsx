@@ -4,6 +4,7 @@ import { makePuzzle, cell, N, type Grid, type Puzzle } from './sudokuGen';
 import { type Difficulty } from '../../lib/difficulty';
 import type { GameProps } from '../types';
 import { saveBest } from '../../lib/storage';
+import { submitScore } from '../../lib/leaderboard';
 import { fx } from '../../lib/fx';
 import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
@@ -183,6 +184,8 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
         // The win celebration (confetti + chime) is fired centrally by the
         // result modal when it opens.
         saveBest('sudoku', difficulty, { seconds, moves: 0, at: Date.now() });
+        // Faster solve → higher leaderboard score (server keeps best of the day).
+        void submitScore('sudoku', difficulty, Math.max(1, Math.round(1_000_000 / Math.max(1, seconds))), { time: fmt(seconds) });
         const perf = clamp01((TARGET[difficulty] - seconds) / TARGET[difficulty]);
         const res = recordPlay({
           gameId: 'sudoku',

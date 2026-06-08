@@ -10,6 +10,7 @@ import { Icon, type IconName } from './Icons';
 const TABS: { to: string; key: string; icon: IconName }[] = [
   { to: '/', key: 'nav.home', icon: 'home' },
   { to: '/score', key: 'nav.score', icon: 'score' },
+  { to: '/leaderboard', key: 'nav.leaderboard', icon: 'trophy' },
   { to: '/premium', key: 'nav.subscription', icon: 'subscription' },
   { to: '/settings', key: 'nav.settings', icon: 'settings' },
 ];

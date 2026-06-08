@@ -5,7 +5,15 @@
     "name": "BrainClub",
     "tagline": "A worldwide club of brain games. Train your mind, every day."
   },
-  "nav": { "home": "Home", "score": "Score", "subscription": "Premium", "settings": "Settings", "back": "Back", "profile": "Profile", "tabs": "Main navigation" },
+  "nav": { "home": "Home", "score": "Score", "leaderboard": "Ranks", "subscription": "Premium", "settings": "Settings", "back": "Back", "profile": "Profile", "tabs": "Main navigation" },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "sub": "Compete on today's boards and climb the global ladder.",
+    "today": "Today",
+    "global": "Global",
+    "signInToCompete": "Sign in to compete and save your rank →",
+    "empty": "No scores yet today — be the first!"
+  },
   "score": {
     "title": "Your Score",
     "sub": "Your Synapse profile across memory, logic and reflex.",

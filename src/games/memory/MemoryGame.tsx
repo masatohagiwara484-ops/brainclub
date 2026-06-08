@@ -11,6 +11,7 @@ import { howto, useHowto } from '../../lib/howto';
 import GameResultScreen from '../../components/GameResultScreen';
 import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
+import { submitScore } from '../../lib/leaderboard';
 import MemoryGlyph from './MemoryGlyphs';
 
 const AXES = getGame('memory')?.axes ?? {};
@@ -114,6 +115,8 @@ export default function MemoryGame({ difficulty = 'easy' }: GameProps) {
       setSetting(bestKey, secs);
     }
     setIsBest(better);
+    // Faster clear → higher leaderboard score (server keeps best of the day).
+    void submitScore('memory', difficulty, Math.max(1, Math.round(1_000_000 / Math.max(0.1, secs))), { time: `${secs}s` });
     // Faster than par = higher quality; fewer wasted moves nudges it too.
     const timePerf = clamp01(PAR_SECONDS[difficulty] / Math.max(1, secs));
     const movePerf = clamp01(pairs / Math.max(1, moves));

@@ -7,6 +7,7 @@ import GamePage from './pages/GamePage';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Score from './pages/Score';
+import Leaderboard from './pages/Leaderboard';
 import Premium from './pages/Premium';
 import { initCloud } from './lib/cloud';
 
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/score" element={<Score />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/premium" element={<Premium />} />
           <Route path="/settings" element={<Settings />} />
           <Route

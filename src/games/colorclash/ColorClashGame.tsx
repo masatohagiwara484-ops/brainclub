@@ -7,6 +7,7 @@ import { makeRng } from '../../lib/daily';
 import { fx } from '../../lib/fx';
 import { recordPlay, clamp01, XP_WEIGHT } from '../../lib/synapse';
 import { monet } from '../../lib/monetization';
+import { submitScore } from '../../lib/leaderboard';
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
 import GameShell from '../../components/GameShell';
@@ -71,6 +72,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
     } else {
       setNewBest(false);
     }
+    void submitScore('colorclash', difficulty, finalScore, { score: finalScore });
     const quality = clamp01(0.15 + 0.8 * clamp01(finalScore / SCORE_TARGET[difficulty]));
     const res = recordPlay({ gameId: 'colorclash', axes: AXES, quality, weight: XP_WEIGHT[difficulty] });
     setLevelUp(isBest && finalScore > 0 && res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);

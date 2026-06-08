@@ -5,7 +5,15 @@
     "name": "BrainClub",
     "tagline": "世界の脳トレが集まるクラブ。毎日、頭を動かそう。"
   },
-  "nav": { "home": "ホーム", "score": "スコア", "subscription": "サブスク", "settings": "設定", "back": "戻る", "profile": "プロフィール", "tabs": "メインナビゲーション" },
+  "nav": { "home": "ホーム", "score": "スコア", "leaderboard": "ランク", "subscription": "サブスク", "settings": "設定", "back": "戻る", "profile": "プロフィール", "tabs": "メインナビゲーション" },
+  "leaderboard": {
+    "title": "リーダーボード",
+    "sub": "今日のボードで競い、グローバル・ランキングを駆け上がろう。",
+    "today": "今日",
+    "global": "世界",
+    "signInToCompete": "サインインして順位を記録 →",
+    "empty": "今日のスコアはまだありません。最初の1人に！"
+  },
   "score": {
     "title": "あなたのスコア",
     "sub": "記憶力・論理力・反射神経の3軸で見るシナプスプロフィール。",

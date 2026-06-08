@@ -10,6 +10,7 @@ import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
 import GameShell from '../../components/GameShell';
 import { useShareMsg } from '../shareHook';
+import { submitScore } from '../../lib/leaderboard';
 
 const AXES = getGame('schulte')?.axes ?? {};
 const SIZE: Record<string, number> = { easy: 3, medium: 4, hard: 5, expert: 6 };
@@ -127,6 +128,7 @@ export default function SchulteGame({ difficulty = 'easy' }: GameProps) {
       setSetting(bestKey, cleared);
       setIsBest(true);
     }
+    void submitScore('schulte', difficulty, cleared, { boards: cleared }); // boards cleared = score
     const perf = clamp01(cleared / TARGET[difficulty]);
     const res = recordPlay({ gameId: 'schulte', axes: AXES, quality: clamp01(0.2 + 0.7 * perf), weight: XP_WEIGHT[difficulty] });
     setLevelUp(res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
