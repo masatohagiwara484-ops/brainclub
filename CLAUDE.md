@@ -73,6 +73,21 @@ scripts/verify-tiers.mjs   ティア閾値/進捗ロジックの境界値検証�
 `lib/haptics.ts`。回転時tick / 完成時パターン。
 ✅ Android作動 / ❌ iOS Safariは`navigator.vibrate`非対応で無音（エラーなし・仕様）。
 
+## 🏆 オンライン競争（方針転換・確定）
+> **重要決定**: 「ログイン不要」原則を**撤回し、ログイン前提へ移行**。Supabaseをバックエンドに採用済み
+> （`@supabase/supabase-js`導入済、`src/lib/supabase.ts`/`cloud.ts`、`supabase/schema.sql`稼働）。
+- **狙う体験**: ①全員が同一seedの「今日の問題」を解く**デイリー・リーダーボード**（NYT/Wordle型・習慣化の核）
+  ②全ゲーム合算の**グローバル・レート＋ランク**（=既存 `synapseScore()`＋`tiers.ts` を流用）
+  ③2人以上のゲーム（五目並べ等）は**世界のユーザーと実オンライン対戦**。
+- **既存土台**: マジックリンク認証＋`profiles`/`saves`＋RLS＋進捗同期は完成済（旧称: 任意のクラウド）。
+- **Phase 1（実装中・今ここ）**: 競争バックボーン。
+  - DB: `supabase/leaderboard.sql`（`scores`日次表＋`submit_score()`RPC〔keep-best/auth.uid()刻印/sanity境界〕＋`profiles`に公開ランク列 `synapse/xp/level`）。**Supabaseで一度実行が必要**。
+  - クライアント: `src/lib/leaderboard.ts`（`submitScore`/`fetchDaily`/`fetchLadder`＋hooks）。`cloud.ts` が同期時に `profiles` のランク列を更新。
+- **Phase 2（次）**: ログイン必須ゲート（未ログインはプレイ前にサインイン）＋リーダーボードUI（ゲーム結果画面・専用タブ）＋ランク表示。各ゲームの結果で `submitScore` を発火。
+- **Phase 3（その後）**: 五目並べ等の**リアルタイム1on1**（Supabase Realtime＋マッチメイキング＋着手同期＋Elo/切断処理）。
+- **不正対策**: MVPはRPC経由のclient-submit＋RLS＋境界チェック。将来は `verify-*.mjs` の純ロジックをEdge Functionで**サーバー再検証**へ硬化。
+- **環境変数**: `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY`（Vercel＋`.env.local`、`.env.example`参照）。
+
 ## 🗺 ロードマップ（0.1→1→10→100）
 - **0.1→1（〜2週間）**: 安定・公開・計測・シェアできる土台。キューブ修正済み✅／Vercelデプロイ／PWA／計測／X・Substack開始。← **今ここ**
 - **1→10（〜2-3ヶ月）**: デイリー習慣＋必須ゲーム追加（軽い順: 五目→ナンプレ→ソリティア→色水ソート→単語当て）＋ストリーク/実績＋リワード広告/広告除去/コスメ＋全ゲームにシェアグリッド。初収益。

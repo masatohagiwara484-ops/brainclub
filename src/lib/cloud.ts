@@ -18,7 +18,7 @@ import {
   mergeProgress,
   type Progress,
 } from './storage';
-import { notifyProfileChanged, subscribeSynapse } from './synapse';
+import { notifyProfileChanged, subscribeSynapse, getProfile, synapseScore } from './synapse';
 
 export const AVATARS = ['🧠', '🦊', '🐙', '🦉', '🐱', '🐼', '🐸', '🦄', '🤖', '👾', '🐢', '🦁'];
 const DEFAULT_AVATAR = '🧠';
@@ -75,6 +75,21 @@ async function onSignedIn(user: User): Promise<void> {
   const account = await loadOrCreateProfile(user);
   patch({ status: 'signed-in', account, linkSentTo: null, error: null });
   await syncNow();
+  await pushRank();
+}
+
+// Publish the player's public rank fields (composite Synapse score, xp, level)
+// to their profile row so they appear on the global ladder. Owner-only write.
+async function pushRank(): Promise<void> {
+  if (!supabase || !state.account) return;
+  const p = getProfile();
+  await supabase.from('profiles').upsert({
+    id: state.account.userId,
+    synapse: Math.round(synapseScore(p)),
+    xp: Math.round(p.xp),
+    level: p.level,
+    updated_at: new Date().toISOString(),
+  });
 }
 
 async function loadOrCreateProfile(user: User): Promise<Account> {
@@ -178,6 +193,7 @@ async function pushProgress(): Promise<void> {
     data: merged,
     updated_at: new Date().toISOString(),
   });
+  await pushRank();
 }
 
 // Every recorded play (and level-up) flows through the Synapse store; ride that
