@@ -171,9 +171,9 @@ export default function LudoGame({ difficulty = 'medium' }: GameProps) {
       // Three 6s in a row forfeits the turn.
       if (d === 6 && sixesRef.current >= 3) {
         flash(t('ludo.threeSixes'));
-        after(900, passTurn);
-        setPhase('roll'); // keep input gated until passTurn flips the turn
+        setPhase('rolling'); // keep input gated until passTurn flips the turn
         phaseRef.current = 'rolling';
+        after(900, passTurn);
         return;
       }
 
