@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { GAMES } from '../games/registry';
 import { DIFFICULTIES, type Difficulty } from '../lib/difficulty';
 import { useCloud } from '../lib/cloud';
-import { useDailyBoard, useLadder } from '../lib/leaderboard';
+import { useDailyBoard, useLadder, useEloLadder } from '../lib/leaderboard';
 import { tierForScore } from '../lib/tiers';
+import { eloRank } from '../lib/elo';
 import { GAME_BG } from '../components/GameShell';
 
 // The Leaderboard tab: a daily board (per game + difficulty, same seed for all
@@ -14,7 +15,7 @@ import { GAME_BG } from '../components/GameShell';
 export default function Leaderboard() {
   const { t } = useTranslation();
   const cloud = useCloud();
-  const [view, setView] = useState<'today' | 'global'>('today');
+  const [view, setView] = useState<'today' | 'global' | 'ranked'>('today');
 
   const playable = useMemo(() => GAMES.filter((g) => g.available && g.component), []);
   const [gameId, setGameId] = useState(playable[0]?.id ?? 'reaction');
@@ -31,8 +32,8 @@ export default function Leaderboard() {
         <p className="mt-1 text-sm text-white/60">{t('leaderboard.sub')}</p>
 
         {/* View switch */}
-        <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-white/[0.06] p-1">
-          {(['today', 'global'] as const).map((v) => (
+        <div className="mt-4 grid grid-cols-3 gap-1 rounded-2xl bg-white/[0.06] p-1">
+          {(['today', 'global', 'ranked'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
@@ -91,13 +92,26 @@ export default function Leaderboard() {
 
             <DailyBoard gameId={gameId} difficulty={diffParam} youId={cloud.account?.userId} />
           </>
-        ) : (
+        ) : view === 'global' ? (
           <GlobalLadder youId={cloud.account?.userId} />
+        ) : (
+          <RankedLadder youId={cloud.account?.userId} />
         )}
       </div>
     </div>
   );
 }
+
+// Display colour per Elo rank id (bronze → grandmaster).
+const RANK_COLOR: Record<string, string> = {
+  bronze: '#b87333',
+  silver: '#c0c7d0',
+  gold: '#f5c542',
+  platinum: '#6ee7e7',
+  diamond: '#7dd3fc',
+  master: '#c084fc',
+  grandmaster: '#fb7185',
+};
 
 const rowCls = (you: boolean) =>
   `flex items-center gap-3 rounded-xl px-3 py-2.5 ${you ? 'bg-accent-cyan/15 ring-1 ring-accent-cyan/40' : 'bg-white/[0.04]'}`;
@@ -128,6 +142,35 @@ function DailyBoard({ gameId, difficulty, youId }: { gameId: string; difficulty:
             <span className="text-right text-sm font-black tabular-nums text-accent-cyan">
               {detail != null ? String(detail) : r.score}
             </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function RankedLadder({ youId }: { youId?: string }) {
+  const { t } = useTranslation();
+  const { rows, loading } = useEloLadder();
+
+  if (loading) return <p className="mt-6 text-center text-sm text-white/40">…</p>;
+  if (rows.length === 0) return <p className="mt-8 text-center text-sm text-white/45">{t('leaderboard.empty')}</p>;
+
+  return (
+    <div className="mt-4 space-y-1.5">
+      {rows.map((r) => {
+        const rk = eloRank(r.elo);
+        return (
+          <div key={r.userId} className={rowCls(r.userId === youId)}>
+            {rankBadge(r.rank)}
+            <span className="text-xl">{r.avatar}</span>
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-semibold">{r.username}</div>
+              <span className="text-[11px] font-bold" style={{ color: RANK_COLOR[rk.id] }}>
+                {t(`online.rank.${rk.id}`)} · {r.wins}{t('leaderboard.winShort')}–{r.losses}{t('leaderboard.lossShort')}
+              </span>
+            </div>
+            <span className="text-right text-sm font-black tabular-nums text-accent-cyan">{r.elo}</span>
           </div>
         );
       })}

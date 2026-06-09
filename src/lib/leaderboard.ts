@@ -104,6 +104,45 @@ export async function fetchLadder(limit = 100): Promise<LadderEntry[]> {
   }));
 }
 
+export type EloEntry = {
+  rank: number;
+  userId: string;
+  username: string;
+  avatar: string;
+  elo: number;
+  wins: number;
+  losses: number;
+};
+
+type EloRow = {
+  id: string;
+  username: string | null;
+  avatar: string | null;
+  elo: number | null;
+  wins: number | null;
+  losses: number | null;
+};
+
+/** Global ranked ladder for online 1v1 play, ordered by Elo rating. */
+export async function fetchEloLadder(limit = 100): Promise<EloEntry[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, username, avatar, elo, wins, losses')
+    .order('elo', { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return (data as unknown as EloRow[]).map((r, i) => ({
+    rank: i + 1,
+    userId: r.id,
+    username: r.username || 'Player',
+    avatar: r.avatar || '🧠',
+    elo: r.elo ?? 1000,
+    wins: r.wins ?? 0,
+    losses: r.losses ?? 0,
+  }));
+}
+
 // ---- React hooks ------------------------------------------------------------
 
 export function useDailyBoard(game: string, difficulty = '', limit = 50) {
@@ -132,6 +171,25 @@ export function useLadder(limit = 100) {
     let alive = true;
     setLoading(true);
     void fetchLadder(limit).then((r) => {
+      if (alive) {
+        setRows(r);
+        setLoading(false);
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, [limit]);
+  return { rows, loading };
+}
+
+export function useEloLadder(limit = 100) {
+  const [rows, setRows] = useState<EloEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    void fetchEloLadder(limit).then((r) => {
       if (alive) {
         setRows(r);
         setLoading(false);

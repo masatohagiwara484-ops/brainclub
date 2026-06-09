@@ -30,7 +30,7 @@ export default function OnlineLobby({
   const { t } = useTranslation();
   const cloud = useCloud();
   const uid = cloud.account?.userId ?? '';
-  const elo = (cloud.account as { elo?: number } | null)?.elo;
+  const elo = cloud.account?.elo;
   const [mode, setMode] = useState<Mode>('idle');
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);

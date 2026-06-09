@@ -11,6 +11,9 @@
     "sub": "Compete on today's boards and climb the global ladder.",
     "today": "Today",
     "global": "Global",
+    "ranked": "Ranked",
+    "winShort": "W",
+    "lossShort": "L",
     "signInToCompete": "Sign in to compete and save your rank →",
     "empty": "No scores yet today — be the first!"
   },

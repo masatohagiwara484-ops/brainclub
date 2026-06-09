@@ -23,7 +23,15 @@ import { notifyProfileChanged, subscribeSynapse, getProfile, synapseScore } from
 export const AVATARS = ['🧠', '🦊', '🐙', '🦉', '🐱', '🐼', '🐸', '🦄', '🤖', '👾', '🐢', '🦁'];
 const DEFAULT_AVATAR = '🧠';
 
-export type Account = { userId: string; email: string | null; username: string; avatar: string };
+export type Account = {
+  userId: string;
+  email: string | null;
+  username: string;
+  avatar: string;
+  elo: number;
+  wins: number;
+  losses: number;
+};
 
 export type CloudState = {
   status: 'disabled' | 'signed-out' | 'signed-in';
@@ -95,20 +103,26 @@ async function pushRank(): Promise<void> {
 async function loadOrCreateProfile(user: User): Promise<Account> {
   let username = defaultName(user.email);
   let avatar = DEFAULT_AVATAR;
+  let elo = 1000;
+  let wins = 0;
+  let losses = 0;
   if (supabase) {
     const { data } = await supabase
       .from('profiles')
-      .select('username, avatar')
+      .select('username, avatar, elo, wins, losses')
       .eq('id', user.id)
       .maybeSingle();
     if (data) {
       username = data.username || username;
       avatar = data.avatar || avatar;
+      elo = data.elo ?? elo;
+      wins = data.wins ?? wins;
+      losses = data.losses ?? losses;
     } else {
       await supabase.from('profiles').insert({ id: user.id, username, avatar });
     }
   }
-  return { userId: user.id, email: user.email ?? null, username, avatar };
+  return { userId: user.id, email: user.email ?? null, username, avatar, elo, wins, losses };
 }
 
 // ---- public actions -----------------------------------------------------------
