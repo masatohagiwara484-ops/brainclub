@@ -58,6 +58,17 @@ scripts/verify-yacht.mjs   ヨット(ヤッツィー式)の全13役の採点＋�
 scripts/verify-blackjack.mjs ブラックジャックの手の点数/BJ判定/ディーラー方針/ベーシック戦略/精算を検証
 scripts/verify-poker.mjs   ポーカーの役判定/ストレート・ホイール/キッカー/7枚最強5枚/サイドポット精算を検証
 scripts/verify-tetris.mjs  テトリスのピース定義/回転/衝突/ライン消去＋重力/スコアを検証
+scripts/verify-elo.mjs     オンライン対戦のEloレート計算（期待値/ゼロサム/アップセット/表示ランク境界）を検証
+```
+
+### オンライン対戦レイヤ（Phase 3）
+```
+supabase/online.sql        matches/matchmaking_queue/elo列＋RPC群（Supabaseで要実行）
+src/lib/realtime.ts        マッチRPC＋Supabase Realtime購読のラッパ（find/queue/private/move/result/subscribe）
+src/lib/elo.ts             純Elo（expected/update/applyResult＋表示ランク eloRank）
+src/pages/OnlineGamePage.tsx  サインインゲート→ロビー→対局（購読所有・OnlineController生成）
+src/components/OnlineLobby.tsx クイックマッチ＋フレンドルーム（コード発行/参加）
+src/games/types.ts         GameProps.online（OnlineController：moves権威/sendMove/reportResult/resign/leave）
 ```
 
 ## 🆕 新ゲーム追加バッチ（進行中・確定）
@@ -105,9 +116,15 @@ scripts/verify-tetris.mjs  テトリスのピース定義/回転/衝突/ライ�
   - DB: `supabase/leaderboard.sql`（`scores`日次表＋`submit_score()`RPC〔keep-best/auth.uid()刻印/sanity境界〕＋`profiles`に公開ランク列 `synapse/xp/level`）。**Supabaseで一度実行が必要**。
   - クライアント: `src/lib/leaderboard.ts`（`submitScore`/`fetchDaily`/`fetchLadder`＋hooks）。`cloud.ts` が同期時に `profiles` のランク列を更新。
 - **Phase 2（次）**: ログイン必須ゲート（未ログインはプレイ前にサインイン）＋リーダーボードUI（ゲーム結果画面・専用タブ）＋ランク表示。各ゲームの結果で `submitScore` を発火。
-- **Phase 3（その後）**: 五目並べ等の**リアルタイム1on1**（Supabase Realtime＋マッチメイキング＋着手同期＋Elo/切断処理）。
-- **不正対策**: MVPはRPC経由のclient-submit＋RLS＋境界チェック。将来は `verify-*.mjs` の純ロジックをEdge Functionで**サーバー再検証**へ硬化。
+- **Phase 3 = リアルタイム1on1オンライン対戦 = 実装完了 ✅**（五目並べ・ヘックス）。決定: **オンライン対戦のみログイン必須**（AI/一人用は無料・ログイン不要のまま）／マッチング=**クイック＋フレンドコード**／**Elo最初から**（K=32, 開始1000, Bronze〜Grandmaster）。
+  - **DB**: `supabase/online.sql`（**Supabaseで一度実行が必要**）。`matches`（着手列`moves`が唯一の真実・postgres_changesで両者購読）＋`matchmaking_queue`＋`profiles`に`elo/wins/losses`。全書き込みはSECURITY DEFINER RPC（`find_match`〔`FOR UPDATE SKIP LOCKED`で原子的ペアリング〕/`leave_queue`/`create_private_match`/`join_private_match`/`record_move`〔手番検証〕/`record_match_result`〔Eloをサーバ再計算・冪等〕）。
+  - **クライアント**: `src/lib/realtime.ts`（RPC＋Realtime購読のラッパ）／`src/lib/elo.ts`（純Elo・`scripts/verify-elo.mjs`で検証）／`src/pages/OnlineGamePage.tsx`（サインインゲート→ロビー→対局・購読所有）／`src/components/OnlineLobby.tsx`（クイック/フレンド）。
+  - **ゲーム配線**: registryに`online?:boolean`（gomoku/hex=true）。`GameProps`に`online?:OnlineController`（`types.ts`）。各ゲームは**`online.moves`配列から盤面を純導出**（着手iは偶数=先手色/奇数=後手色）＝再接続・エコー処理不要。`DifficultyScreen`に「🌐 Play Online」入口、`App.tsx`に`/online/:id`。`Leaderboard`に「ランク戦」タブ（Eloラダー）。
+  - **対局相手の色**: 先手＝五目BLACK/ヘックスHUMAN(シアン・上下)、後手＝WHITE/AI(ローズ・左右)。`first_player`はランダムで公平。
+  - **未実装（次の硬化）**: Presence切断検知での自動forfeit（現状は手動「投了」＋途中退出forfeitのみ）／Edge Functionでの着手サーバ再検証／観戦・リマッチ・手番タイマー。
+- **不正対策**: MVPはRPC経由のclient-submit＋RLS＋境界チェック＋`record_move`の手番検証。将来は `verify-*.mjs` の純ロジックをEdge Functionで**サーバー再検証**へ硬化。
 - **環境変数**: `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY`（Vercel＋`.env.local`、`.env.example`参照）。
+- **Supabase手作業（オンライン対戦に必須）**: ①`supabase/online.sql`をSQLエディタで実行 ②Realtimeが`matches`で有効（SQL内で`supabase_realtime`へ追加済）③Auth Providers でGoogle/Apple OAuth有効化（マジックリンクはメール制限に当たりやすいのでオンライン導線はOAuth推奨）④URL Configurationに本番Vercel URL。
 
 ## 🗺 ロードマップ（0.1→1→10→100）
 - **0.1→1（〜2週間）**: 安定・公開・計測・シェアできる土台。キューブ修正済み✅／Vercelデプロイ／PWA／計測／X・Substack開始。← **今ここ**
