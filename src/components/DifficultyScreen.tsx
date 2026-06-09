@@ -8,6 +8,7 @@ import {
 } from '../lib/difficulty';
 import type { GameDef } from '../games/registry';
 import { sound } from '../lib/sound';
+import { isCloudConfigured } from '../lib/supabase';
 import GameArt from './GameArt';
 import { GAME_BG } from './GameShell';
 
@@ -35,7 +36,20 @@ export default function DifficultyScreen({ game }: { game: GameDef }) {
           {t('difficulty.choose')}
         </p>
 
-        <div className="mt-7 flex w-full flex-col gap-3">
+        {game.online && isCloudConfigured && (
+          <button
+            onClick={() => {
+              sound.playSelectDifficulty();
+              nav(`/online/${game.id}`);
+            }}
+            className="mt-6 flex w-full items-center justify-between rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-5 py-4 font-semibold text-white shadow-premium transition active:scale-[0.98]"
+          >
+            <span className="font-dot text-lg font-bold tracking-wide">🌐 {t('online.playOnline')}</span>
+            <span className="text-sm text-white/80">{t('online.vsHuman')}</span>
+          </button>
+        )}
+
+        <div className="mt-3 flex w-full flex-col gap-3">
           {DIFFICULTIES.map((d) => {
             const s = DIFFICULTY_STYLE[d];
             return (

@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import SplashScreen from './components/SplashScreen';
 import Home from './pages/Home';
 import GamePage from './pages/GamePage';
+import OnlineGamePage from './pages/OnlineGamePage';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Score from './pages/Score';
@@ -46,6 +47,7 @@ export default function App() {
               </Suspense>
             }
           />
+          <Route path="/online/:id" element={<OnlineGamePage />} />
           <Route path="/play/:id" element={<GamePage />} />
           <Route path="/play/:id/:difficulty" element={<GamePage />} />
           <Route path="*" element={<Home />} />

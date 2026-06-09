@@ -43,7 +43,7 @@ function geom(w: number, h: number): Geom {
   return { pad, step, ox, oy };
 }
 
-export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
+export default function GomokuGame({ difficulty = 'medium', online }: GameProps) {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -57,10 +57,18 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   const recordedRef = useRef(false);
 
+  // In AI mode the human is always Black (moves first). Online, the human plays
+  // Black when they move first, else White. Win/loss is read against this color.
+  const humanColor: Cell = online && !online.iMoveFirst ? WHITE : BLACK;
+  const myStatus: Status = humanColor === BLACK ? 'black' : 'white';
+  const oppStatus: Status = humanColor === BLACK ? 'white' : 'black';
+
   // Record one Synapse play when the game ends (win / loss / draw). The player's
   // win counts most; a loss still logs a little reflex/logic activity. Guarded so
-  // it fires exactly once per finished game.
+  // it fires exactly once per finished game. Online games rank via Elo instead,
+  // so they skip the local Synapse log.
   useEffect(() => {
+    if (online) return;
     if (status === 'playing') {
       recordedRef.current = false;
       return;
@@ -77,6 +85,53 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
     // Only surface a level-up on the player's win (never dress up a loss).
     setLevelUp(status === 'black' && res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
   }, [status, difficulty, t]);
+
+  // ---- online: derive the whole board from the authoritative move log -------
+  // The match's `moves` array is the single source of truth (move i is Black on
+  // even i, White on odd). Rebuilding from it on every change keeps both clients
+  // in lockstep, handles reconnects for free, and needs no echo bookkeeping.
+  useEffect(() => {
+    if (!online) return;
+    const next = createBoard();
+    let lastIdx: number | null = null;
+    let winColor: Cell = EMPTY;
+    online.moves.forEach((mv, i) => {
+      const m = mv as { x: number; y: number };
+      const color: Cell = i % 2 === 0 ? BLACK : WHITE;
+      next[idx(m.x, m.y)] = color;
+      lastIdx = idx(m.x, m.y);
+      if (winColor === EMPTY && isWin(next, m.x, m.y, color)) winColor = color;
+    });
+    setBoard(next);
+    setLast(lastIdx);
+    setTurn(online.moves.length % 2 === 0 ? BLACK : WHITE);
+    if (winColor !== EMPTY) {
+      const winStatus: Status = winColor === BLACK ? 'black' : 'white';
+      setStatus(winStatus);
+      if (winStatus === oppStatus) haptics.bump(); // soft buzz on the opponent's win
+    } else if (online.moves.length >= SIZE * SIZE) {
+      setStatus('draw');
+    } else if (online.finished && online.winnerSeat) {
+      // Resign / forfeit: no board win, so map the winning seat to a result.
+      setStatus(online.winnerSeat === online.mySeat ? myStatus : oppStatus);
+    } else {
+      setStatus('playing');
+    }
+  }, [online?.moves, online?.finished, online?.winnerSeat]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Online: report a board-detected result (idempotent server-side). Resign /
+  // forfeit are already settled by whoever triggered them.
+  const reportedRef = useRef(false);
+  useEffect(() => {
+    if (!online) return;
+    if (status === 'playing' || status === 'draw') {
+      reportedRef.current = false;
+      return;
+    }
+    if (reportedRef.current) return;
+    reportedRef.current = true;
+    online.reportResult(status === myStatus);
+  }, [status, online]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- drawing ----
   const draw = useCallback(() => {
@@ -209,7 +264,7 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
   );
 
   const onClick = (ev: React.MouseEvent<HTMLCanvasElement>) => {
-    if (status !== 'playing' || turn !== BLACK) return;
+    if (status !== 'playing' || turn !== humanColor) return;
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const { step, ox, oy } = geom(rect.width, rect.height);
@@ -217,11 +272,17 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
     const y = Math.round((ev.clientY - rect.top - oy) / step);
     if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) return;
     if (board[idx(x, y)] !== EMPTY) return;
-    place(x, y, BLACK);
+    // Online: send the move; the authoritative log echo paints the stone.
+    if (online) {
+      online.sendMove({ x, y });
+      return;
+    }
+    place(x, y, humanColor);
   };
 
-  // AI responds whenever it is its turn.
+  // AI responds whenever it is its turn (single-player only).
   useEffect(() => {
+    if (online) return;
     if (status !== 'playing' || turn !== WHITE) return;
     const id = setTimeout(() => {
       const move = chooseMove(board.slice() as Cell[], WHITE, BLACK, difficulty);
@@ -252,15 +313,13 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
     });
   };
 
+  const won = online ? status === myStatus : status === 'black';
+  const lost = online ? status === oppStatus : status === 'white';
+
   const onShare = async () => {
-    const headline =
-      status === 'black'
-        ? t('gomoku.youWin')
-        : status === 'white'
-          ? t('gomoku.youLose')
-          : t('gomoku.draw');
+    const headline = won ? t('gomoku.youWin') : lost ? t('gomoku.youLose') : t('gomoku.draw');
     const text = `BrainClub · ${t('games.gomoku.name')}\n${
-      status === 'black' ? '🏆' : status === 'white' ? '🤖' : '🤝'
+      won ? '🏆' : lost ? (online ? '😞' : '🤖') : '🤝'
     } ${headline}\n${window.location.origin}`;
     let res: 'shared' | 'copied' | 'failed' = 'failed';
     try {
@@ -285,10 +344,16 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
 
   const turnLabel =
     status === 'playing'
-      ? turn === BLACK
+      ? turn === humanColor
         ? t('gomoku.yourTurn')
-        : t('gomoku.aiTurn')
+        : online
+          ? t('online.opponentTurn')
+          : t('gomoku.aiTurn')
       : '';
+
+  const myStone = humanColor === BLACK ? '⚫' : '⚪';
+  const oppStone = humanColor === BLACK ? '⚪' : '⚫';
+  const myActive = turn === humanColor;
 
   return (
     <div className="relative h-full w-full">
@@ -296,20 +361,30 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
         <canvas ref={canvasRef} onClick={onClick} className="block h-full w-full touch-none" />
       </div>
 
-      {/* Difficulty + turn indicator */}
+      {/* Difficulty / online + turn indicator */}
       <div className="absolute left-0 right-0 top-0 flex flex-col items-center gap-2 p-3">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
+        {online ? (
+          <span className="font-dot rounded-lg bg-primary/80 px-2 py-1 text-xs font-bold text-white">
+            🌐 {t('online.vsLabel', { name: online.opponentName })}
+          </span>
+        ) : (
+          <span
+            className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
+            style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
+          >
+            {t(difficultyKey(difficulty))}
+          </span>
+        )}
         <div className="rounded-xl bg-slate-900/70 px-3 py-1.5 text-sm font-semibold text-white shadow-sm ring-1 ring-white/10 backdrop-blur">
           {status === 'playing' ? (
             <span>
-              <span className={turn === BLACK ? 'text-white' : 'text-white/40'}>⚫ {t('gomoku.you')}</span>
+              <span className={myActive ? 'text-white' : 'text-white/40'}>
+                {myStone} {t('gomoku.you')}
+              </span>
               <span className="mx-2 text-white/30">·</span>
-              <span className={turn === WHITE ? 'text-white' : 'text-white/40'}>⚪ {t('gomoku.ai')}</span>
+              <span className={!myActive ? 'text-white' : 'text-white/40'}>
+                {oppStone} {online ? online.opponentName : t('gomoku.ai')}
+              </span>
               <span className="ml-3 text-accent-cyan">{turnLabel}</span>
             </span>
           ) : (
@@ -320,21 +395,34 @@ export default function GomokuGame({ difficulty = 'medium' }: GameProps) {
 
       {/* Controls */}
       <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-wrap justify-center gap-2">
-        <Btn onClick={newGame}>{t('gomoku.newGame')}</Btn>
-        <Btn onClick={undo}>{t('gomoku.undo')}</Btn>
+        {online ? (
+          status === 'playing' && <Btn onClick={() => online.resign()}>{t('online.resign')}</Btn>
+        ) : (
+          <>
+            <Btn onClick={newGame}>{t('gomoku.newGame')}</Btn>
+            <Btn onClick={undo}>{t('gomoku.undo')}</Btn>
+          </>
+        )}
       </div>
 
       {/* Result modal */}
       {status !== 'playing' && (
         <GameResultScreen
-          emoji={status === 'black' ? '🏆' : status === 'white' ? '🤖' : '🤝'}
-          title={status === 'black' ? t('gomoku.youWin') : status === 'white' ? t('gomoku.youLose') : t('gomoku.draw')}
-          celebrate={status === 'black'}
+          emoji={won ? '🏆' : lost ? (online ? '😞' : '🤖') : '🤝'}
+          title={won ? t('gomoku.youWin') : lost ? t('gomoku.youLose') : t('gomoku.draw')}
+          celebrate={won}
           levelUp={levelUp}
-          actions={[
-            { label: t('gomoku.share'), onClick: onShare, variant: 'primary' },
-            { label: t('gomoku.again'), onClick: newGame, variant: 'secondary' },
-          ]}
+          actions={
+            online
+              ? [
+                  { label: t('gomoku.share'), onClick: onShare, variant: 'primary' },
+                  { label: t('online.newOpponent'), onClick: online.leave, variant: 'secondary' },
+                ]
+              : [
+                  { label: t('gomoku.share'), onClick: onShare, variant: 'primary' },
+                  { label: t('gomoku.again'), onClick: newGame, variant: 'secondary' },
+                ]
+          }
           shareMsg={shareMsg}
         />
       )}

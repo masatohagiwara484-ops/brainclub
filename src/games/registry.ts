@@ -19,6 +19,8 @@ export type GameDef = {
   available: boolean;
   /** Shows the difficulty-select screen (EASY–EXPERT) before launching. */
   hasDifficulty?: boolean;
+  /** Supports live 1v1 online play (adds a "Play Online" entry). */
+  online?: boolean;
   /** How this game taps the three Synapse axes (memory / logic / reflex). */
   axes?: AxisWeights;
   component?: LazyExoticComponent<ComponentType<GameProps>>;
@@ -117,6 +119,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-amber-500 to-orange-600',
     available: true,
     hasDifficulty: true,
+    online: true,
     axes: { logic: 0.7, reflex: 0.3 },
     ...lazyGame(() => import('./gomoku/GomokuGame')),
   },
@@ -130,6 +133,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-cyan-400 via-violet-500 to-rose-500',
     available: true,
     hasDifficulty: true,
+    online: true,
     axes: { logic: 0.85, reflex: 0.15 },
     ...lazyGame(() => import('./hex/HexGame')),
   },

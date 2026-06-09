@@ -124,3 +124,10 @@ export async function fetchMatch(matchId: string): Promise<Match | null> {
   const { data } = await supabase.from('matches').select('*').eq('id', matchId).maybeSingle();
   return (data as Match) ?? null;
 }
+
+/** Look up a player's display name (for the opponent label). */
+export async function fetchPlayerName(uid: string): Promise<string> {
+  if (!supabase) return 'Player';
+  const { data } = await supabase.from('profiles').select('username').eq('id', uid).maybeSingle();
+  return (data?.username as string) || 'Player';
+}
