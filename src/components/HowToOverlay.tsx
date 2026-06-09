@@ -217,6 +217,18 @@ const SCENES: Record<string, Scene> = {
     finger: { mode: 'tap1', a: { x: 150, y: 152 } },
   },
 
+  // Bet your two hole cards (here a strong pair) — raise.
+  poker: {
+    board: [
+      { x: 100, y: 56, w: 24, h: 32, cls: 'bg-white text-slate-800 text-sm font-bold', label: 'A' },
+      { x: 128, y: 56, w: 24, h: 32, cls: 'bg-white text-slate-800 text-sm font-bold', label: 'A' },
+      { x: 150, y: 134, w: 50, h: 24, cls: 'bg-slate-200 text-slate-500 text-base font-bold', label: '↑' },
+    ],
+    reveals: [{ x: 150, y: 134, w: 50, h: 24, cls: 'bg-[#e11d48] text-white text-base font-bold', label: '↑', timing: 'late' }],
+    pulses: [{ x: 150, y: 134 }],
+    finger: { mode: 'tap1', a: { x: 150, y: 134 } },
+  },
+
   // Swipe to merge matching tiles (2048).
   '2048': {
     board: [

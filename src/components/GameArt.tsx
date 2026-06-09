@@ -93,6 +93,17 @@ const ART: Record<string, (className?: string) => React.ReactNode> = {
       </>,
       c,
     ),
+  poker: (c) =>
+    base(
+      <>
+        {/* a four-card fan */}
+        <rect x="10" y="22" width="16" height="24" rx="2.5" transform="rotate(-18 18 34)" strokeWidth={2.5} />
+        <rect x="20" y="20" width="16" height="24" rx="2.5" transform="rotate(-6 28 32)" strokeWidth={2.5} />
+        <rect x="30" y="20" width="16" height="24" rx="2.5" transform="rotate(6 38 32)" strokeWidth={2.5} />
+        <rect x="40" y="22" width="16" height="24" rx="2.5" transform="rotate(18 48 34)" strokeWidth={2.5} />
+      </>,
+      c,
+    ),
   wordle: (c) =>
     base(
       <>

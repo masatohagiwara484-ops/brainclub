@@ -267,6 +267,27 @@
       "chance": "Chance"
     }
   },
+  "poker": {
+    "blinds": "Blinds",
+    "pot": "Pot",
+    "you": "You",
+    "bot": "Bot {{n}}",
+    "fold": "Fold",
+    "check": "Check",
+    "call": "Call",
+    "allIn": "All-in",
+    "folded": "folded",
+    "allInTag": "all-in",
+    "out": "out",
+    "nextHand": "Next hand",
+    "thinking": "…",
+    "winsPot": "{{who}} wins {{amt}}",
+    "youWin": "Tournament won!",
+    "youLose": "Busted out",
+    "again": "Play again",
+    "share": "Share",
+    "help": "Make the best five-card hand from your two cards plus the five shared cards. Bet across four rounds — fold, check, call or raise. Win all the chips to take the table; lose yours and you're out."
+  },
   "blackjack": {
     "round": "Round {{n}}/{{total}}",
     "dealer": "Dealer",
@@ -491,6 +512,7 @@
     "ludo": { "name": "Ludo", "tagline": "Race · roll & capture" },
     "yacht": { "name": "Yacht", "tagline": "Dice · build the best hand" },
     "blackjack": { "name": "Blackjack", "tagline": "Cards · beat the dealer" },
+    "poker": { "name": "Texas Hold'em", "tagline": "Poker · read & bet" },
     "memory": { "name": "Memory Match", "tagline": "Recall · focus" },
     "reaction": { "name": "Reaction", "tagline": "Reflex · how fast are you?" },
     "simon": { "name": "Echo", "tagline": "Memory · repeat the tune" },

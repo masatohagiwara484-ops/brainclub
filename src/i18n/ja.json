@@ -267,6 +267,27 @@
       "chance": "チャンス"
     }
   },
+  "poker": {
+    "blinds": "ブラインド",
+    "pot": "ポット",
+    "you": "あなた",
+    "bot": "BOT{{n}}",
+    "fold": "フォールド",
+    "check": "チェック",
+    "call": "コール",
+    "allIn": "オールイン",
+    "folded": "ダウン",
+    "allInTag": "オールイン",
+    "out": "脱落",
+    "nextHand": "次の手",
+    "thinking": "…",
+    "winsPot": "{{who}}が{{amt}}獲得",
+    "youWin": "優勝！",
+    "youLose": "脱落",
+    "again": "もう一度",
+    "share": "シェア",
+    "help": "手札2枚と共通カード5枚で最強の5枚を作ります。4回のベットで、フォールド・チェック・コール・レイズ。全チップを獲得すれば優勝、失えば脱落です。"
+  },
   "blackjack": {
     "round": "ラウンド {{n}}/{{total}}",
     "dealer": "ディーラー",
@@ -491,6 +512,7 @@
     "ludo": { "name": "ルドー", "tagline": "すごろく · 出して捕る" },
     "yacht": { "name": "ヨット", "tagline": "サイコロ · 役を作る" },
     "blackjack": { "name": "ブラックジャック", "tagline": "カード · 21を狙え" },
+    "poker": { "name": "テキサスポーカー", "tagline": "ポーカー · 読み合い" },
     "memory": { "name": "神経衰弱", "tagline": "記憶 · 集中" },
     "reaction": { "name": "反応速度", "tagline": "反射 · 速さ勝負" },
     "simon": { "name": "エコー", "tagline": "記憶 · 音をまねる" },
