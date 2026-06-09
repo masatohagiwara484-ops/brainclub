@@ -55,6 +55,7 @@ scripts/verify-tiers.mjs   ティア閾値/進捗ロジックの境界値検証�
 scripts/verify-hex.mjs     ヘックスの隣接/接続判定/接続距離AI/自己対戦の決着保証を検証（node scripts/verify-hex.mjs）
 scripts/verify-ludo.mjs    ルドーの経路/捕獲/安全マス/合法手/勝利判定を検証（node scripts/verify-ludo.mjs）
 scripts/verify-yacht.mjs   ヨット(ヤッツィー式)の全13役の採点＋上段ボーナス＋合計を検証（node scripts/verify-yacht.mjs）
+scripts/verify-blackjack.mjs ブラックジャックの手の点数/BJ判定/ディーラー方針/ベーシック戦略/精算を検証
 ```
 
 ## 🆕 新ゲーム追加バッチ（進行中・確定）
@@ -65,6 +66,7 @@ scripts/verify-yacht.mjs   ヨット(ヤッツィー式)の全13役の採点＋�
 - **①ヘックス = 実装完了 ✅**（`games/hex/`）。N×N菱形盤(7/9/11/13＝難易度)。人間=上下のシアン辺、AI=左右のローズ辺。AIは**接続距離ヒューリスティック**（Dial法0-1 BFSで「接続に必要な残り石数」を評価）＋難易度別（easy:乱択多め / medium:貪欲+ジッタ / hard:確定貪欲 / expert:上位手で2-ply minimax）。`hasConnection`はフラッドフィル。引き分けは原理的に無い。canvas描画（`HexGame.tsx`）はGomoku流。`node scripts/verify-hex.mjs`で全PASS。
 - **②ルドー = 実装完了 ✅**（`games/ludo/`）。クラシックルール（各色4駒・出すのに6・捕獲で振り出し・安全マス★・全4駒ゴールで勝ち・6/捕獲/ゴールで追加手番・6が3回でスキップ）。人間=赤(color0)、AI=緑/黄/青。`ludoEngine.ts`=純ロジック（リング52マス`START_OFFSET=[0,13,26,39]`／進行度 -1=base,0..50=ring,51..56=home,56=goal／合法手・捕獲・勝利・難易度別AI〔easy乱択/medium貪欲/hard&expertは捕獲される位置回避の危険読み〕）。`ludoBoard.ts`=15×15盤ジオメトリ（`RING_CELLS`52座標＋4色のホームレーン＋ベース）。`LudoGame.tsx`=canvas描画＋ターン進行ステートマシン（ref駆動でサイコロ→手番判定）。`node scripts/verify-ludo.mjs`で全PASS。**注**: ブロッケード(同色2駒の通せんぼ)はv1では未実装。
 - **③ヨット = 実装完了 ✅**（`games/yacht/`）。**ヤッツィー式13役**（上段1〜6＋63以上で+35ボーナス、スリー/フォーカード・フルハウス25・小ストレート30・大ストレート40・ヤッツィー50・チャンス、2個目以降のヤッツィーは+100）。**難易度なし**（一人用）。**デイリー（`dailySeed('yacht')`で全員同一出目）＋練習（ランダム）**。デイリーのみ`submitScore('yacht','',total)`でリーダーボード送信。`yachtScore.ts`=純採点ロジック、`YachtGame.tsx`=DOM（5サイコロのホールド＋スコアカード、GameShell使用）。`node scripts/verify-yacht.mjs`で全PASS。
+- **④ブラックジャック = 実装完了 ✅**（`games/blackjack/`）。**4人卓（人間=seat0＋AIボット3体）＋共通ディーラー**の**10ラウンドのチップ勝負**（全員500持ち、最多で勝ち）。難易度=ハウスルール＋ボットの巧さ（`RULES`: easy=1デッキ/S17/BJ3:2 … expert=6デッキ/H17/BJ6:5、`BOT_ERROR`でベーシック戦略から逸脱）。`blackjackEngine.ts`=純ロジック（`handValue`ソフト/ハード、`isBlackjack`、`dealerShouldHit`、`basicAction`スプリット無しのベーシック戦略、`settle`精算）。`BlackjackGame.tsx`=DOMカード卓（人間先行→ボット→ディーラー公開→精算のステージ進行）。`submitScore('blackjack',difficulty,chips)`。`node scripts/verify-blackjack.mjs`で全PASS。**注**: スプリット/インシュランスはv1未実装。
 - **ゲーム追加時に触る6箇所**（registry自動配線のためApp.tsx不要）: ①`games/<id>/`(本体+純ロジック) ②`games/registry.ts`(GameDef, available:true) ③`i18n/en|ja.json`(`<id>`セクション+`games.<id>`) ④`components/GameArt.tsx`(2D SVG) ⑤`lib/gamePalette.ts`(配色trio) ⑥`components/darkGames.ts`。任意で`HowToOverlay.tsx`のSCENESに2Dチュートリアル、`scripts/verify-<id>.mjs`。
 
 ## ✅ 決定事項（ユーザーとの合意）

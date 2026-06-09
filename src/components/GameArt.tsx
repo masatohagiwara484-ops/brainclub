@@ -82,6 +82,17 @@ const ART: Record<string, (className?: string) => React.ReactNode> = {
       </>,
       c,
     ),
+  blackjack: (c) =>
+    base(
+      <>
+        {/* two cards + a chip */}
+        <rect x="12" y="18" width="20" height="30" rx="3" transform="rotate(-14 22 33)" strokeWidth={2.5} />
+        <rect x="24" y="16" width="20" height="30" rx="3" transform="rotate(4 34 31)" strokeWidth={2.5} />
+        <circle cx="46" cy="44" r="9" strokeWidth={2.5} />
+        <circle cx="46" cy="44" r="3.5" fill="currentColor" stroke="none" />
+      </>,
+      c,
+    ),
   wordle: (c) =>
     base(
       <>

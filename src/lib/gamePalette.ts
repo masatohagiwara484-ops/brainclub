@@ -19,6 +19,7 @@ export const GAME_COLORS: Record<string, Trio> = {
   hex: ['#22d3ee', '#fb7185', '#a78bfa'],
   ludo: ['#ef4444', '#22c55e', '#eab308'],
   yacht: ['#10b981', '#06b6d4', '#34d399'],
+  blackjack: ['#15803d', '#fbbf24', '#22c55e'],
   colorclash: ['#ec4899', '#f97316', '#f472b6'],
   reaction: ['#84cc16', '#16a34a', '#a3e635'],
   simon: ['#f43f5e', '#db2777', '#fb7185'],

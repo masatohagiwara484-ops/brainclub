@@ -267,6 +267,28 @@
       "chance": "チャンス"
     }
   },
+  "blackjack": {
+    "round": "ラウンド {{n}}/{{total}}",
+    "dealer": "ディーラー",
+    "you": "あなた",
+    "bot": "BOT{{n}}",
+    "bet": "ベット",
+    "allIn": "オール",
+    "deal": "配る",
+    "hit": "ヒット",
+    "stand": "スタンド",
+    "double": "ダブル",
+    "bust": "バースト",
+    "dealerPlays": "ディーラーの番…",
+    "nextRound": "次へ",
+    "seeResult": "結果",
+    "youWin": "チップ1位！",
+    "youLose": "負け",
+    "top": "最高",
+    "again": "もう一度",
+    "share": "シェア",
+    "help": "21を超えずにディーラーに勝ちましょう。ヒットでカードを引き、スタンドで止め、ダブルはベット2倍で1枚だけ引きます。10ラウンド後、4人の中でチップが最も多ければ勝ち。"
+  },
   "wordle": {
     "daily": "デイリー",
     "practice": "練習",
@@ -468,6 +490,7 @@
     "hex": { "name": "ヘックス", "tagline": "戦略 · 辺をつなぐ" },
     "ludo": { "name": "ルドー", "tagline": "すごろく · 出して捕る" },
     "yacht": { "name": "ヨット", "tagline": "サイコロ · 役を作る" },
+    "blackjack": { "name": "ブラックジャック", "tagline": "カード · 21を狙え" },
     "memory": { "name": "神経衰弱", "tagline": "記憶 · 集中" },
     "reaction": { "name": "反応速度", "tagline": "反射 · 速さ勝負" },
     "simon": { "name": "エコー", "tagline": "記憶 · 音をまねる" },

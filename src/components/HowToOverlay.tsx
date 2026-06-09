@@ -204,6 +204,19 @@ const SCENES: Record<string, Scene> = {
     finger: { mode: 'tap1', a: { x: 120, y: 128 } },
   },
 
+  // Stand on a good total to beat the dealer without busting.
+  blackjack: {
+    board: [
+      { x: 120, y: 46, w: 26, h: 34, cls: 'bg-white text-slate-800 text-sm font-bold', label: '9' },
+      { x: 96, y: 104, w: 26, h: 34, cls: 'bg-white text-slate-800 text-sm font-bold', label: '10' },
+      { x: 128, y: 104, w: 26, h: 34, cls: 'bg-white text-slate-800 text-sm font-bold', label: '7' },
+      { x: 150, y: 152, w: 56, h: 22, cls: 'bg-slate-200 text-slate-600 text-xs font-bold', label: '17' },
+    ],
+    reveals: [{ x: 150, y: 152, w: 56, h: 22, cls: 'bg-[#22c55e] text-white text-sm font-bold', label: '✓', timing: 'late' }],
+    pulses: [{ x: 150, y: 152 }],
+    finger: { mode: 'tap1', a: { x: 150, y: 152 } },
+  },
+
   // Swipe to merge matching tiles (2048).
   '2048': {
     board: [
