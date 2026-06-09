@@ -229,6 +229,21 @@ const SCENES: Record<string, Scene> = {
     finger: { mode: 'tap1', a: { x: 150, y: 134 } },
   },
 
+  // Drop blocks to fill a complete row, which then clears.
+  tetris: {
+    board: [
+      { x: 78, y: 140, w: 20, h: 20, cls: 'bg-slate-500' },
+      { x: 100, y: 140, w: 20, h: 20, cls: 'bg-slate-500' },
+      { x: 144, y: 140, w: 20, h: 20, cls: 'bg-slate-500' },
+      { x: 166, y: 140, w: 20, h: 20, cls: 'bg-slate-500' },
+      { x: 122, y: 64, w: 20, h: 20, cls: 'bg-[#a855f7]' },
+      { x: 122, y: 86, w: 20, h: 20, cls: 'bg-[#a855f7]' },
+    ],
+    reveals: [{ x: 122, y: 140, w: 20, h: 20, cls: 'bg-[#a855f7]', timing: 'late' }],
+    pulses: [{ x: 122, y: 64 }],
+    finger: { mode: 'tap1', a: { x: 122, y: 64 } },
+  },
+
   // Swipe to merge matching tiles (2048).
   '2048': {
     board: [

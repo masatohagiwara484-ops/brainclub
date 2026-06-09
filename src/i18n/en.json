@@ -267,6 +267,17 @@
       "chance": "Chance"
     }
   },
+  "tetris": {
+    "score": "Score",
+    "lvl": "Lvl",
+    "lines": "Lines",
+    "next": "Next",
+    "gameOver": "Game over",
+    "newBest": "New best!",
+    "again": "Play again",
+    "share": "Share",
+    "help": "Move and rotate the falling blocks to fill complete rows, which clear for points. Clearing four rows at once (a Tetris) scores big. It speeds up as you level — survive as long as you can."
+  },
   "poker": {
     "blinds": "Blinds",
     "pot": "Pot",
@@ -513,6 +524,7 @@
     "yacht": { "name": "Yacht", "tagline": "Dice · build the best hand" },
     "blackjack": { "name": "Blackjack", "tagline": "Cards · beat the dealer" },
     "poker": { "name": "Texas Hold'em", "tagline": "Poker · read & bet" },
+    "tetris": { "name": "Tetris", "tagline": "Blocks · clear the lines" },
     "memory": { "name": "Memory Match", "tagline": "Recall · focus" },
     "reaction": { "name": "Reaction", "tagline": "Reflex · how fast are you?" },
     "simon": { "name": "Echo", "tagline": "Memory · repeat the tune" },

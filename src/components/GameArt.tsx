@@ -104,6 +104,19 @@ const ART: Record<string, (className?: string) => React.ReactNode> = {
       </>,
       c,
     ),
+  tetris: (c) =>
+    base(
+      <>
+        {/* a T tetromino + two loose blocks */}
+        <rect x="14" y="14" width="12" height="12" rx="1.5" strokeWidth={2.5} />
+        <rect x="26" y="14" width="12" height="12" rx="1.5" strokeWidth={2.5} />
+        <rect x="38" y="14" width="12" height="12" rx="1.5" strokeWidth={2.5} />
+        <rect x="26" y="26" width="12" height="12" rx="1.5" strokeWidth={2.5} />
+        <rect x="14" y="40" width="12" height="12" rx="1.5" fill="currentColor" stroke="none" />
+        <rect x="38" y="40" width="12" height="12" rx="1.5" fill="currentColor" stroke="none" />
+      </>,
+      c,
+    ),
   wordle: (c) =>
     base(
       <>
