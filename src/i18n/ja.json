@@ -131,6 +131,8 @@
     "newOpponent": "次の対戦相手",
     "opponentTurn": "相手の番",
     "vsLabel": "vs {{name}}",
+    "hexGoalTopBottom": "あなたはシアン — 上下の辺をつなげよう。",
+    "hexGoalLeftRight": "あなたはローズ — 左右の辺をつなげよう。",
     "rank": {
       "bronze": "ブロンズ",
       "silver": "シルバー",

@@ -57,9 +57,15 @@ function corners(cx: number, cy: number, R: number): Array<[number, number]> {
   return pts;
 }
 
-export default function HexGame({ difficulty = 'medium' }: GameProps) {
+export default function HexGame({ difficulty = 'medium', online }: GameProps) {
   const { t } = useTranslation();
   const n = SIZE_FOR[difficulty];
+
+  // In AI mode the human is HUMAN (cyan, top↔bottom). Online, the first mover is
+  // HUMAN and the second is AI (rose, left↔right); win/loss is read vs. this.
+  const myColor: typeof HUMAN | typeof AI = online && !online.iMoveFirst ? AI : HUMAN;
+  const myStatus: Status = myColor === HUMAN ? 'human' : 'ai';
+  const oppStatus: Status = myColor === HUMAN ? 'ai' : 'human';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   // Cell centers + R from the last draw, for hit-testing taps.
@@ -75,8 +81,10 @@ export default function HexGame({ difficulty = 'medium' }: GameProps) {
   const recordedRef = useRef(false);
 
   // Record one Synapse play when the game ends. A win counts most; a loss still
-  // logs a little logic activity. Fires exactly once per finished game.
+  // logs a little logic activity. Fires exactly once per finished game. Online
+  // games rank via Elo instead, so they skip the local Synapse log.
   useEffect(() => {
+    if (online) return;
     if (status === 'playing') {
       recordedRef.current = false;
       return;
@@ -87,6 +95,48 @@ export default function HexGame({ difficulty = 'medium' }: GameProps) {
     const res = recordPlay({ gameId: 'hex', axes: AXES, quality, weight: XP_WEIGHT[difficulty] });
     setLevelUp(status === 'human' && res.leveledUp ? t('synapse.levelUp', { n: res.newLevel }) : null);
   }, [status, difficulty, t]);
+
+  // ---- online: derive the whole board from the authoritative move log -------
+  // Move i is HUMAN on even i, AI on odd i. Rebuilding from the log keeps both
+  // clients in lockstep and rebuilds the board for free on reconnect.
+  useEffect(() => {
+    if (!online) return;
+    const next = createBoard(n);
+    let lastCell: number | null = null;
+    let winColor: Cell = EMPTY;
+    online.moves.forEach((mv, i) => {
+      const cell = (mv as { cell: number }).cell;
+      const color: Cell = i % 2 === 0 ? HUMAN : AI;
+      next[cell] = color;
+      lastCell = cell;
+      if (winColor === EMPTY && hasConnection(next, n, color === HUMAN ? HUMAN : AI)) winColor = color;
+    });
+    setBoard(next);
+    setLast(lastCell);
+    setTurn(online.moves.length % 2 === 0 ? HUMAN : AI);
+    if (winColor !== EMPTY) {
+      const ws: Status = winColor === HUMAN ? 'human' : 'ai';
+      setStatus(ws);
+      if (ws === oppStatus) haptics.bump();
+    } else if (online.finished && online.winnerSeat) {
+      setStatus(online.winnerSeat === online.mySeat ? myStatus : oppStatus);
+    } else {
+      setStatus('playing');
+    }
+  }, [online?.moves, online?.finished, online?.winnerSeat]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Online: report a board-detected result (idempotent server-side).
+  const reportedRef = useRef(false);
+  useEffect(() => {
+    if (!online) return;
+    if (status === 'playing') {
+      reportedRef.current = false;
+      return;
+    }
+    if (reportedRef.current) return;
+    reportedRef.current = true;
+    online.reportResult(status === myStatus);
+  }, [status, online]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- drawing ----
   const draw = useCallback(() => {
@@ -218,7 +268,7 @@ export default function HexGame({ difficulty = 'medium' }: GameProps) {
   );
 
   const onClick = (ev: React.MouseEvent<HTMLCanvasElement>) => {
-    if (status !== 'playing' || turn !== HUMAN) return;
+    if (status !== 'playing' || turn !== myColor) return;
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const px = ev.clientX - rect.left;
@@ -237,11 +287,16 @@ export default function HexGame({ difficulty = 'medium' }: GameProps) {
     }
     if (bestK < 0 || bestD > (R * 1.02) ** 2) return; // tap landed outside the board
     if (board[bestK] !== EMPTY) return;
+    if (online) {
+      online.sendMove({ cell: bestK });
+      return;
+    }
     place(bestK, HUMAN);
   };
 
-  // AI responds whenever it is its turn.
+  // AI responds whenever it is its turn (single-player only).
   useEffect(() => {
+    if (online) return;
     if (status !== 'playing' || turn !== AI) return;
     const id = setTimeout(() => {
       const move = chooseMove(board.slice() as Cell[], n, difficulty);
@@ -272,10 +327,13 @@ export default function HexGame({ difficulty = 'medium' }: GameProps) {
     });
   };
 
+  const won = status === myStatus;
+
   const onShare = async () => {
-    const headline = status === 'human' ? t('hex.youWin') : t('hex.youLose');
-    const text = `BrainClub · ${t('games.hex.name')} (${t(difficultyKey(difficulty))})\n${
-      status === 'human' ? '🏆' : '🤖'
+    const headline = won ? t('hex.youWin') : t('hex.youLose');
+    const tag = online ? t('online.title') : t(difficultyKey(difficulty));
+    const text = `BrainClub · ${t('games.hex.name')} (${tag})\n${
+      won ? '🏆' : online ? '😞' : '🤖'
     } ${headline}\n${window.location.origin}`;
     let res: 'shared' | 'copied' | 'failed' = 'failed';
     try {
@@ -299,7 +357,22 @@ export default function HexGame({ difficulty = 'medium' }: GameProps) {
   };
 
   const turnLabel =
-    status === 'playing' ? (turn === HUMAN ? t('hex.yourTurn') : t('hex.aiTurn')) : '';
+    status === 'playing'
+      ? turn === myColor
+        ? t('hex.yourTurn')
+        : online
+          ? t('online.opponentTurn')
+          : t('hex.aiTurn')
+      : '';
+
+  const myEdge = myColor === HUMAN ? HUMAN_EDGE : AI_EDGE;
+  const oppEdge = myColor === HUMAN ? AI_EDGE : HUMAN_EDGE;
+  const myActive = turn === myColor;
+  const goalText = online
+    ? myColor === HUMAN
+      ? t('online.hexGoalTopBottom')
+      : t('online.hexGoalLeftRight')
+    : t('hex.goal');
 
   return (
     <div className="relative h-full w-full bg-[radial-gradient(120%_90%_at_50%_0%,#1b2350_0%,#0b1020_60%,#070a16_100%)]">
@@ -307,23 +380,29 @@ export default function HexGame({ difficulty = 'medium' }: GameProps) {
         <canvas ref={canvasRef} onClick={onClick} className="block h-full w-full touch-none" />
       </div>
 
-      {/* Difficulty + whose-turn indicator */}
+      {/* Difficulty / online + whose-turn indicator */}
       <div className="absolute left-0 right-0 top-0 flex flex-col items-center gap-2 p-3">
-        <span
-          className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
-          style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
-        >
-          {t(difficultyKey(difficulty))}
-        </span>
+        {online ? (
+          <span className="font-dot rounded-lg bg-primary/80 px-2 py-1 text-xs font-bold text-white">
+            🌐 {t('online.vsLabel', { name: online.opponentName })}
+          </span>
+        ) : (
+          <span
+            className="font-dot rounded-lg px-2 py-1 text-xs font-bold text-white"
+            style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}
+          >
+            {t(difficultyKey(difficulty))}
+          </span>
+        )}
         <div className="rounded-xl bg-slate-900/70 px-3 py-1.5 text-sm font-semibold text-white shadow-sm ring-1 ring-white/10 backdrop-blur">
           {status === 'playing' ? (
             <span>
-              <span className={turn === HUMAN ? 'text-white' : 'text-white/40'}>
-                <span style={{ color: HUMAN_EDGE }}>⬢</span> {t('hex.you')}
+              <span className={myActive ? 'text-white' : 'text-white/40'}>
+                <span style={{ color: myEdge }}>⬢</span> {t('hex.you')}
               </span>
               <span className="mx-2 text-white/30">·</span>
-              <span className={turn === AI ? 'text-white' : 'text-white/40'}>
-                <span style={{ color: AI_EDGE }}>⬢</span> {t('hex.ai')}
+              <span className={!myActive ? 'text-white' : 'text-white/40'}>
+                <span style={{ color: oppEdge }}>⬢</span> {online ? online.opponentName : t('hex.ai')}
               </span>
               <span className="ml-3 text-accent-cyan">{turnLabel}</span>
             </span>
@@ -331,27 +410,40 @@ export default function HexGame({ difficulty = 'medium' }: GameProps) {
             <span>{t('hex.gameOver')}</span>
           )}
         </div>
-        <p className="max-w-xs text-center text-[11px] leading-tight text-white/45">{t('hex.goal')}</p>
+        <p className="max-w-xs text-center text-[11px] leading-tight text-white/45">{goalText}</p>
       </div>
 
       {/* Controls */}
       <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-wrap justify-center gap-2">
-        <Btn onClick={newGame}>{t('hex.newGame')}</Btn>
-        <Btn onClick={undo}>{t('hex.undo')}</Btn>
+        {online ? (
+          status === 'playing' && <Btn onClick={() => online.resign()}>{t('online.resign')}</Btn>
+        ) : (
+          <>
+            <Btn onClick={newGame}>{t('hex.newGame')}</Btn>
+            <Btn onClick={undo}>{t('hex.undo')}</Btn>
+          </>
+        )}
       </div>
 
       {/* Result */}
       {status !== 'playing' && (
         <GameResultScreen
           gameId="hex"
-          emoji={status === 'human' ? '🏆' : '🤖'}
-          title={status === 'human' ? t('hex.youWin') : t('hex.youLose')}
-          celebrate={status === 'human'}
+          emoji={won ? '🏆' : online ? '😞' : '🤖'}
+          title={won ? t('hex.youWin') : t('hex.youLose')}
+          celebrate={won}
           levelUp={levelUp}
-          actions={[
-            { label: t('hex.share'), onClick: onShare, variant: 'primary' },
-            { label: t('hex.again'), onClick: newGame, variant: 'secondary' },
-          ]}
+          actions={
+            online
+              ? [
+                  { label: t('hex.share'), onClick: onShare, variant: 'primary' },
+                  { label: t('online.newOpponent'), onClick: online.leave, variant: 'secondary' },
+                ]
+              : [
+                  { label: t('hex.share'), onClick: onShare, variant: 'primary' },
+                  { label: t('hex.again'), onClick: newGame, variant: 'secondary' },
+                ]
+          }
           shareMsg={shareMsg}
         />
       )}

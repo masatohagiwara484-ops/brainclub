@@ -131,6 +131,8 @@
     "newOpponent": "New opponent",
     "opponentTurn": "Opponent's turn",
     "vsLabel": "vs {{name}}",
+    "hexGoalTopBottom": "You are cyan — connect the TOP and BOTTOM edges.",
+    "hexGoalLeftRight": "You are rose — connect the LEFT and RIGHT edges.",
     "rank": {
       "bronze": "Bronze",
       "silver": "Silver",
