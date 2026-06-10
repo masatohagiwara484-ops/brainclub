@@ -22,7 +22,7 @@ vocabulary below — never hand-roll new rgba() values, shadows, or fonts.
 
 ## CSS utilities (in `src/styles/index.css`)
 
-- `.glass-panel` — THE surface for cards/chips/sheets (blur + border + inner highlight). Add `.glass-strong` for higher emphasis.
+- `.glass-panel` — THE surface for cards/chips/sheets, now LIQUID GLASS: blur(20px)+saturate(160%), gradient light-catching border (two bg layers, composes with .holo-border), specular top streak. Add `.glass-strong` for higher emphasis.
 - `.text-iris` — iridescent gradient text for hero headings only (≤1 per screen).
 - `.holo-border` — animated conic iridescent border; reserve for the single hero object of a screen.
 - `.bg-aurora` — page backdrop for non-game pages (Layout already applies it).

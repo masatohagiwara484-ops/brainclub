@@ -737,5 +737,24 @@
     "logic2": "Play {{n}} logic games",
     "perfect": "Perfect Day! Streak banked 🔥",
     "shield": "Streak Shield active — one missed day a month is forgiven (×2/mo)"
+  },
+  "cosmetics": {
+    "guest": "Guest",
+    "record": "Record",
+    "frames": "Rating Frames",
+    "badges": "Badges",
+    "frameNone": "Standard",
+    "frameIris": "Iris",
+    "frameGold": "Gold",
+    "frameDragon": "Dragon",
+    "frameMatrix": "Matrix",
+    "badgePlays10": "10 Plays",
+    "badgePlays100": "100 Plays",
+    "badgeStreak7": "7-Day Streak",
+    "badgeLevel5": "Level 5",
+    "badgeGold": "Gold Tier",
+    "badgeFirstWin": "First Win",
+    "badgeWins25": "25 Wins",
+    "badgeMaster": "Master"
   }
 }

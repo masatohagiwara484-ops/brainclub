@@ -136,6 +136,18 @@ src/games/types.ts         GameProps.online（OnlineController：moves権威/sen
 - **環境変数**: `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY`（Vercel＋`.env.local`、`.env.example`参照）。
 - **Supabase手作業（オンライン対戦に必須）**: ①`supabase/online.sql`をSQLエディタで実行 ②Realtimeが`matches`で有効（SQL内で`supabase_realtime`へ追加済）③Auth Providers でGoogle/Apple OAuth有効化（マジックリンクはメール制限に当たりやすいのでオンライン導線はOAuth推奨）④URL Configurationに本番Vercel URL。
 
+## 🎮 大型バッチ2026-06（チェス/スキン/クエスト/プロフィール = 実装済✅・対戦拡張 = 設計のみ）
+- **チェス ✅**: `games/chess/`（mailbox純エンジン・キャスリング/EP/プロモ/50手・negamax+αβ AI 4段階・`replay()`でオンライン対応済 online:true）。`verify-chess.mjs`=perft検証（start/Kiwipete/EP/promo局面＋メイト/ステイルメイト）全PASS。
+- **スキン課金 ✅**: `lib/gameSkins.ts`=9テーマ(classic無料/plus:crystal,baroque,darkneon,fire/pro:diamond,cyberpunk,matrix,dragon)。盤系(gomoku/chess)=盤+石/駒色、cube=`CubeOptions.stickers`でステッカーパレット注入(スキン変更で再構築)。`SkinPicker`=ゲーム内ストア接点(ロック→paywall)。
+- **レート信頼性 ✅**: `elo.ts` kFor()=配置5戦64→30戦まで32→以後24、`isPlacement`。SQLの`record_match_result`も同スケジュール(**online.sql再実行が必要**)。ラダー/ロビーは配置中「Placement n/5」表示。
+- **デイリークエスト＋ストリークシールド ✅**: `lib/quests.ts`=全員同一の3クエスト/日(7テンプレからseed抽選)、`synapse.recordPlay`→`notePlay`で自動進捗、3完=Perfect Dayで`bumpStreak`。有料特典=月2回まで1日欠席を自動ブリッジ(`applyStreakShield`、DailyRitualでマウント時適用)。
+- **プロフィール2.0 ✅**: `components/ProfileCard.tsx`(バナー+フレーム付アバター+6統計+バッジ壁) + `lib/cosmetics.ts`(FRAMES=レート枠・plan制→将来単品課金、badges()=実績判定)。Profileページ先頭に表示。
+- **Liquid Glass ✅**: `.glass-panel`を液体ガラス化(blur20+saturate160%+光を受けるグラデ枠+鏡面ストリーク、2レイヤーbgなので.holo-borderと共存)。
+- **【未実装・次の設計】対戦拡張**:
+  - **Tetris等リアルタイム対戦(相手画面)**: matchesの`moves`は使わず、同じ`match:{id}`チャンネルの**broadcast**で `{board:圧縮文字列(200セル→RLE), score, lines}` をロック毎に送信→相手はミニ盤に描画。ガベージ=クリア行数-1を相手に送り下から挿入。勝敗=トップアウトで`record_match_result`。
+  - **4人対戦(ludo/blackjack/poker)**: `online-v2.sql`案=matchesに`players uuid[]`+`match_size int`+`seat_of()`、`find_match(p_game,p_size)`がキューからsize-1人原子取得。クライアントは`OnlineController`を`seats[]`対応へ拡張。ターン検証=`record_move`が`jsonb_array_length(moves) % match_size`で判定(脱落者スキップはゲーム側でno-op move)。
+  - **全2P/4PゲームのDifficultyScreenモード選択**: registry.onlineを対象ゲームに付与すれば既存の「🌐 Play Online」が自動表示(配線済みのパターン)。
+
 ## 🗺 ロードマップ（0.1→1→10→100）
 - **0.1→1（〜2週間）**: 安定・公開・計測・シェアできる土台。キューブ修正済み✅／Vercelデプロイ／PWA／計測／X・Substack開始。← **今ここ**
 - **1→10（〜2-3ヶ月）**: デイリー習慣＋必須ゲーム追加（軽い順: 五目→ナンプレ→ソリティア→色水ソート→単語当て）＋ストリーク/実績＋リワード広告/広告除去/コスメ＋全ゲームにシェアグリッド。初収益。

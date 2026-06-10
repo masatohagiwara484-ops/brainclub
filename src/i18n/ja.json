@@ -737,5 +737,24 @@
     "logic2": "論理系ゲームを{{n}}回プレイ",
     "perfect": "パーフェクトデイ！ストリーク獲得 🔥",
     "shield": "ストリークシールド有効 — 月2回まで1日の欠席を自動カバー"
+  },
+  "cosmetics": {
+    "guest": "ゲスト",
+    "record": "対戦成績",
+    "frames": "レート枠",
+    "badges": "バッジ",
+    "frameNone": "スタンダード",
+    "frameIris": "アイリス",
+    "frameGold": "ゴールド",
+    "frameDragon": "ドラゴン",
+    "frameMatrix": "マトリックス",
+    "badgePlays10": "10プレイ",
+    "badgePlays100": "100プレイ",
+    "badgeStreak7": "7日連続",
+    "badgeLevel5": "レベル5",
+    "badgeGold": "ゴールド帯",
+    "badgeFirstWin": "初勝利",
+    "badgeWins25": "25勝",
+    "badgeMaster": "マスター"
   }
 }

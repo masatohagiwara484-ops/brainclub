@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import SynapsePanel from '../components/SynapsePanel';
 import AccountPanel from '../components/AccountPanel';
+import ProfileCard from '../components/ProfileCard';
 import { Icon } from '../components/Icons';
 import { getStreak } from '../lib/storage';
 import { GAME_BG } from '../components/GameShell';
@@ -18,6 +19,10 @@ export default function Profile() {
         <p className="mt-1 text-sm text-white/60">{t('synapse.play')}</p>
 
         <div className="mt-5">
+          <ProfileCard />
+        </div>
+
+        <div className="mt-4">
           <AccountPanel />
         </div>
 
