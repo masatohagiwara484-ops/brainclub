@@ -484,7 +484,7 @@ export default function LudoGame({ difficulty = 'medium' }: GameProps) {
   const finished = (c: Color) => pos[c].filter((tk) => tk === GOAL).length;
 
   return (
-    <div className="relative h-full w-full bg-[radial-gradient(120%_90%_at_50%_0%,#161d40_0%,#0b1020_60%,#070a16_100%)]">
+    <div className="relative h-full w-full bg-[radial-gradient(120%_90%_at_50%_0%,#161d40_0%,#0e1226_60%,#05060d_100%)]">
       <div ref={wrapRef} className="absolute inset-0 px-2 pb-24 pt-20">
         <canvas ref={canvasRef} onClick={onClick} className="block h-full w-full touch-none" />
       </div>
@@ -504,7 +504,7 @@ export default function LudoGame({ difficulty = 'medium' }: GameProps) {
               className="flex items-center gap-1 rounded-lg px-1.5 py-1 text-xs font-bold tabular-nums"
               style={{
                 backgroundColor: turn === c && winner == null ? COLOR_HEX[c] : 'rgba(255,255,255,0.08)',
-                color: turn === c && winner == null ? '#0b1020' : COLOR_LIGHT[c],
+                color: turn === c && winner == null ? '#0e1226' : COLOR_LIGHT[c],
               }}
             >
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: COLOR_HEX[c] }} />

@@ -86,7 +86,7 @@ export default function CubeGame() {
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[radial-gradient(circle_at_50%_16%,#1b2440_0%,#0d1322_52%,#080b14_100%)]">
+    <div className="relative h-full w-full overflow-hidden bg-[radial-gradient(circle_at_50%_16%,#161b36_0%,#0e1226_52%,#05060d_100%)]">
       <canvas ref={canvasRef} className="block h-full w-full touch-none" />
 
       {/* Top stats */}
@@ -152,7 +152,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-2xl border border-white/12 bg-white/[0.08] px-4 py-2 text-sm font-bold text-white shadow-game backdrop-blur-xl transition-premium hover:bg-white/15 active:scale-95"
+      className="min-h-[44px] rounded-2xl border border-white/12 bg-white/[0.08] px-4 py-2 text-sm font-bold text-white shadow-game backdrop-blur-xl transition-premium hover:bg-white/15 active:scale-95"
     >
       {children}
     </button>

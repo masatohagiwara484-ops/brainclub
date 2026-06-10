@@ -416,7 +416,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/12 transition hover:bg-white/15 active:scale-95"
+      className="min-h-[44px] rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/12 transition hover:bg-white/15 active:scale-95"
     >
       {children}
     </button>

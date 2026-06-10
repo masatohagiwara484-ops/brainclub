@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GameProps } from '../types';
+import { Icon } from '../../components/Icons';
 import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../../lib/difficulty';
 import { getSetting, setSetting } from '../../lib/storage';
 import { makeRng } from '../../lib/daily';
@@ -335,7 +336,7 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
   const previewCells = SHAPES[nextType];
 
   return (
-    <div className="relative flex h-full w-full flex-col bg-[radial-gradient(120%_100%_at_50%_0%,#1b1840_0%,#0b1020_60%,#070a16_100%)] text-white">
+    <div className="relative flex h-full w-full flex-col bg-[radial-gradient(120%_100%_at_50%_0%,#1b1840_0%,#0e1226_60%,#05060d_100%)] text-white">
       {/* HUD */}
       <div className="flex items-center justify-between px-4 pb-1 pt-3 text-sm">
         <span className="font-dot rounded-lg px-2 py-1 text-xs font-bold" style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}>
@@ -346,8 +347,12 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
           <span>{t('tetris.lvl')} <b>{level}</b></span>
           <span>{t('tetris.lines')} <b>{lines}</b></span>
         </div>
-        <button onClick={togglePause} className="rounded-lg bg-white/10 px-2 py-1 text-xs font-bold">
-          {paused ? '▶' : '❚❚'}
+        <button
+          onClick={togglePause}
+          aria-label={paused ? 'resume' : 'pause'}
+          className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15"
+        >
+          <Icon name={paused ? 'play' : 'pause'} className="h-4 w-4" />
         </button>
       </div>
 
@@ -409,7 +414,7 @@ function Pad({ children, onClick, accent }: { children: React.ReactNode; onClick
     <button
       onClick={onClick}
       className={`grid h-14 place-items-center rounded-2xl text-2xl font-bold shadow-premium transition active:scale-95 ${
-        accent ? 'bg-gradient-to-r from-primary to-accent-cyan text-white' : 'bg-white/[0.1] text-white ring-1 ring-white/15'
+        accent ? 'bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta text-white' : 'bg-white/[0.1] text-white ring-1 ring-white/15'
       }`}
     >
       {children}

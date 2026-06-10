@@ -136,7 +136,7 @@ export default function ReactionGame(_: GameProps) {
           <>
             <div className="text-5xl font-black tabular-nums">{last}ms</div>
             <p className="mt-2 text-sm text-white/60">
-              {t('reaction.roundOf', { n: times.length, total: TRIALS, defaultValue: `Round ${times.length}/${TRIALS} · tap to continue` })}
+              {t('reaction.roundOf', { n: times.length, total: TRIALS })}
             </p>
           </>
         )}

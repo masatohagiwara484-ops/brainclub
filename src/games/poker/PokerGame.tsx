@@ -141,7 +141,7 @@ export default function PokerGame({ difficulty = 'medium' }: GameProps) {
   const isHandOver = s.stage === 'handover';
 
   return (
-    <div className="relative flex h-full w-full flex-col bg-[radial-gradient(120%_100%_at_50%_0%,#0f3d2e_0%,#0b1020_62%,#070a16_100%)] text-white">
+    <div className="relative flex h-full w-full flex-col bg-[radial-gradient(120%_100%_at_50%_0%,#0f3d2e_0%,#0e1226_62%,#05060d_100%)] text-white">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 pb-1 pt-3 text-sm">
         <span className="font-dot rounded-lg px-2 py-1 text-xs font-bold" style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}>
@@ -253,7 +253,7 @@ export default function PokerGame({ difficulty = 'medium' }: GameProps) {
 }
 
 function Btn({ children, onClick, tone, small }: { children: React.ReactNode; onClick: () => void; tone?: 'fold' | 'raise'; small?: boolean }) {
-  const base = small ? 'min-w-[72px] py-2 text-sm' : 'min-w-[96px] py-3 text-base';
+  const base = small ? 'min-h-[44px] min-w-[72px] py-2 text-sm' : 'min-h-[48px] min-w-[96px] py-3 text-base';
   const color =
     tone === 'fold'
       ? 'bg-white/[0.08] text-white/70 ring-1 ring-white/12'

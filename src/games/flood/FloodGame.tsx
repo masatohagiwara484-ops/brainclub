@@ -114,7 +114,7 @@ export default function FloodGame({ difficulty = 'easy' }: GameProps) {
           <button
             key={i}
             onClick={() => pick(i)}
-            className={`h-11 w-11 rounded-full shadow active:scale-90 ${board[0] === i ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0d1322]' : ''}`}
+            className={`h-11 w-11 rounded-full shadow active:scale-90 ${board[0] === i ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0e1226]' : ''}`}
             style={{ backgroundColor: hex }}
             aria-label={`color ${i + 1}`}
           />

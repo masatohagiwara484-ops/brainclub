@@ -51,7 +51,7 @@ function BombTimer({ remaining, limit }: { remaining: number; limit: number }) {
     <div className={`flex w-full max-w-md items-center gap-3 ${danger ? 'bomb-danger' : ''}`}>
       <svg viewBox="0 0 48 48" className="h-11 w-11 shrink-0" aria-hidden="true">
         {/* body */}
-        <circle cx="21" cy="31" r="13" fill="#1f2937" stroke="#0b1020" strokeWidth="2" />
+        <circle cx="21" cy="31" r="13" fill="#1f2937" stroke="#0e1226" strokeWidth="2" />
         <circle cx="16" cy="26" r="3.5" fill="#374151" />
         {/* cap + fuse */}
         <rect x="25" y="14" width="6" height="6" rx="1.5" transform="rotate(40 28 17)" fill="#475569" />

@@ -205,7 +205,7 @@ export default function BlackjackGame({ difficulty = 'medium' }: GameProps) {
   const dealerVal = holeHidden && dealer.length ? handValue([dealer[0]]).total : handValue(dealer).total;
 
   return (
-    <div className="relative flex h-full w-full flex-col bg-[radial-gradient(120%_100%_at_50%_0%,#0f3d2e_0%,#0b1020_62%,#070a16_100%)] text-white">
+    <div className="relative flex h-full w-full flex-col bg-[radial-gradient(120%_100%_at_50%_0%,#0f3d2e_0%,#0e1226_62%,#05060d_100%)] text-white">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 pb-1 pt-3 text-sm">
         <span className="font-dot rounded-lg px-2 py-1 text-xs font-bold" style={{ backgroundColor: DIFFICULTY_STYLE[difficulty as Difficulty].color }}>
@@ -273,20 +273,20 @@ export default function BlackjackGame({ difficulty = 'medium' }: GameProps) {
                 <button
                   key={s}
                   onClick={() => setBet(Math.min(s, chips[0]))}
-                  className={`rounded-lg px-3 py-1.5 text-sm font-bold tabular-nums transition active:scale-95 ${
+                  className={`min-h-[44px] rounded-lg px-3 py-1.5 text-sm font-bold tabular-nums transition active:scale-95 ${
                     bet === Math.min(s, chips[0]) ? 'bg-accent-cyan text-slate-900' : 'bg-white/10 text-white'
                   }`}
                 >
                   {s}
                 </button>
               ))}
-              <button onClick={() => setBet(chips[0])} className={`rounded-lg px-3 py-1.5 text-sm font-bold transition active:scale-95 ${bet === chips[0] ? 'bg-accent-cyan text-slate-900' : 'bg-white/10 text-white'}`}>
+              <button onClick={() => setBet(chips[0])} className={`min-h-[44px] rounded-lg px-3 py-1.5 text-sm font-bold transition active:scale-95 ${bet === chips[0] ? 'bg-accent-cyan text-slate-900' : 'bg-white/10 text-white'}`}>
                 {t('blackjack.allIn')}
               </button>
             </div>
             <button
               onClick={deal}
-              className="w-full max-w-xs rounded-2xl bg-gradient-to-r from-primary to-accent-cyan py-3 text-base font-bold text-white shadow-premium active:scale-95"
+              className="w-full max-w-xs rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta py-3 text-base font-bold text-white shadow-glow active:scale-95"
             >
               {t('blackjack.deal')} · 🪙{Math.min(bet, chips[0])}
             </button>
@@ -308,7 +308,7 @@ export default function BlackjackGame({ difficulty = 'medium' }: GameProps) {
         {phase === 'settle' && (
           <button
             onClick={nextRound}
-            className="mx-auto block w-full max-w-xs rounded-2xl bg-gradient-to-r from-primary to-accent-cyan py-3 text-base font-bold text-white shadow-premium active:scale-95"
+            className="mx-auto block w-full max-w-xs rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta py-3 text-base font-bold text-white shadow-glow active:scale-95"
           >
             {chips[0] <= 0 || round >= ROUNDS ? t('blackjack.seeResult') : t('blackjack.nextRound')}
           </button>

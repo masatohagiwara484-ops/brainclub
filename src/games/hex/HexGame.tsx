@@ -375,7 +375,7 @@ export default function HexGame({ difficulty = 'medium', online }: GameProps) {
     : t('hex.goal');
 
   return (
-    <div className="relative h-full w-full bg-[radial-gradient(120%_90%_at_50%_0%,#1b2350_0%,#0b1020_60%,#070a16_100%)]">
+    <div className="relative h-full w-full bg-[radial-gradient(120%_90%_at_50%_0%,#1b2350_0%,#0e1226_60%,#05060d_100%)]">
       <div ref={wrapRef} className="absolute inset-0 px-2 pb-20 pt-24">
         <canvas ref={canvasRef} onClick={onClick} className="block h-full w-full touch-none" />
       </div>
@@ -455,7 +455,7 @@ function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/12 backdrop-blur transition hover:bg-white/15 active:scale-95"
+      className="min-h-[44px] rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/12 backdrop-blur transition hover:bg-white/15 active:scale-95"
     >
       {children}
     </button>
