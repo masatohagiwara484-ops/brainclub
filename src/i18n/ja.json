@@ -152,6 +152,9 @@
     "playNow": "今すぐ遊ぶ",
     "comingSoon": "近日公開",
     "streak": "連続日数",
+    "dailyTitle": "今日のトレーニング",
+    "dailyBadge": "デイリー",
+    "heroUnavailable": "ショーケースを表示できません — 下からゲームを選んでください。",
     "sections": {
       "must-have": "毎日の定番",
       "recommended": "もっと遊ぶ",

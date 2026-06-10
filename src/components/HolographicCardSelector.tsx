@@ -7,6 +7,7 @@ import { haptics } from '../lib/haptics';
 import { sound } from '../lib/sound';
 import { getSetting } from '../lib/storage';
 import GameArt from './GameArt';
+import { Icon } from './Icons';
 
 // ============================================================================
 // HolographicCardSelector — the home hero as a Pokémon-TCG-style deck.
@@ -21,7 +22,6 @@ import GameArt from './GameArt';
 // the last game you played. Reduced-motion keeps the snap-rail, no tilt/shimmer.
 // ============================================================================
 
-const BG = 'radial-gradient(120% 90% at 50% 6%, #221c54 0%, #0b1020 58%, #060812 100%)';
 // Only playable games appear — so every card you can reach, you can play.
 const DECK = GAMES.filter((g) => g.available);
 const STARS: Record<string, number> = { 'must-have': 3, recommended: 2, innovative: 1 };
@@ -175,10 +175,10 @@ export default function HolographicCardSelector() {
   const game = DECK[selected];
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden" style={{ background: BG }}>
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center pt-3">
-        <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70 backdrop-blur-sm">
-          {t('selector.hint', { defaultValue: 'Swipe to explore · tap to play' })}
+    <div className="relative flex h-full w-full flex-col overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center pt-2">
+        <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium text-white/65 backdrop-blur-sm">
+          {t('selector.hint')}
         </span>
       </div>
 
@@ -234,23 +234,20 @@ export default function HolographicCardSelector() {
         ))}
       </div>
 
-      <div className="relative z-10 shrink-0 px-6 pb-6 pt-2">
-        <div className="mb-3 flex items-center justify-center gap-1">
-          {DECK.map((g, i) => (
-            <span
-              key={g.id}
-              className={`h-1.5 rounded-full transition-all duration-300 ${i === selected ? 'w-5 bg-white' : 'w-1.5 bg-white/30'}`}
-            />
-          ))}
-        </div>
+      <div className="relative z-10 shrink-0 px-6 pb-4 pt-1">
         <button
           onClick={play}
-          className="mx-auto flex h-16 w-full max-w-xs items-center justify-center gap-2 rounded-3xl bg-gradient-to-r from-primary to-accent-cyan font-display text-xl uppercase tracking-[0.2em] text-white shadow-premium transition-premium active:scale-95"
+          className="holo-border mx-auto flex h-14 w-full max-w-xs items-center justify-center gap-2.5 rounded-3xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta font-display text-lg uppercase tracking-[0.18em] text-white shadow-glow transition-premium active:scale-95"
         >
-          <span aria-hidden className="text-lg leading-none">▶</span>
-          {t('selector.play', { defaultValue: 'Play' })}
+          <Icon name="play" className="h-5 w-5 fill-current" />
+          {t('selector.play')}
         </button>
-        {game && <p className="mt-2 text-center text-xs text-white/50">{t(game.taglineKey)}</p>}
+        <p className="mt-2 flex items-center justify-center gap-2 text-center text-xs text-white/50">
+          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold tabular-nums text-white/70">
+            {selected + 1} / {DECK.length}
+          </span>
+          {game && <span className="truncate">{t(game.taglineKey)}</span>}
+        </p>
       </div>
     </div>
   );
