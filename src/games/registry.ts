@@ -198,6 +198,7 @@ export const GAMES: GameDef[] = [
     gradient: 'from-cyan-400 via-violet-500 to-rose-500',
     available: true,
     hasDifficulty: true,
+    online: true,
     axes: { reflex: 0.55, logic: 0.45 },
     ...lazyGame(() => import('./tetris/TetrisGame')),
   },

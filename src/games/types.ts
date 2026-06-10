@@ -11,6 +11,8 @@ import type { Seat } from '../lib/realtime';
  * both clients reporting the same winner is safe).
  */
 export type OnlineController = {
+  /** match row id — also the name of the realtime broadcast channel. */
+  matchId: string;
   mySeat: Seat;
   /** True when the local player moves first (and so plays the "first" color). */
   iMoveFirst: boolean;

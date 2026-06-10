@@ -125,6 +125,31 @@ export async function fetchMatch(matchId: string): Promise<Match | null> {
   return (data as Match) ?? null;
 }
 
+// ---- realtime versus (Tetris-style) ------------------------------------------
+// Free-form low-latency messages between the two players of a match, on a
+// broadcast channel named after the match id. Unlike `moves`, nothing here is
+// persisted — it carries the live board mirror, garbage attacks and the
+// top-out signal; the RESULT still settles through record_match_result().
+
+export type VersusMsg =
+  | { kind: 'state'; board: string; score: number; lines: number }
+  | { kind: 'garbage'; n: number }
+  | { kind: 'dead' };
+
+export function versusChannel(
+  matchId: string,
+  onMsg: (m: VersusMsg) => void,
+): { send: (m: VersusMsg) => void; close: () => void } {
+  if (!supabase) return { send: () => {}, close: () => {} };
+  const client = supabase;
+  const ch = client.channel(`versus:${matchId}`, { config: { broadcast: { self: false } } });
+  ch.on('broadcast', { event: 'v' }, (p) => onMsg(p.payload as VersusMsg)).subscribe();
+  return {
+    send: (m) => void ch.send({ type: 'broadcast', event: 'v', payload: m }),
+    close: () => void client.removeChannel(ch),
+  };
+}
+
 /** Look up a player's display name (for the opponent label). */
 export async function fetchPlayerName(uid: string): Promise<string> {
   if (!supabase) return 'Player';

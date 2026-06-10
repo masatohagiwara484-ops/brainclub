@@ -350,7 +350,9 @@
     "newBest": "New best!",
     "again": "Play again",
     "share": "Share",
-    "help": "Move and rotate the falling blocks to fill complete rows, which clear for points. Clearing four rows at once (a Tetris) scores big. It speeds up as you level — survive as long as you can."
+    "help": "Move and rotate the falling blocks to fill complete rows, which clear for points. Clearing four rows at once (a Tetris) scores big. It speeds up as you level — survive as long as you can.",
+    "youWin": "You Win!",
+    "youLose": "You Lose"
   },
   "poker": {
     "blinds": "Blinds",

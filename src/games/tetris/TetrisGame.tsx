@@ -18,10 +18,14 @@ import {
   ROWS,
   SHAPES,
   TYPES,
+  addGarbage,
   clearLines,
   collides,
   colorValue,
+  decodeBoard,
   emptyBoard,
+  encodeBoard,
+  garbageFor,
   gravityMs,
   lineScore,
   lock,
@@ -32,14 +36,28 @@ import {
   type Piece,
   type PieceType,
 } from './tetrisEngine';
+import { versusChannel } from '../../lib/realtime';
 
 const AXES = getGame('tetris')?.axes ?? {};
 const START_LEVEL: Record<Difficulty, number> = { easy: 0, medium: 4, hard: 8, expert: 12 };
+// Online versus runs at a fixed mid speed — fairness over difficulty choice.
+const ONLINE_LEVEL = 3;
 
-export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
+// FNV-1a string hash → rng seed, so BOTH players deal the same 7-bag sequence
+// from the shared match id (the versus standard).
+function hashSeed(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+export default function TetrisGame({ difficulty = 'easy', online }: GameProps) {
   const { t } = useTranslation();
   const { shareMsg, doShare } = useShareMsg();
-  const startLevel = START_LEVEL[difficulty];
+  const startLevel = online ? ONLINE_LEVEL : START_LEVEL[difficulty];
   const bestKey = `tetris.best.${difficulty}`;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -50,7 +68,14 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
   const pieceRef = useRef<Piece | null>(null);
   const bagRef = useRef<PieceType[]>([]);
   const nextRef = useRef<PieceType>('I');
-  const rngRef = useRef<() => number>(makeRng((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0));
+  const rngRef = useRef<() => number>(
+    makeRng(online ? hashSeed(online.matchId) : (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0),
+  );
+  // Versus: incoming attack rows (applied at my next lock) + hole positions
+  // (per-receiver deterministic) + the broadcast channel.
+  const pendingGarbageRef = useRef(0);
+  const holeRngRef = useRef<() => number>(makeRng(online ? hashSeed(online.matchId + online.mySeat) : 1));
+  const channelRef = useRef<ReturnType<typeof versusChannel> | null>(null);
   const rafRef = useRef(0);
   const lastDropRef = useRef(0);
   const levelRef = useRef(startLevel);
@@ -68,6 +93,8 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
   const [best, setBest] = useState(() => getSetting<number>(bestKey, 0));
   const [isBest, setIsBest] = useState(false);
   const [levelUp, setLevelUp] = useState<string | null>(null);
+  const [opp, setOpp] = useState<{ board: string; score: number; lines: number } | null>(null);
+  const [outcome, setOutcome] = useState<'win' | 'loss' | null>(null);
 
   const drawFromBag = (): PieceType => {
     if (bagRef.current.length === 0) bagRef.current = makeBag(rngRef.current);
@@ -156,6 +183,13 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
     cancelAnimationFrame(rafRef.current);
     setOver(true);
     haptics.bump();
+    if (online) {
+      // Top-out = I lose. Tell the opponent instantly; Elo settles via the RPC.
+      setOutcome('loss');
+      channelRef.current?.send({ kind: 'dead' });
+      online.reportResult(false);
+      return;
+    }
     const sc = scoreRef.current;
     const prev = getSetting<number>(bestKey, 0);
     const better = sc > prev;
@@ -183,6 +217,25 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
       fx.correct({ streak: cleared + 1 });
     } else {
       haptics.tick();
+    }
+    if (online) {
+      // Outgoing attack for multi-line clears (double/triple/tetris → 1/2/4).
+      const atk = garbageFor(cleared);
+      if (atk > 0) channelRef.current?.send({ kind: 'garbage', n: atk });
+      // Incoming garbage lands between my locks (classic versus timing).
+      if (pendingGarbageRef.current > 0) {
+        const g = Math.min(pendingGarbageRef.current, 8);
+        pendingGarbageRef.current = 0;
+        boardRef.current = addGarbage(boardRef.current, g, () => Math.floor(holeRngRef.current() * COLS));
+        haptics.bump();
+      }
+      // Mirror my board to the opponent's mini view.
+      channelRef.current?.send({
+        kind: 'state',
+        board: encodeBoard(boardRef.current),
+        score: scoreRef.current,
+        lines: linesRef.current,
+      });
     }
     const np = newPiece();
     if (collides(boardRef.current, np.cells, np.r, np.c)) {
@@ -293,7 +346,40 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Versus channel: opponent board mirror, garbage in, opponent top-out.
+  useEffect(() => {
+    if (!online) return;
+    const ch = versusChannel(online.matchId, (m) => {
+      if (m.kind === 'state') setOpp({ board: m.board, score: m.score, lines: m.lines });
+      else if (m.kind === 'garbage') pendingGarbageRef.current += m.n;
+      else if (m.kind === 'dead') {
+        if (overRef.current) return;
+        overRef.current = true;
+        cancelAnimationFrame(rafRef.current);
+        setOver(true);
+        setOutcome('win');
+        online.reportResult(true);
+      }
+    });
+    channelRef.current = ch;
+    return () => {
+      channelRef.current = null;
+      ch.close();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [online?.matchId]);
+
+  // Match settled outside the channel (opponent resigned / left → forfeit).
+  useEffect(() => {
+    if (!online?.finished || overRef.current) return;
+    overRef.current = true;
+    cancelAnimationFrame(rafRef.current);
+    setOver(true);
+    setOutcome(online.winnerSeat === online.mySeat ? 'win' : 'loss');
+  }, [online?.finished, online?.winnerSeat, online?.mySeat]);
+
   const togglePause = () => {
+    if (online) return; // no pausing a live opponent
     if (overRef.current) return;
     pausedRef.current = !pausedRef.current;
     setPaused(pausedRef.current);
@@ -339,21 +425,31 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
     <div className="relative flex h-full w-full flex-col bg-[radial-gradient(120%_100%_at_50%_0%,#1b1840_0%,#0e1226_60%,#05060d_100%)] text-white">
       {/* HUD */}
       <div className="flex items-center justify-between px-4 pb-1 pt-3 text-sm">
-        <span className="font-dot rounded-lg px-2 py-1 text-xs font-bold" style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}>
-          {t(difficultyKey(difficulty))}
-        </span>
+        {online ? (
+          <span className="font-dot rounded-lg bg-primary/80 px-2 py-1 text-xs font-bold">
+            🌐 {t('online.vsLabel', { name: online.opponentName })}
+          </span>
+        ) : (
+          <span className="font-dot rounded-lg px-2 py-1 text-xs font-bold" style={{ backgroundColor: DIFFICULTY_STYLE[difficulty].color }}>
+            {t(difficultyKey(difficulty))}
+          </span>
+        )}
         <div className="flex gap-3 text-xs font-semibold tabular-nums">
           <span>{t('tetris.score')} <b className="text-accent-cyan">{score}</b></span>
           <span>{t('tetris.lvl')} <b>{level}</b></span>
           <span>{t('tetris.lines')} <b>{lines}</b></span>
         </div>
-        <button
-          onClick={togglePause}
-          aria-label={paused ? 'resume' : 'pause'}
-          className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15"
-        >
-          <Icon name={paused ? 'play' : 'pause'} className="h-4 w-4" />
-        </button>
+        {online ? (
+          <span className="w-11" />
+        ) : (
+          <button
+            onClick={togglePause}
+            aria-label={paused ? 'resume' : 'pause'}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15"
+          >
+            <Icon name={paused ? 'play' : 'pause'} className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       <div className="flex flex-1 items-stretch justify-center gap-2 overflow-hidden px-2">
@@ -371,8 +467,20 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
               return <span key={i} className="h-3 w-3 rounded-[2px]" style={{ background: on ? COLORS[TYPES.indexOf(nextType) + 1] : 'transparent' }} />;
             })}
           </div>
-          <span className="mt-1 text-[10px] text-white/45">🏆</span>
-          <span className="text-xs font-bold tabular-nums text-white/70">{best}</span>
+          {online ? (
+            <>
+              <span className="mt-2 max-w-full truncate text-[10px] uppercase tracking-wide text-white/45">
+                {online.opponentName}
+              </span>
+              <OppBoard encoded={opp?.board ?? null} />
+              <span className="text-xs font-bold tabular-nums text-accent-cyan">{opp?.score ?? 0}</span>
+            </>
+          ) : (
+            <>
+              <span className="mt-1 text-[10px] text-white/45">🏆</span>
+              <span className="text-xs font-bold tabular-nums text-white/70">{best}</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -388,25 +496,67 @@ export default function TetrisGame({ difficulty = 'easy' }: GameProps) {
       {over && (
         <GameResultScreen
           gameId="tetris"
-          emoji={isBest ? '🏆' : '🧱'}
-          title={isBest ? t('tetris.newBest') : t('tetris.gameOver')}
-          isNewBest={isBest}
-          celebrate
+          emoji={online ? (outcome === 'win' ? '🏆' : '😞') : isBest ? '🏆' : '🧱'}
+          title={
+            online
+              ? outcome === 'win'
+                ? t('tetris.youWin')
+                : t('tetris.youLose')
+              : isBest
+                ? t('tetris.newBest')
+                : t('tetris.gameOver')
+          }
+          isNewBest={!online && isBest}
+          celebrate={online ? outcome === 'win' : true}
           levelUp={levelUp}
           stats={[
             { value: score, label: t('tetris.score') },
             { value: lines, label: t('tetris.lines') },
-            { value: level, label: t('tetris.lvl') },
+            ...(online && opp ? [{ value: opp.score, label: online.opponentName }] : [{ value: level, label: t('tetris.lvl') }]),
           ]}
-          actions={[
-            { label: t('tetris.again'), onClick: restart, variant: 'primary' },
-            { label: t('tetris.share'), onClick: () => doShare(`BrainClub · ${t('games.tetris.name')} (${t(difficultyKey(difficulty))})\n🧱 ${score} · ${lines} ${t('tetris.lines')}\n${window.location.origin}`), variant: 'secondary' },
-          ]}
+          actions={
+            online
+              ? [
+                  { label: t('online.newOpponent'), onClick: online.leave, variant: 'primary' as const },
+                  { label: t('tetris.share'), onClick: () => doShare(`BrainClub · ${t('games.tetris.name')} (${t('online.title')})\n${outcome === 'win' ? '🏆' : '🧱'} ${score} · ${lines} ${t('tetris.lines')}\n${window.location.origin}`), variant: 'secondary' as const },
+                ]
+              : [
+                  { label: t('tetris.again'), onClick: restart, variant: 'primary' as const },
+                  { label: t('tetris.share'), onClick: () => doShare(`BrainClub · ${t('games.tetris.name')} (${t(difficultyKey(difficulty))})\n🧱 ${score} · ${lines} ${t('tetris.lines')}\n${window.location.origin}`), variant: 'secondary' as const },
+                ]
+          }
           shareMsg={shareMsg}
         />
       )}
     </div>
   );
+}
+
+// The opponent's live board, decoded from the broadcast mirror — small but
+// readable (the Tetris-99 glance: am I winning the race?).
+function OppBoard({ encoded }: { encoded: string | null }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const cs = 6; // 6px cells → 60×120 mini board
+    canvas.width = COLS * cs;
+    canvas.height = ROWS * cs;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!encoded) return;
+    const board = decodeBoard(encoded);
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const v = board[r][c];
+        if (!v) continue;
+        ctx.fillStyle = COLORS[v] ?? '#64748b';
+        ctx.fillRect(c * cs, r * cs, cs - 1, cs - 1);
+      }
+    }
+  }, [encoded]);
+  return <canvas ref={ref} className="rounded-md ring-1 ring-white/15" style={{ width: COLS * 6, height: ROWS * 6 }} />;
 }
 
 function Pad({ children, onClick, accent }: { children: React.ReactNode; onClick: () => void; accent?: boolean }) {

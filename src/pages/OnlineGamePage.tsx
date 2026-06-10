@@ -110,6 +110,7 @@ function ActiveMatch({
   const Game = game.component!;
   const finished = match.status === 'finished' || match.status === 'abandoned';
   const controller: OnlineController = {
+    matchId: match.id,
     mySeat,
     iMoveFirst: match.first_player === mySeat,
     opponentName: oppName,

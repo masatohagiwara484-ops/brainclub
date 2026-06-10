@@ -107,6 +107,34 @@ else fail('base line scores wrong');
 if (lineScore(4, 9) === 8000) ok('a tetris at level 9 scores 8000');
 else fail(`tetris@9 = ${lineScore(4, 9)} (want 8000)`);
 
+// ---- versus helpers (mirror of addGarbage / garbageFor / encode-decode) ----
+const GARBAGE = 8;
+const garbageFor = (n) => [0, 0, 1, 2, 4][n] ?? 0;
+function addGarbage(board, n, holeAt) {
+  let next = board.map((row) => row.slice());
+  for (let i = 0; i < n; i++) {
+    const row = new Array(COLS).fill(GARBAGE);
+    row[Math.min(COLS - 1, Math.max(0, holeAt(i)))] = 0;
+    next = [...next.slice(1), row];
+  }
+  return next;
+}
+{
+  const b = emptyBoard();
+  b[ROWS - 1][0] = 3; // a settled block on the floor
+  const g = addGarbage(b, 2, (i) => 4 + i);
+  if (g.length !== ROWS) fail('garbage board must stay ROWS tall');
+  else if (g[ROWS - 1][5] !== 0 || g[ROWS - 1].filter((c) => c === GARBAGE).length !== COLS - 1)
+    fail('bottom garbage row should be solid gray with one hole at 5');
+  else if (g[ROWS - 2][4] !== 0 || g[ROWS - 2].filter((c) => c === GARBAGE).length !== COLS - 1)
+    fail('second garbage row hole misplaced');
+  else if (g[ROWS - 3][0] !== 3) fail('existing blocks must shift up above the garbage');
+  else console.log('  ✓ garbage rows insert from the bottom with single holes; stack shifts up');
+  const sends = [garbageFor(1), garbageFor(2), garbageFor(3), garbageFor(4)];
+  if (sends.join(',') !== '0,1,2,4') fail(`garbageFor schedule wrong: ${sends}`);
+  else console.log('  ✓ attack schedule single/double/triple/tetris → 0/1/2/4');
+}
+
 if (failures) {
   console.error(`\nTETRIS: ${failures} check(s) FAILED`);
   process.exit(1);
