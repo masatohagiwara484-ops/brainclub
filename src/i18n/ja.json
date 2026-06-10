@@ -726,7 +726,11 @@
     "darkneon": "ダークネオン",
     "matrix": "マトリックス",
     "dragon": "ドラゴン",
-    "fire": "ファイア"
+    "fire": "ファイア",
+    "shapeClassic": "クラシック",
+    "shapePillow": "ピロー",
+    "shapeSphere": "スフィア",
+    "shapeGem": "クリスタル"
   },
   "quests": {
     "title": "デイリークエスト",

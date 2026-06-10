@@ -726,7 +726,11 @@
     "darkneon": "Dark Neon",
     "matrix": "Matrix",
     "dragon": "Dragon",
-    "fire": "Fire"
+    "fire": "Fire",
+    "shapeClassic": "Classic",
+    "shapePillow": "Pillow",
+    "shapeSphere": "Sphere",
+    "shapeGem": "Crystal"
   },
   "quests": {
     "title": "Daily Quests",

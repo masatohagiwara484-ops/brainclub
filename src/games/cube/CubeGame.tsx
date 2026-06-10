@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useGameSkin, CUBE_STICKERS } from '../../lib/gameSkins';
+import { useGameSkin, CUBE_STICKERS, CUBE_SHAPES, useCubeShape, setCubeShape, shapeUnlocked } from '../../lib/gameSkins';
+import { useMonetization } from '../../lib/monetization';
 import SkinPicker from '../../components/SkinPicker';
 import { Icon } from '../../components/Icons';
 import { CubeEngine, type CubeStats } from './cubeEngine';
@@ -28,6 +29,8 @@ function fmt(seconds: number): string {
 export default function CubeGame() {
   const { t } = useTranslation();
   const theme = useGameSkin('cube');
+  const shape = useCubeShape();
+  const m = useMonetization();
   const [showSkins, setShowSkins] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<CubeEngine | null>(null);
@@ -42,6 +45,7 @@ export default function CubeGame() {
     const canvas = canvasRef.current!;
     const engine = new CubeEngine(canvas, {
       stickers: CUBE_STICKERS[theme.id],
+      shape: shape.id,
       onStats: setStats,
       onSolved: (s) => {
         const sz = engineRef.current?.size ?? 3;
@@ -70,7 +74,7 @@ export default function CubeGame() {
       engine.dispose();
       engineRef.current = null;
     };
-  }, [theme.id]); // skin change rebuilds the cube with its sticker palette
+  }, [theme.id, shape.id]); // skin/shape change rebuilds the cube
 
   const changeSize = (n: number) => {
     setSize(n);
@@ -122,8 +126,32 @@ export default function CubeGame() {
 
       {/* Controls */}
       {showSkins && (
-        <div className="absolute bottom-32 left-1/2 w-full max-w-md -translate-x-1/2 px-3">
+        <div className="absolute bottom-32 left-1/2 flex w-full max-w-md -translate-x-1/2 flex-col gap-1.5 px-3">
           <SkinPicker gameId="cube" className="w-full" />
+          {/* Premium SHAPES: pillow / sphere / crystal cubelets. Locked → paywall. */}
+          <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {CUBE_SHAPES.map((sh) => {
+              const unlocked = shapeUnlocked(sh, m.getPlan());
+              const active = shape.id === sh.id;
+              return (
+                <button
+                  key={sh.id}
+                  onClick={() => (unlocked ? setCubeShape(sh.id) : m.openPaywall())}
+                  className={`tap-target relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-semibold transition ${
+                    active ? 'bg-white/12 text-white ring-1 ring-iris-violet shadow-glow-sm' : 'bg-white/[0.05] text-white/60 hover:bg-white/10'
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className="inline-block h-3.5 w-3.5 bg-gradient-to-br from-iris-cyan to-iris-violet"
+                    style={{ borderRadius: sh.id === 'sphere' ? '50%' : sh.id === 'pillow' ? '40%' : '3px' }}
+                  />
+                  {t(sh.nameKey)}
+                  {!unlocked && <Icon name={sh.tier === 'pro' ? 'crown' : 'diamond'} className="h-3 w-3 text-amber-300" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
       <div className="absolute bottom-4 left-1/2 grid w-[min(18rem,calc(100%-2rem))] -translate-x-1/2 grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:justify-center">

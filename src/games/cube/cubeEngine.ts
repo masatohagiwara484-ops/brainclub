@@ -41,6 +41,33 @@ const CUBELET = 1;
 const GAP = 0.06;
 const STEP = CUBELET + GAP;
 
+// Premium cubelet shapes. 'pillow' and 'sphere' morph a segmented BoxGeometry
+// toward a ball — BoxGeometry keeps its six material groups whatever the
+// segment count, so the per-face sticker materials keep working untouched.
+// 'gem' keeps the classic cut but swaps to a clearcoat crystal material.
+export type CubeShape = 'classic' | 'pillow' | 'sphere' | 'gem';
+
+function makeCubeletGeometry(shape: CubeShape): THREE.BoxGeometry {
+  if (shape === 'classic' || shape === 'gem') return new THREE.BoxGeometry(CUBELET, CUBELET, CUBELET);
+  const seg = shape === 'sphere' ? 8 : 6;
+  const k = shape === 'sphere' ? 1 : 0.55; // morph amount
+  const r = (CUBELET / 2) * (shape === 'sphere' ? 1.32 : 1.12); // target radius
+  const geo = new THREE.BoxGeometry(CUBELET, CUBELET, CUBELET, seg, seg, seg);
+  const pos = geo.attributes.position as THREE.BufferAttribute;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const len = v.length();
+    if (len === 0) continue;
+    const target = v.clone().multiplyScalar(r / len); // projected onto the ball
+    v.lerp(target, k);
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  pos.needsUpdate = true;
+  geo.computeVertexNormals();
+  return geo;
+}
+
 const AXES: Record<Axis, THREE.Vector3> = {
   x: new THREE.Vector3(1, 0, 0),
   y: new THREE.Vector3(0, 1, 0),
@@ -54,6 +81,8 @@ export type CubeOptions = {
   onSolved?: (s: CubeStats) => void;
   /** Optional skin: sticker colors per face (lib/gameSkins CUBE_STICKERS). */
   stickers?: Partial<StickerPalette>;
+  /** Optional premium cubelet shape (pillow / sphere / gem). */
+  shape?: CubeShape;
 };
 
 type Move = { axis: Axis; layer: number; dir: number };
@@ -67,7 +96,8 @@ export class CubeEngine {
   private controls: OrbitControls;
   private cubeGroup = new THREE.Group();
   private cubelets: THREE.Mesh[] = [];
-  private boxGeo = new THREE.BoxGeometry(CUBELET, CUBELET, CUBELET);
+  private boxGeo: THREE.BoxGeometry;
+  private shape: CubeShape = 'classic';
 
   private N = 3;
   private isAnimating = false;
@@ -93,6 +123,8 @@ export class CubeEngine {
     this.canvas = canvas;
     this.opts = opts;
     this.colors = { ...DEFAULT_COLORS, ...(opts.stickers ?? {}) };
+    this.shape = opts.shape ?? 'classic';
+    this.boxGeo = makeCubeletGeometry(this.shape);
 
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -242,8 +274,19 @@ export class CubeEngine {
             if (face === 'down' && y === 0) show = true;
             if (face === 'front' && z === n - 1) show = true;
             if (face === 'back' && z === 0) show = true;
+            const color = show ? this.colors[face] : this.colors.inside;
+            // 'gem' renders every sticker as lacquered crystal (clearcoat).
+            if (this.shape === 'gem') {
+              return new THREE.MeshPhysicalMaterial({
+                color,
+                roughness: 0.16,
+                metalness: 0.55,
+                clearcoat: 1,
+                clearcoatRoughness: 0.12,
+              });
+            }
             return new THREE.MeshStandardMaterial({
-              color: show ? this.colors[face] : this.colors.inside,
+              color,
               roughness: 0.45,
               metalness: 0.0,
             });

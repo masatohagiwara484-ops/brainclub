@@ -52,6 +52,41 @@ export const CUBE_STICKERS: Record<string, { up: number; down: number; front: nu
   fire: { right: 0xfb923c, left: 0x7c2d12, up: 0xfed7aa, down: 0xf97316, front: 0xdc2626, back: 0x431407 },
 };
 
+/** Premium cube SHAPES (geometry, not color) — the second cube storefront. */
+export type CubeShapeDef = { id: 'classic' | 'pillow' | 'sphere' | 'gem'; nameKey: string; tier: SkinTier };
+export const CUBE_SHAPES: CubeShapeDef[] = [
+  { id: 'classic', nameKey: 'skins.shapeClassic', tier: 'free' },
+  { id: 'pillow', nameKey: 'skins.shapePillow', tier: 'plus' },
+  { id: 'sphere', nameKey: 'skins.shapeSphere', tier: 'pro' },
+  { id: 'gem', nameKey: 'skins.shapeGem', tier: 'pro' },
+];
+
+export function shapeUnlocked(shape: CubeShapeDef, plan: Plan): boolean {
+  return PLAN_RANK[plan] >= TIER_RANK[shape.tier];
+}
+
+export function getCubeShape(): CubeShapeDef {
+  const id = getSetting<string>('skin:cube-shape', 'classic');
+  return CUBE_SHAPES.find((sh) => sh.id === id) ?? CUBE_SHAPES[0];
+}
+
+export function setCubeShape(id: string): void {
+  setSetting('skin:cube-shape', id);
+  for (const l of listeners) l();
+}
+
+/** Reactive hook for the selected cube shape (re-renders on change). */
+export function useCubeShape(): CubeShapeDef {
+  const [, force] = useReducer((x: number) => x + 1, 0);
+  useEffect(() => {
+    listeners.push(force);
+    return () => {
+      listeners = listeners.filter((l) => l !== force);
+    };
+  }, []);
+  return getCubeShape();
+}
+
 const TIER_RANK: Record<SkinTier, number> = { free: 0, plus: 1, pro: 2 };
 
 export function themeUnlocked(theme: BoardTheme, plan: Plan): boolean {
