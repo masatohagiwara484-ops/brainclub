@@ -103,10 +103,13 @@ canvas {
   touch-action: none;
 }
 
-/* Dotted, cyber display font for UI headings. */
+/* LEGACY alias — was the DotGothic16 pixel font. Repointed to the HOLO display
+   type (Space Grotesk) so the ~11 game HUDs still referencing it modernize at
+   once without per-file churn. Prefer `.font-display` in new code. */
 .font-dot {
-  font-family: 'DotGothic16', system-ui, sans-serif;
-  letter-spacing: 0.04em;
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 /* ============================================================
@@ -806,19 +809,14 @@ canvas {
   .holo-border::before { animation: none; }
 }
 
-/* Metallic "cyber silver" headings with a 3D/embossed feel.
-   Uses a silver gradient clipped to the glyphs plus layered shadows so it still
-   reads clearly on a white background. */
+/* LEGACY alias — was a metallic "cyber silver" DotGothic16 heading. Repointed
+   to the HOLO display type with a soft glow so the game HUDs still using it read
+   as premium (not retro) on the deep-space surfaces. Prefer `.font-display`
+   (optionally `.text-iris`) in new code. */
 .font-cyber {
-  font-family: 'DotGothic16', system-ui, sans-serif;
-  letter-spacing: 0.04em;
-  background: linear-gradient(180deg, #f4f7fa 0%, #c2c9d2 40%, #7d8794 60%, #e2e8f0 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-stroke: 0.4px rgba(71, 85, 105, 0.45);
-  text-shadow:
-    0 1px 0 #ffffff,
-    1px 1px 1px rgba(15, 23, 42, 0.25),
-    0 3px 5px rgba(15, 23, 42, 0.3);
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f1f5fb;
+  text-shadow: 0 0 18px rgba(129, 140, 248, 0.3);
 }
