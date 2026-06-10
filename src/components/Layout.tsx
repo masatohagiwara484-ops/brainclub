@@ -55,34 +55,31 @@ export default function Layout({ children }: { children: ReactNode }) {
       data-theme={theme}
       data-skin={skin === 'default' ? undefined : skin}
       data-contrast={colorBlind ? 'high' : undefined}
-      className={`flex h-[100dvh] flex-col ${darkChrome ? 'bg-[#0b1020] text-white' : 'bg-white text-slate-900'}`}
+      className={`flex h-[100dvh] flex-col ${darkChrome ? 'bg-aurora text-white' : 'bg-white text-slate-900'}`}
     >
       <header
-        className={`z-20 flex items-center justify-between border-b px-3 py-2.5 ${
+        className={`z-20 flex items-center justify-between border-b px-3 pb-2.5 pt-[calc(env(safe-area-inset-top)+0.625rem)] ${
           darkChrome
-            ? 'border-white/10 bg-transparent'
+            ? 'border-white/10 bg-space-1/60 backdrop-blur-xl'
             : 'border-slate-200/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/80'
         }`}
       >
         {/* Left: profile avatar (or back chevron during a game). Fixed width keeps the brand centered. */}
         <div className="flex w-16 items-center">
           {onPlay ? (
-            // Proof of concept for the shared <Button>: ghost variant already
-            // supplies hover:bg-slate-100; the !overrides pin it to the original
-            // round, icon-only header look (h-9 w-9, slate-500, no padding).
             <Button
               onClick={() => nav('/')}
               variant="ghost"
               aria-label={t('nav.back')}
               leftIcon="back"
               iconClassName="h-6 w-6"
-              className={`h-9 w-9 !rounded-full !p-0 ${darkChrome ? '!text-white/80 hover:!bg-white/10' : '!text-slate-500'}`}
+              className={`h-11 w-11 rounded-full p-0 ${darkChrome ? 'text-white/80' : 'text-slate-500'}`}
             />
           ) : (
             <Link
               to="/profile"
-              className={`flex h-9 w-9 items-center justify-center rounded-full border ${
-                darkChrome ? 'border-white/25 text-white/80 hover:bg-white/10' : 'border-slate-300 text-slate-500 hover:bg-slate-100'
+              className={`flex h-11 w-11 items-center justify-center rounded-full border ${
+                darkChrome ? 'border-white/20 text-white/80 hover:bg-white/10' : 'border-slate-300 text-slate-500 hover:bg-slate-100'
               }`}
               aria-label={t('nav.profile')}
               title={t('nav.profile')}
@@ -104,7 +101,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             playId && (
               <button
                 onClick={() => h.open(playId)}
-                className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                className={`flex h-11 w-11 items-center justify-center rounded-full ${
                   darkChrome ? 'text-white/80 hover:bg-white/10' : 'text-slate-500 hover:bg-slate-100'
                 }`}
                 aria-label={t('howto.help')}
@@ -116,7 +113,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           ) : (
             <Link
               to="/premium"
-              className={`flex h-9 w-9 items-center justify-center rounded-full ${
+              className={`flex h-11 w-11 items-center justify-center rounded-full ${
                 darkChrome ? 'text-amber-300 hover:bg-white/10' : 'text-amber-500 hover:bg-amber-50'
               }`}
               aria-label={t('monet.premiumTitle')}

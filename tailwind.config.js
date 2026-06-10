@@ -37,6 +37,18 @@ export default {
         primary: 'var(--primary)', // #6366F1 indigo — the new lead accent
         'accent-cyan': 'var(--accent-cyan)', // #67E8F9
         'accent-pink': 'var(--accent-pink)', // #F472B6
+
+        // ---- HOLO 2.0 palette (the overhaul's vocabulary) ----
+        // Deep-space bases + the iridescent accent ramp; tokens live in
+        // styles/index.css :root. Use space-* for page/surface backgrounds and
+        // iris-* for the signature cyan→violet→magenta hologram sweep.
+        'space-0': 'var(--space-0)',
+        'space-1': 'var(--space-1)',
+        'space-2': 'var(--space-2)',
+        'space-3': 'var(--space-3)',
+        'iris-cyan': 'var(--iris-cyan)',
+        'iris-violet': 'var(--iris-violet)',
+        'iris-magenta': 'var(--iris-magenta)',
       },
 
       // ---- Elevation tokens (NEW, additive) ----
@@ -48,6 +60,13 @@ export default {
         // Indigo-tinted "expensive" glow for hero CTAs / premium surfaces.
         premium:
           '0 18px 40px -12px rgba(99, 102, 241, 0.45), 0 6px 16px -8px rgba(15, 23, 42, 0.25)',
+        // ---- HOLO 2.0 glows ----
+        // Iridescent halos in three intensities; glow-active marks the selected
+        // nav tab / focused control with the violet signature.
+        'glow-sm': '0 0 12px -2px rgba(129, 140, 248, 0.45)',
+        glow: '0 0 24px -4px rgba(129, 140, 248, 0.55), 0 0 48px -12px rgba(34, 211, 238, 0.35)',
+        'glow-lg':
+          '0 0 40px -6px rgba(129, 140, 248, 0.65), 0 0 80px -16px rgba(232, 121, 249, 0.4)',
       },
 
       // ---- Refined radius scale (NEW, additive) ----
