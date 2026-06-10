@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { GAMES } from '../games/registry';
 import { dailySeed, makeRng } from '../lib/daily';
-import { getStreak } from '../lib/storage';
+import { useQuests, applyStreakShield } from '../lib/quests';
+import { useMonetization, isPaid } from '../lib/monetization';
 import { sound } from '../lib/sound';
 import { Icon } from './Icons';
 import GameArt from './GameArt';
@@ -16,7 +17,11 @@ const DAILY_FIXED = ['wordle', 'yacht'];
 
 export default function DailyRitual() {
   const { t, i18n } = useTranslation();
-  const streak = getStreak();
+  const m = useMonetization();
+  const paid = isPaid(m.getPlan());
+  const { quests, progress, perfect, streak } = useQuests();
+  // Streak Shield: bridge a single missed day for paid players (once per mount).
+  useMemo(() => applyStreakShield(paid), [paid]);
 
   const games = useMemo(() => {
     const fixed = DAILY_FIXED.map((id) => GAMES.find((g) => g.id === id)).filter(
@@ -57,6 +62,34 @@ export default function DailyRitual() {
               {t('home.streak')}
             </span>
           </div>
+        </div>
+
+        {/* Today's three quests — clear all three for a Perfect Day (banks the streak). */}
+        <div className="mt-3 space-y-1.5">
+          {quests.map((q) => {
+            const done = (progress[q.id] ?? 0) >= q.target;
+            const cur = Math.min(progress[q.id] ?? 0, q.target);
+            const game = q.gameId ? t(`games.${q.gameId}.name`) : '';
+            return (
+              <div key={q.id} className="flex items-center gap-2.5 rounded-xl bg-white/[0.04] px-3 py-2">
+                <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px] font-black ${done ? 'bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta text-white' : 'bg-white/10 text-white/40'}`}>
+                  {done ? '✓' : cur}
+                </span>
+                <span className={`min-w-0 flex-1 truncate text-xs font-semibold ${done ? 'text-white/45 line-through' : 'text-white/85'}`}>
+                  {t(q.nameKey, { n: q.target, game })}
+                </span>
+                <span className="shrink-0 text-[10px] tabular-nums text-white/35">{cur}/{q.target}</span>
+              </div>
+            );
+          })}
+          {perfect && (
+            <div className="rounded-xl bg-gradient-to-r from-iris-cyan/15 via-iris-violet/15 to-iris-magenta/15 px-3 py-2 text-center text-xs font-bold text-iris-cyan">
+              {t('quests.perfect')}
+            </div>
+          )}
+          {paid && (
+            <p className="px-1 text-[10px] text-white/30">{t('quests.shield')}</p>
+          )}
         </div>
 
         <div className="mt-3 grid grid-cols-3 gap-2">

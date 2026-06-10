@@ -47,6 +47,14 @@ export function getStreak(): number {
   return get<Streak>('streak', { count: 0, lastDay: '' }).count;
 }
 
+/** Raw streak record access (Streak Shield in lib/quests.ts bridges gaps). */
+export function getStreakState(): Streak {
+  return get<Streak>('streak', { count: 0, lastDay: '' });
+}
+export function setStreakState(s: Streak): void {
+  set('streak', s);
+}
+
 /** Call when the user completes a daily challenge. Updates and returns the streak. */
 export function bumpStreak(): number {
   const s = get<Streak>('streak', { count: 0, lastDay: '' });

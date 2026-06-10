@@ -169,7 +169,8 @@
       "diamond": "Diamond",
       "master": "Master",
       "grandmaster": "Grandmaster"
-    }
+    },
+    "placement": "Placement {{n}}/{{total}}"
   },
   "home": {
     "hero": "Play the world's best brain games — free, in your browser.",
@@ -724,5 +725,17 @@
     "matrix": "Matrix",
     "dragon": "Dragon",
     "fire": "Fire"
+  },
+  "quests": {
+    "title": "Daily Quests",
+    "play3": "Play {{n}} games",
+    "good2": "Get {{n}} strong results",
+    "dailyWordle": "Clear today's Word Guess",
+    "dailyYacht": "Play today's Yacht",
+    "playGame": "Play {{game}}",
+    "masterGame": "Score big in {{game}}",
+    "logic2": "Play {{n}} logic games",
+    "perfect": "Perfect Day! Streak banked 🔥",
+    "shield": "Streak Shield active — one missed day a month is forgiven (×2/mo)"
   }
 }

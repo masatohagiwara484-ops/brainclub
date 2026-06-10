@@ -10,7 +10,7 @@ import {
   waitForMatch,
   type Match,
 } from '../lib/realtime';
-import { eloRank } from '../lib/elo';
+import { eloRank, isPlacement, PLACEMENT_GAMES } from '../lib/elo';
 import GameArt from './GameArt';
 import { Icon } from './Icons';
 import { GAME_BG } from './GameShell';
@@ -111,7 +111,9 @@ export default function OnlineLobby({
           <Icon name="globe" className="h-4 w-4" /> {t('online.title')}
           {typeof elo === 'number' && (
             <span className="rounded-md bg-white/10 px-2 py-0.5 text-xs text-accent-cyan">
-              {t(`online.rank.${eloRank(elo).id}`)} · {elo}
+              {isPlacement((cloud.account?.wins ?? 0) + (cloud.account?.losses ?? 0))
+                ? t('online.placement', { n: (cloud.account?.wins ?? 0) + (cloud.account?.losses ?? 0), total: PLACEMENT_GAMES })
+                : `${t(`online.rank.${eloRank(elo).id}`)} · ${elo}`}
             </span>
           )}
         </p>

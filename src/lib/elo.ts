@@ -8,6 +8,24 @@
 export const ELO_START = 1000;
 export const ELO_K = 32;
 
+// ---- rating integrity ---------------------------------------------------------
+// New accounts are in PLACEMENT for their first games: the rank badge shows
+// "Placement n/5" instead of a tier, and K is large so the rating converges
+// fast — then tightens as the sample grows. Mirrors record_match_result() in
+// supabase/online.sql; keep the two schedules in sync.
+export const PLACEMENT_GAMES = 5;
+
+/** K-factor by games played: 64 while placing, 32 until established, then 24. */
+export function kFor(gamesPlayed: number): number {
+  if (gamesPlayed < PLACEMENT_GAMES) return 64;
+  if (gamesPlayed < 30) return 32;
+  return 24;
+}
+
+export function isPlacement(gamesPlayed: number): boolean {
+  return gamesPlayed < PLACEMENT_GAMES;
+}
+
 /** Probability that A beats B given their ratings (logistic, 400-point scale). */
 export function expectedScore(ratingA: number, ratingB: number): number {
   return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));

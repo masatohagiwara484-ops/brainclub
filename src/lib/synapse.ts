@@ -16,6 +16,7 @@
 // The core math is a pure function (`applyPlay`) so it can be mirrored and
 // asserted by scripts/verify-synapse.mjs without a TS runtime.
 
+import { notePlay } from './quests';
 import { useEffect, useReducer } from 'react';
 import { getSetting, setSetting } from './storage';
 import type { Difficulty } from './difficulty';
@@ -171,6 +172,8 @@ export type PlayResult = {
 
 /** Record a finished play, persist the new profile, and notify subscribers. */
 export function recordPlay(input: PlayInput): PlayResult {
+  // Feed the daily-quest engine (retention loop) — fire and forget.
+  try { notePlay(input.gameId, input.quality); } catch { /* quests never break play */ }
   const prev = getProfile();
   const profile = applyPlay(prev, input.axes, input.quality, input.weight ?? 1);
   setSetting(STORE_KEY, profile);

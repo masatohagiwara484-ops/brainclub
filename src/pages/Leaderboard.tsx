@@ -6,7 +6,7 @@ import { DIFFICULTIES, type Difficulty } from '../lib/difficulty';
 import { useCloud } from '../lib/cloud';
 import { useDailyBoard, useLadder, useEloLadder } from '../lib/leaderboard';
 import { tierForScore } from '../lib/tiers';
-import { eloRank } from '../lib/elo';
+import { eloRank, isPlacement, PLACEMENT_GAMES } from '../lib/elo';
 import { Icon } from '../components/Icons';
 import { SkeletonList } from '../components/Skeleton';
 import { GAME_BG } from '../components/GameShell';
@@ -175,15 +175,22 @@ function RankedLadder({ youId }: { youId?: string }) {
     <div className="mt-4 space-y-1.5">
       {rows.map((r) => {
         const rk = eloRank(r.elo);
+        const placing = isPlacement(r.wins + r.losses);
         return (
           <div key={r.userId} className={rowCls(r.userId === youId)}>
             {rankBadge(r.rank)}
             <span className="text-xl">{r.avatar}</span>
             <div className="min-w-0 flex-1">
               <div className="truncate font-semibold">{r.username}</div>
-              <span className="text-[11px] font-bold" style={{ color: RANK_COLOR[rk.id] }}>
-                {t(`online.rank.${rk.id}`)} · {r.wins}{t('leaderboard.winShort')}–{r.losses}{t('leaderboard.lossShort')}
-              </span>
+              {placing ? (
+                <span className="text-[11px] font-bold text-white/45">
+                  {t('online.placement', { n: r.wins + r.losses, total: PLACEMENT_GAMES })}
+                </span>
+              ) : (
+                <span className="text-[11px] font-bold" style={{ color: RANK_COLOR[rk.id] }}>
+                  {t(`online.rank.${rk.id}`)} · {r.wins}{t('leaderboard.winShort')}–{r.losses}{t('leaderboard.lossShort')}
+                </span>
+              )}
             </div>
             <span className="text-right text-sm font-black tabular-nums text-accent-cyan">{r.elo}</span>
           </div>

@@ -216,8 +216,18 @@ begin
   rw := coalesce(rw, 1000);
   rl := coalesce(rl, 1000);
   ew := 1.0 / (1.0 + power(10.0, (rl - rw) / 400.0));
-  update public.profiles set elo = round(rw + 32 * (1 - ew)), wins = wins + 1 where id = p_winner;
-  update public.profiles set elo = round(rl - 32 * (1 - ew)), losses = losses + 1 where id = loser;
+  -- K by games played (placement 64 / developing 32 / stable 24) — mirrors
+  -- src/lib/elo.ts kFor(); a fresh account converges fast, then stabilizes.
+  declare
+    gw integer; gl integer; kw integer; kl integer;
+  begin
+    select wins + losses into gw from public.profiles where id = p_winner;
+    select wins + losses into gl from public.profiles where id = loser;
+    kw := case when coalesce(gw,0) < 5 then 64 when gw < 30 then 32 else 24 end;
+    kl := case when coalesce(gl,0) < 5 then 64 when gl < 30 then 32 else 24 end;
+    update public.profiles set elo = round(rw + kw * (1 - ew)), wins = wins + 1 where id = p_winner;
+    update public.profiles set elo = round(rl - kl * (1 - ew)), losses = losses + 1 where id = loser;
+  end;
   return m;
 end; $$;
 

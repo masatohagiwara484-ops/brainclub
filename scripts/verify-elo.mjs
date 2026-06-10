@@ -89,6 +89,13 @@ for (const [elo, id] of rankCases) {
 }
 if (rankOk) console.log('  ✓ ratings map to the right display rank at every boundary');
 
+// Rating-integrity K schedule: placement (<5 games) 64, developing 32, stable 24.
+const kFor = (g) => (g < 5 ? 64 : g < 30 ? 32 : 24);
+const kCases = [[0,64],[4,64],[5,32],[29,32],[30,24],[500,24]];
+let kOk = true;
+for (const [g,k] of kCases) if (kFor(g) !== k) (kOk=false), fail(`kFor(${g}) = ${kFor(g)}, expected ${k}`);
+if (kOk) console.log('  ✓ K-factor schedule (placement 64 → developing 32 → stable 24)');
+
 if (failures) {
   console.error(`\nFAIL: ${failures} check(s).`);
   process.exit(1);

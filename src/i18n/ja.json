@@ -169,7 +169,8 @@
       "diamond": "ダイヤモンド",
       "master": "マスター",
       "grandmaster": "グランドマスター"
-    }
+    },
+    "placement": "配置戦 {{n}}/{{total}}"
   },
   "home": {
     "hero": "世界中の脳トレゲームを、ブラウザで無料で。",
@@ -724,5 +725,17 @@
     "matrix": "マトリックス",
     "dragon": "ドラゴン",
     "fire": "ファイア"
+  },
+  "quests": {
+    "title": "デイリークエスト",
+    "play3": "ゲームを{{n}}回プレイ",
+    "good2": "好成績を{{n}}回出す",
+    "dailyWordle": "今日のWord Guessをクリア",
+    "dailyYacht": "今日のヨットをプレイ",
+    "playGame": "{{game}}をプレイ",
+    "masterGame": "{{game}}で高スコア",
+    "logic2": "論理系ゲームを{{n}}回プレイ",
+    "perfect": "パーフェクトデイ！ストリーク獲得 🔥",
+    "shield": "ストリークシールド有効 — 月2回まで1日の欠席を自動カバー"
   }
 }
