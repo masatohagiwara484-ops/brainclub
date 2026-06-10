@@ -8,6 +8,7 @@ import AccountPanel from '../components/AccountPanel';
 import OnlineLobby from '../components/OnlineLobby';
 import { GAME_BG } from '../components/GameShell';
 import GameArt from '../components/GameArt';
+import { Icon } from '../components/Icons';
 import {
   fetchMatch,
   fetchPlayerName,
@@ -53,11 +54,13 @@ function SignInGate({ game }: { game: GameDef }) {
       className="flex h-full flex-col items-center justify-center gap-5 px-5 py-8 text-white"
       style={{ background: GAME_BG }}
     >
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent-cyan shadow-premium">
+      <div className="holo-border flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-space-2 to-space-3">
         <GameArt id={game.id} className="h-12 w-12" />
       </div>
       <div className="text-center">
-        <h1 className="font-cyber text-2xl">🌐 {t('online.title')}</h1>
+        <h1 className="font-display flex items-center justify-center gap-2 text-2xl text-iris">
+          <Icon name="globe" className="h-6 w-6 text-iris-violet" /> {t('online.title')}
+        </h1>
         <p className="mt-1 text-sm text-white/60">{t('online.signInRequired')}</p>
       </div>
       <div className="w-full max-w-md">
@@ -133,10 +136,10 @@ function ActiveMatch({
     <div className="relative h-full w-full">
       <button
         onClick={exit}
-        className="absolute right-3 top-3 z-30 rounded-lg bg-slate-900/70 px-2.5 py-1 text-sm font-semibold text-white/80 ring-1 ring-white/10 backdrop-blur transition hover:text-rose-400"
+        className="absolute right-3 top-3 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-space-1/70 text-white/80 ring-1 ring-white/10 backdrop-blur transition hover:text-rose-400"
         aria-label={t('online.leave')}
       >
-        ✕
+        <Icon name="close" className="h-5 w-5" />
       </button>
       <Suspense fallback={<div className="grid h-full place-items-center text-slate-400">…</div>}>
         <Game online={controller} />
@@ -162,19 +165,23 @@ function WaitingRoom({ code, onCancel }: { code: string; onCancel: () => void })
       className="flex h-full flex-col items-center justify-center gap-5 px-5 text-white"
       style={{ background: GAME_BG }}
     >
-      <div className="text-4xl">🔗</div>
+      <Icon name="globe" className="h-10 w-10 text-iris-violet" />
       <p className="text-sm text-white/60">{t('online.shareCodeHint')}</p>
       <button
         onClick={() => void copy()}
-        className="rounded-2xl bg-white/[0.07] px-8 py-4 text-4xl font-bold tracking-[0.4em] text-accent-cyan ring-1 ring-white/12 transition hover:bg-white/12"
+        className="holo-border flex items-center gap-3 rounded-2xl bg-space-2/80 px-8 py-4 transition hover:bg-space-3/80"
       >
-        {code}
+        <span className="font-display text-4xl tracking-[0.4em] text-iris">{code}</span>
+        <Icon name="copy" className="h-5 w-5 text-white/50" />
       </button>
-      <p className="h-4 text-xs text-white/40">{copied ? t('online.copied') : ' '}</p>
-      <p className="animate-pulse text-sm text-white/50">{t('online.waitingForFriend')}</p>
+      <p className="h-4 text-xs text-iris-cyan">{copied ? t('online.copied') : ' '}</p>
+      <div className="flex items-center gap-2 text-sm text-white/50">
+        <span className="h-2 w-2 animate-ping rounded-full bg-iris-violet motion-reduce:animate-none" />
+        {t('online.waitingForFriend')}
+      </div>
       <button
         onClick={onCancel}
-        className="mt-2 rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/12 transition hover:bg-white/15"
+        className="tap-target mt-2 rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/12 transition hover:bg-white/15"
       >
         {t('online.cancel')}
       </button>

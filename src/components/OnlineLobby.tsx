@@ -12,6 +12,7 @@ import {
 } from '../lib/realtime';
 import { eloRank } from '../lib/elo';
 import GameArt from './GameArt';
+import { Icon } from './Icons';
 import { GAME_BG } from './GameShell';
 
 // The online entry screen for a 1v1 game (shown once the player is signed in).
@@ -94,7 +95,7 @@ export default function OnlineLobby({
     }
   };
 
-  const card = 'w-full rounded-2xl border border-white/10 bg-white/[0.05] p-4';
+  const card = 'glass-panel w-full rounded-panel p-4';
 
   return (
     <div
@@ -102,12 +103,12 @@ export default function OnlineLobby({
       style={{ background: GAME_BG }}
     >
       <div className="flex w-full max-w-md flex-col items-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent-cyan text-white shadow-premium">
+        <div className="holo-border flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-space-2 to-space-3 text-white">
           <GameArt id={game.id} className="h-12 w-12" />
         </div>
-        <h1 className="font-cyber mt-4 text-2xl">{t(game.nameKey)}</h1>
-        <p className="font-dot mt-1 flex items-center gap-2 text-sm text-white/60">
-          🌐 {t('online.title')}
+        <h1 className="font-display mt-4 text-2xl text-white">{t(game.nameKey)}</h1>
+        <p className="mt-1 flex items-center gap-2 text-sm text-white/60">
+          <Icon name="globe" className="h-4 w-4" /> {t('online.title')}
           {typeof elo === 'number' && (
             <span className="rounded-md bg-white/10 px-2 py-0.5 text-xs text-accent-cyan">
               {t(`online.rank.${eloRank(elo).id}`)} · {elo}
@@ -117,11 +118,16 @@ export default function OnlineLobby({
 
         {mode === 'searching' ? (
           <div className={`${card} mt-7 text-center`}>
-            <div className="text-3xl">🔎</div>
-            <p className="mt-2 animate-pulse text-sm text-white/70">{t('online.searching')}</p>
+            <div className="relative mx-auto flex h-16 w-16 items-center justify-center">
+              <span className="absolute inset-0 animate-ping rounded-full bg-iris-violet/30 motion-reduce:hidden" />
+              <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta text-white shadow-glow">
+                <Icon name="swords" className="h-6 w-6" />
+              </span>
+            </div>
+            <p className="mt-3 text-sm text-white/70">{t('online.searching')}</p>
             <button
               onClick={() => void cancelQuick()}
-              className="mt-4 rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/12 transition hover:bg-white/15"
+              className="tap-target mt-4 rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/12 transition hover:bg-white/15"
             >
               {t('online.cancel')}
             </button>
@@ -130,17 +136,21 @@ export default function OnlineLobby({
           <div className="mt-7 flex w-full flex-col gap-3">
             <button
               onClick={() => void startQuick()}
-              className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-5 py-4 font-semibold text-white shadow-premium transition active:scale-[0.98]"
+              className="flex min-h-[64px] items-center justify-between rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta px-5 py-4 font-semibold text-white shadow-glow transition active:scale-[0.98]"
             >
-              <span className="text-lg">⚡ {t('online.quickMatch')}</span>
-              <span className="text-sm text-white/80">{t('online.quickMatchHint')}</span>
+              <span className="flex items-center gap-2 font-display text-lg">
+                <Icon name="zap" className="h-5 w-5" /> {t('online.quickMatch')}
+              </span>
+              <span className="text-sm text-white/85">{t('online.quickMatchHint')}</span>
             </button>
 
             <button
               onClick={() => void createRoom()}
-              className="flex items-center justify-between rounded-2xl bg-white/[0.07] px-5 py-4 font-semibold text-white ring-1 ring-white/12 transition hover:bg-white/12 active:scale-[0.98]"
+              className="glass-panel flex min-h-[64px] items-center justify-between rounded-2xl px-5 py-4 font-semibold text-white transition hover:bg-white/10 active:scale-[0.98]"
             >
-              <span className="text-lg">🔗 {t('online.createRoom')}</span>
+              <span className="flex items-center gap-2 font-display text-lg">
+                <Icon name="globe" className="h-5 w-5" /> {t('online.createRoom')}
+              </span>
               <span className="text-sm text-white/50">{t('online.createRoomHint')}</span>
             </button>
 
@@ -154,12 +164,12 @@ export default function OnlineLobby({
                     maxLength={4}
                     autoFocus
                     placeholder="ABCD"
-                    className="min-w-0 flex-1 rounded-xl border border-white/15 bg-white/[0.06] px-3 py-2 text-center text-lg font-bold tracking-[0.3em] text-white outline-none focus:border-brand"
+                    className="min-h-[44px] min-w-0 flex-1 rounded-xl border border-white/15 bg-white/[0.06] px-3 py-2 text-center text-lg font-bold tracking-[0.3em] text-white outline-none focus:border-iris-violet"
                   />
                   <button
                     onClick={() => void joinRoom()}
                     disabled={code.trim().length < 4}
-                    className="shrink-0 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brandDark disabled:opacity-50"
+                    className="min-h-[44px] shrink-0 rounded-xl bg-gradient-to-r from-iris-cyan to-iris-violet px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
                   >
                     {t('online.join')}
                   </button>
@@ -168,9 +178,11 @@ export default function OnlineLobby({
             ) : (
               <button
                 onClick={() => setMode('joining')}
-                className="flex items-center justify-between rounded-2xl bg-white/[0.07] px-5 py-4 font-semibold text-white ring-1 ring-white/12 transition hover:bg-white/12 active:scale-[0.98]"
+                className="glass-panel flex min-h-[64px] items-center justify-between rounded-2xl px-5 py-4 font-semibold text-white transition hover:bg-white/10 active:scale-[0.98]"
               >
-                <span className="text-lg">⌨️ {t('online.joinRoom')}</span>
+                <span className="flex items-center gap-2 font-display text-lg">
+                  <Icon name="signin" className="h-5 w-5" /> {t('online.joinRoom')}
+                </span>
                 <span className="text-sm text-white/50">{t('online.joinRoomHint')}</span>
               </button>
             )}

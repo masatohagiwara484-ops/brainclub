@@ -23,7 +23,7 @@ export default function AccountPanel() {
 
   if (cloud.status === 'disabled') return null;
 
-  const card = 'rounded-2xl border border-white/10 bg-white/[0.05] p-4';
+  const card = 'glass-panel rounded-panel p-4';
 
   // ---- signed out: magic-link sign-in ----
   if (cloud.status === 'signed-out') {
@@ -39,7 +39,7 @@ export default function AccountPanel() {
     }
     return (
       <div className={card}>
-        <h2 className="font-dot text-sm font-semibold text-white/80">{t('account.title')}</h2>
+        <h2 className="font-display text-sm text-white/80">{t('account.title')}</h2>
         <p className="mt-1 text-xs leading-snug text-white/45">{t('account.cloudHint')}</p>
 
         {/* One-tap OAuth (lowest friction) */}
@@ -47,16 +47,16 @@ export default function AccountPanel() {
           <button
             onClick={() => void signInWithProvider('google')}
             disabled={cloud.busy}
-            className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] py-2 text-sm font-semibold text-white transition hover:bg-white/[0.1] disabled:opacity-50"
+            className="min-h-[44px] rounded-xl border border-white/15 bg-white/[0.06] py-2 text-sm font-semibold text-white transition hover:bg-white/[0.1] disabled:opacity-50"
           >
-            <span aria-hidden>🔵</span> {t('account.continueGoogle')}
+            {t('account.continueGoogle')}
           </button>
           <button
             onClick={() => void signInWithProvider('apple')}
             disabled={cloud.busy}
-            className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] py-2 text-sm font-semibold text-white transition hover:bg-white/[0.1] disabled:opacity-50"
+            className="min-h-[44px] rounded-xl border border-white/15 bg-white/[0.06] py-2 text-sm font-semibold text-white transition hover:bg-white/[0.1] disabled:opacity-50"
           >
-            <span aria-hidden></span> {t('account.continueApple')}
+            {t('account.continueApple')}
           </button>
         </div>
 
@@ -77,12 +77,12 @@ export default function AccountPanel() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t('account.emailPlaceholder')}
-            className="min-w-0 flex-1 rounded-xl border border-white/15 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none placeholder:text-white/35 focus:border-brand"
+            className="min-h-[44px] min-w-0 flex-1 rounded-xl border border-white/15 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none placeholder:text-white/35 focus:border-iris-violet"
           />
           <button
             type="submit"
             disabled={cloud.busy}
-            className="shrink-0 rounded-xl bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-brandDark disabled:opacity-50"
+            className="min-h-[44px] shrink-0 rounded-xl bg-gradient-to-r from-iris-cyan to-iris-violet px-3 py-2 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
           >
             {cloud.busy ? t('account.sending') : t('account.sendLink')}
           </button>

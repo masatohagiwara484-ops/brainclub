@@ -85,11 +85,11 @@ export default function CountdownOverlay({
   const key = String(step);
   const { color, glow } = STYLE[key];
   const isGo = step === 'go';
-  const label = isGo ? t('countdown.go', { defaultValue: 'GO!' }) : String(step);
+  const label = isGo ? t('countdown.go') : String(step);
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-950/70 backdrop-blur-xl"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-space-0/75 backdrop-blur-xl"
       initial={{ opacity: reduced ? 1 : 0 }}
       animate={{ opacity: leaving ? 0 : 1 }}
       transition={{ duration: leaving ? FADE_MS / 1000 : 0.18, ease: 'easeOut' }}
