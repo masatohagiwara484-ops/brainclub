@@ -207,7 +207,7 @@ export default function PokerGame({ difficulty = 'medium' }: GameProps) {
       {/* Action bar */}
       <div className="min-h-[88px] px-3 pb-5 pt-2">
         {isHandOver ? (
-          <button onClick={nextHand} className="mx-auto block w-full max-w-xs rounded-2xl bg-gradient-to-r from-primary to-accent-cyan py-3 text-base font-bold text-white shadow-premium active:scale-95">
+          <button onClick={nextHand} className="mx-auto block w-full max-w-xs rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta py-3 text-base font-bold text-white shadow-glow active:scale-95">
             {t('poker.nextHand')}
           </button>
         ) : la ? (

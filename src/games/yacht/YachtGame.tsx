@@ -168,7 +168,7 @@ export default function YachtGame(_: GameProps) {
           <p className="max-w-xs text-sm leading-relaxed text-white/65">{t('yacht.help')}</p>
           <button
             onClick={() => start('daily')}
-            className="w-64 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-6 py-4 text-lg font-bold text-white shadow-premium active:scale-95"
+            className="w-64 rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta px-6 py-4 text-lg font-bold text-white shadow-premium active:scale-95"
           >
             {t('yacht.daily')}
             <span className="mt-0.5 block text-xs font-medium text-white/80">{t('yacht.dailySub')}</span>
@@ -240,7 +240,7 @@ export default function YachtGame(_: GameProps) {
             disabled={rollsLeft <= 0}
             className={`rounded-2xl px-7 py-3 text-base font-bold shadow-premium transition active:scale-95 ${
               rollsLeft > 0
-                ? 'bg-gradient-to-r from-primary to-accent-cyan text-white'
+                ? 'bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta text-white'
                 : 'cursor-not-allowed bg-white/[0.06] text-white/40'
             }`}
           >

@@ -121,7 +121,7 @@ export default function ReactionGame(_: GameProps) {
             <div className="text-5xl">⚡</div>
             <h2 className="font-cyber mt-3 text-2xl">{t('games.reaction.name')}</h2>
             <p className="mt-2 max-w-xs px-6 text-sm text-white/60">{t('reaction.howto')}</p>
-            <span className="mt-5 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-8 py-3 text-lg font-bold text-white shadow-premium">{t('reaction.start')}</span>
+            <span className="mt-5 rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta px-8 py-3 text-lg font-bold text-white shadow-premium">{t('reaction.start')}</span>
           </>
         )}
         {phase === 'waiting' && <div className="text-2xl font-bold">{t('reaction.wait')}</div>}

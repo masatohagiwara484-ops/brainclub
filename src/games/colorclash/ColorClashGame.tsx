@@ -196,7 +196,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">{t('colorclash.howto')}</p>
           <button
             onClick={start}
-            className="mt-6 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-8 py-3 text-lg font-bold text-white shadow-premium active:scale-95"
+            className="mt-6 rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta px-8 py-3 text-lg font-bold text-white shadow-premium active:scale-95"
           >
             {t('colorclash.start')}
           </button>
@@ -265,7 +265,7 @@ export default function ColorClashGame({ difficulty = 'easy' }: GameProps) {
             <p className="mt-3 text-4xl font-black tabular-nums text-accent-cyan">{score}</p>
             <button
               onClick={revive}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan py-3.5 font-bold uppercase tracking-wide text-white shadow-premium active:scale-95"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta py-3.5 font-bold uppercase tracking-wide text-white shadow-premium active:scale-95"
             >
               ▶ {monet.showAds() ? t('colorclash.revive') : t('colorclash.continueFree')}
             </button>

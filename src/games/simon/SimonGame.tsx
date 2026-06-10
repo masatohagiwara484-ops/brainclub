@@ -126,7 +126,7 @@ export default function SimonGame(_: GameProps) {
           <div className="text-5xl">🎶</div>
           <h2 className="font-cyber mt-3 text-2xl">{t('games.simon.name')}</h2>
           <p className="mt-2 max-w-xs text-sm text-white/60">{t('simon.howto')}</p>
-          <button onClick={start} className="mt-6 rounded-2xl bg-gradient-to-r from-primary to-accent-cyan px-8 py-3 text-lg font-bold text-white shadow-premium active:scale-95">
+          <button onClick={start} className="mt-6 rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta px-8 py-3 text-lg font-bold text-white shadow-premium active:scale-95">
             {t('simon.start')}
           </button>
         </div>

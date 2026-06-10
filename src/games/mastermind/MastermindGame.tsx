@@ -171,7 +171,7 @@ export default function MastermindGame({ difficulty = 'easy' }: GameProps) {
           <button
             onClick={submit}
             disabled={!full}
-            className="w-full rounded-2xl bg-gradient-to-r from-primary to-accent-cyan py-3 font-bold text-white shadow-premium disabled:opacity-40"
+            className="w-full rounded-2xl bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta py-3 font-bold text-white shadow-premium disabled:opacity-40"
           >
             {t('mastermind.guess')}
           </button>

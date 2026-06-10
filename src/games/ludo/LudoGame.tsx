@@ -532,7 +532,7 @@ export default function LudoGame({ difficulty = 'medium' }: GameProps) {
           disabled={!canRoll}
           className={`rounded-2xl px-6 py-3 text-base font-bold shadow-premium transition active:scale-95 ${
             canRoll
-              ? 'bg-gradient-to-r from-primary to-accent-cyan text-white'
+              ? 'bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta text-white'
               : 'cursor-not-allowed bg-white/[0.06] text-white/40'
           }`}
         >

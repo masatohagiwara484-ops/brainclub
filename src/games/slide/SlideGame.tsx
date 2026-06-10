@@ -121,7 +121,7 @@ export default function SlideGame({ difficulty = 'easy' }: GameProps) {
                 key={i}
                 onClick={() => tap(i)}
                 className={`aspect-square rounded-xl text-xl font-bold tabular-nums shadow-sm transition active:scale-95 ${
-                  movable.has(i) ? 'bg-gradient-to-br from-primary to-accent-cyan text-white' : 'bg-white/[0.08] text-white ring-1 ring-white/10'
+                  movable.has(i) ? 'bg-gradient-to-br from-iris-cyan via-iris-violet to-iris-magenta text-white' : 'bg-white/[0.08] text-white ring-1 ring-white/10'
                 }`}
               >
                 {v}
