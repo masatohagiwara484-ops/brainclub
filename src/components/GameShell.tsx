@@ -11,8 +11,10 @@ import { difficultyKey, DIFFICULTY_STYLE, type Difficulty } from '../lib/difficu
 // typography, color and motion stay consistent across the whole app.
 // ============================================================================
 
-// The one dark backdrop shared by every game — the source of cross-game cohesion.
-export const GAME_BG = 'radial-gradient(120% 80% at 50% 0%, #1b2440 0%, #0d1322 58%, #080b14 100%)';
+// The one dark backdrop shared by every game — the source of cross-game
+// cohesion, on the HOLO deep-space palette with a faint indigo aurora.
+export const GAME_BG =
+  'radial-gradient(58% 42% at 18% -8%, rgba(99, 102, 241, 0.14) 0%, transparent 64%), radial-gradient(120% 80% at 50% 0%, #161b36 0%, #0e1226 58%, #05060d 100%)';
 
 export function ShellButton({
   children,
@@ -29,7 +31,7 @@ export function ShellButton({
     <button
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`rounded-xl bg-white/[0.08] px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-white/15 backdrop-blur-sm transition hover:bg-white/[0.14] active:scale-95 ${className}`}
+      className={`min-h-[44px] rounded-xl bg-white/[0.08] px-3.5 py-1.5 text-sm font-semibold text-white ring-1 ring-white/15 backdrop-blur-sm transition hover:bg-white/[0.14] active:scale-95 ${className}`}
     >
       {children}
     </button>

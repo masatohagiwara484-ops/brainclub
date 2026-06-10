@@ -8,6 +8,7 @@ import { sound } from '../lib/sound';
 import { haptics } from '../lib/haptics';
 import { useSynapse, synapseScore, AXES, type Axis } from '../lib/synapse';
 import { tierProgress } from '../lib/tiers';
+import { Icon } from './Icons';
 
 // ============================================================================
 // GameResultScreen — the universal, Cygames-grade "reward" screen every game
@@ -118,9 +119,7 @@ function ActionButton({
       }`}
       style={primary ? { background: `linear-gradient(100deg, ${base}, ${accent})`, boxShadow: `0 12px 30px -10px ${glow}99` } : undefined}
     >
-      {share && (
-        <span aria-hidden>↗</span>
-      )}
+      {share && <Icon name="share" className="h-5 w-5" />}
       {label}
     </motion.button>
   );
@@ -200,14 +199,16 @@ export default function GameResultScreen({
     reduced ? { duration: 0 } : { type: 'spring', stiffness: 90, damping: 20, delay };
 
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-5 backdrop-blur-xl">
+    // `my-auto` (not items-center) so a card taller than a short phone's screen
+    // scrolls from its top instead of clipping both ends off-screen.
+    <div className="absolute inset-0 z-20 flex justify-center overflow-y-auto bg-space-0/70 p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] backdrop-blur-xl">
       <motion.div
         initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 24 }}
         animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
         transition={reduced ? { duration: 0.18 } : { type: 'spring', stiffness: 360, damping: 28 }}
-        className="relative w-full max-w-sm overflow-hidden rounded-[1.75rem] p-6 text-center text-white ring-1 ring-white/10"
+        className="relative my-auto h-fit w-full max-w-sm overflow-hidden rounded-[1.75rem] p-6 text-center text-white ring-1 ring-white/10"
         style={{
-          background: 'linear-gradient(180deg, #1a2238 0%, #0d1322 60%, #080c16 100%)',
+          background: 'linear-gradient(180deg, #161b36 0%, #0e1226 60%, #090b18 100%)',
           boxShadow: `0 30px 80px -20px ${glow}66, 0 8px 24px -8px rgba(0,0,0,0.6)`,
         }}
       >
@@ -228,7 +229,7 @@ export default function GameResultScreen({
                 transition={reduced ? { duration: 0.2 } : { type: 'spring', stiffness: 500, damping: 14, delay: 0.45 }}
                 className="mx-auto mb-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-300 to-amber-500 px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-wide text-amber-950 shadow-lg"
               >
-                ✨ {t('result.newBest', { defaultValue: 'New Personal Best!' })}
+                <Icon name="sparkles" className="h-3.5 w-3.5" /> {t('result.newBest')}
               </motion.div>
             )}
           </AnimatePresence>
@@ -250,7 +251,7 @@ export default function GameResultScreen({
               className="text-[11px] font-bold uppercase tracking-[0.35em]"
               style={{ color: glow }}
             >
-              {t('result.brainBoosted', { defaultValue: 'BRAIN BOOSTED!' })}
+              {t('result.brainBoosted')}
             </motion.div>
           )}
 
@@ -280,7 +281,7 @@ export default function GameResultScreen({
               variants={item}
               className="mx-auto mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/15"
             >
-              ⚡ {levelUp}
+              <Icon name="zap" className="h-3.5 w-3.5 text-amber-300" /> {levelUp}
             </motion.div>
           )}
 
@@ -330,7 +331,7 @@ export default function GameResultScreen({
           {hasSynapse && (
             <motion.div variants={item} className="mt-5 rounded-2xl bg-white/[0.04] p-4 ring-1 ring-white/10">
               <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">
-                {t('result.synapseScore', { defaultValue: 'Synapse Score' })}
+                {t('result.synapseScore')}
               </div>
               <div
                 className="font-display text-5xl leading-none tabular-nums"
@@ -363,12 +364,8 @@ export default function GameResultScreen({
               </div>
               <div className="mt-1.5 text-right text-[10px] text-white/40">
                 {next
-                  ? t('result.toNext', {
-                      n: toNext,
-                      tier: t(next.nameKey),
-                      defaultValue: `${toNext} to ${t(next.nameKey)}`,
-                    })
-                  : t('result.maxTier', { defaultValue: 'Peak tier reached' })}
+                  ? t('result.toNext', { n: toNext, tier: t(next.nameKey) })
+                  : t('result.maxTier')}
               </div>
 
               {/* Axis meters — a compact, dark-friendly Synapse profile. */}
@@ -419,7 +416,7 @@ export default function GameResultScreen({
                   <>
                     {onPlayAgain && (
                       <ActionButton
-                        label={playAgainLabel ?? t('result.playAgain', { defaultValue: 'Play Again' })}
+                        label={playAgainLabel ?? t('result.playAgain')}
                         onClick={onPlayAgain}
                         primary
                         reduced={reduced}
@@ -430,7 +427,7 @@ export default function GameResultScreen({
                     )}
                     {onShare && (
                       <ActionButton
-                        label={shareLabel ?? t('result.share', { defaultValue: 'Share Result' })}
+                        label={shareLabel ?? t('result.share')}
                         onClick={onShare}
                         primary={false}
                         share
