@@ -23,7 +23,17 @@
 - **アニメ/演出ライブラリ**: `framer-motion`, `canvas-confetti`, `@react-three/fiber@^8` + `@react-three/drei@^9`
   （※ R3F は **React 18 互換の v8 系で固定**。最新 v9 は React 19 必須なので不可。drei は重いので**実際に使う機能だけ import**＝未使用なら本番バンドルに載らない）
 
-## 🎨 プレミアム・デザインシステム（Cygames級の統一感）
+## 🎨 HOLO 2.0 デザインシステム（全面刷新・現行）
+> **2026年の全面リニューアル**: 「人に使えるレベルではない」という指摘を受け、UI/UXを **HOLO 2.0（ホログラフィック・プレミアム）** へ全面刷新。
+> **契約書 = `.claude/skills/holo-design/SKILL.md`**（UIを触る前に必読・全エージェント拘束）。アートディレクション=深宇宙の闇＋フロストガラス＋虹色スイープ(cyan→violet→magenta)。
+- **新技術スタック**: `lucide-react`(アイコン), `@use-gesture/react`, `clsx`+`tailwind-merge`(`lib/cn.ts`), `class-variance-authority`(Buttonのvariant), `@react-three/postprocessing`。表示フォント=**Space Grotesk**(`.font-display`)。
+- **トークン**（`styles/index.css` `:root` → `tailwind.config.js`）: 背景 `space-0..3`、虹色 `iris-cyan/violet/magenta`、`--iris-sweep`、グロー `shadow-glow-sm/glow/glow-lg`、ガラス `--glass-*`。
+- **ユーティリティ**: `.glass-panel`(全カード/シート), `.text-iris`(ヒーロー見出し1画面1つ), `.holo-border`(回転虹枠・画面の主役1つ), `.bg-aurora`(非ゲーム背景), `.holo-halo`, `.pt-safe/.pb-safe/.px-safe`(セーフエリア必須), `.tap-target`(44px必須)。
+- **共通部品**（再利用必須・複製禁止）: `components/Button.tsx`(CVA・全サイズ≥44px), `components/Icons.tsx`(`<Icon name>`=lucide・**絵文字をUIアイコンに使わない**), `components/Skeleton.tsx`(全非同期ローディング), `components/GameTile.tsx`(ホームの統一ゲームカード), `components/DailyRitual.tsx`。
+- **鉄則**: 絵文字アイコン禁止/タッチ44px/セーフエリア/1画面1ヒーロー/reduced-motion対応/全文言i18n(en+ja・`defaultValue`残さない)/全非同期にSkeleton＋空状態。
+- **レガシー**: 旧 `.font-cyber`/`.font-dot`(DotGothic16ピクセル) は **Space Grotesk へ再ポイント済**（11ゲームHUDが一括モダン化、クラス名は互換維持）。新規は `.font-display` を使う。`GAME_BG`(GameShell)とスプラッシュ/結果画面も深宇宙パレットへ移行済。
+
+### 旧プレミアム路線（参考・一部トークンは併存）
 > **方針転換**: 当初の「chess.com風・低アセット」から、**Cygamesインスパイアの濃く鮮やかなプレミアム路線**へ全面刷新中。
 > 「安っぽいゲーム感」ではなく「上質でモダン」を目指す。色遷移・余白・タイポ階層すべてを“高級”に。
 - **ブランド色 = プレミアム・インディゴ `#6366F1`**（旧 `#2563eb` 青から変更）。
