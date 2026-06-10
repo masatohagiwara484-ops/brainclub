@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useGameSkin, CUBE_STICKERS } from '../../lib/gameSkins';
+import SkinPicker from '../../components/SkinPicker';
+import { Icon } from '../../components/Icons';
 import { CubeEngine, type CubeStats } from './cubeEngine';
 import { saveBest } from '../../lib/storage';
 import { share } from '../../lib/share';
@@ -24,6 +27,8 @@ function fmt(seconds: number): string {
 
 export default function CubeGame() {
   const { t } = useTranslation();
+  const theme = useGameSkin('cube');
+  const [showSkins, setShowSkins] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<CubeEngine | null>(null);
 
@@ -36,6 +41,7 @@ export default function CubeGame() {
   useEffect(() => {
     const canvas = canvasRef.current!;
     const engine = new CubeEngine(canvas, {
+      stickers: CUBE_STICKERS[theme.id],
       onStats: setStats,
       onSolved: (s) => {
         const sz = engineRef.current?.size ?? 3;
@@ -64,7 +70,7 @@ export default function CubeGame() {
       engine.dispose();
       engineRef.current = null;
     };
-  }, []);
+  }, [theme.id]); // skin change rebuilds the cube with its sticker palette
 
   const changeSize = (n: number) => {
     setSize(n);
@@ -115,11 +121,17 @@ export default function CubeGame() {
       </div>
 
       {/* Controls */}
+      {showSkins && (
+        <div className="absolute bottom-32 left-1/2 w-full max-w-md -translate-x-1/2 px-3">
+          <SkinPicker gameId="cube" className="w-full" />
+        </div>
+      )}
       <div className="absolute bottom-4 left-1/2 grid w-[min(18rem,calc(100%-2rem))] -translate-x-1/2 grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:justify-center">
         <Btn onClick={() => engineRef.current?.scramble()}>{t('cube.scramble')}</Btn>
         <Btn onClick={() => engineRef.current?.undo()}>{t('cube.undo')}</Btn>
         <Btn onClick={() => { setWin(null); setLevelUp(null); engineRef.current?.reset(); }}>{t('cube.reset')}</Btn>
         <Btn onClick={() => engineRef.current?.resetView()}>{t('cube.view')}</Btn>
+        <Btn onClick={() => setShowSkins((v) => !v)}><Icon name="sparkles" className="h-4 w-4" /></Btn>
       </div>
 
       {/* Win modal */}

@@ -16,6 +16,9 @@ import { haptics } from '../../lib/haptics';
 import { difficultyKey, DIFFICULTY_STYLE } from '../../lib/difficulty';
 import { recordPlay, difficultyQuality, XP_WEIGHT } from '../../lib/synapse';
 import { getGame } from '../registry';
+import { useGameSkin } from '../../lib/gameSkins';
+import SkinPicker from '../../components/SkinPicker';
+import { Icon } from '../../components/Icons';
 import GameResultScreen from '../../components/GameResultScreen';
 import type { GameProps } from '../types';
 
@@ -45,6 +48,8 @@ function geom(w: number, h: number): Geom {
 
 export default function GomokuGame({ difficulty = 'medium', online }: GameProps) {
   const { t } = useTranslation();
+  const theme = useGameSkin('gomoku');
+  const [showSkins, setShowSkins] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -155,14 +160,14 @@ export default function GomokuGame({ difficulty = 'medium', online }: GameProps)
     const { step, ox, oy } = geom(w, h);
     const boardPx = step * (SIZE - 1);
 
-    // Wooden board.
-    ctx.fillStyle = '#d9a55b';
+    // Board (skin-driven).
+    ctx.fillStyle = theme.boardA;
     const margin = step * 0.7;
     roundRect(ctx, ox - margin, oy - margin, boardPx + margin * 2, boardPx + margin * 2, 10);
     ctx.fill();
 
     // Grid lines.
-    ctx.strokeStyle = 'rgba(60,40,15,0.85)';
+    ctx.strokeStyle = theme.line;
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let i = 0; i < SIZE; i++) {
@@ -175,7 +180,7 @@ export default function GomokuGame({ difficulty = 'medium', online }: GameProps)
     ctx.stroke();
 
     // Star points.
-    ctx.fillStyle = 'rgba(60,40,15,0.9)';
+    ctx.fillStyle = theme.line;
     for (const [sx, sy] of STARS) {
       ctx.beginPath();
       ctx.arc(ox + sx * step, oy + sy * step, Math.max(2, step * 0.08), 0, Math.PI * 2);
@@ -199,11 +204,11 @@ export default function GomokuGame({ difficulty = 'medium', online }: GameProps)
           r,
         );
         if (c === BLACK) {
-          grad.addColorStop(0, '#555');
-          grad.addColorStop(1, '#0a0a0a');
+          grad.addColorStop(0, theme.dark[0]);
+          grad.addColorStop(1, theme.dark[1]);
         } else {
-          grad.addColorStop(0, '#fff');
-          grad.addColorStop(1, '#c9ccd2');
+          grad.addColorStop(0, theme.light[0]);
+          grad.addColorStop(1, theme.light[1]);
         }
         ctx.fillStyle = grad;
         ctx.beginPath();
@@ -216,13 +221,13 @@ export default function GomokuGame({ difficulty = 'medium', online }: GameProps)
     if (last != null) {
       const lx = last % SIZE;
       const ly = Math.floor(last / SIZE);
-      ctx.strokeStyle = '#5b8cff';
+      ctx.strokeStyle = theme.glow;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(ox + lx * step, oy + ly * step, r * 0.55, 0, Math.PI * 2);
       ctx.stroke();
     }
-  }, [board, last]);
+  }, [board, last, theme]);
 
   useEffect(() => {
     draw();
@@ -394,15 +399,19 @@ export default function GomokuGame({ difficulty = 'medium', online }: GameProps)
       </div>
 
       {/* Controls */}
-      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-wrap justify-center gap-2">
-        {online ? (
-          status === 'playing' && <Btn onClick={() => online.resign()}>{t('online.resign')}</Btn>
-        ) : (
-          <>
-            <Btn onClick={newGame}>{t('gomoku.newGame')}</Btn>
-            <Btn onClick={undo}>{t('gomoku.undo')}</Btn>
-          </>
-        )}
+      <div className="absolute bottom-4 left-1/2 flex w-full max-w-md -translate-x-1/2 flex-col items-center gap-2 px-3">
+        {showSkins && <SkinPicker gameId="gomoku" className="w-full" />}
+        <div className="flex flex-wrap justify-center gap-2">
+          {online ? (
+            status === 'playing' && <Btn onClick={() => online.resign()}>{t('online.resign')}</Btn>
+          ) : (
+            <>
+              <Btn onClick={newGame}>{t('gomoku.newGame')}</Btn>
+              <Btn onClick={undo}>{t('gomoku.undo')}</Btn>
+            </>
+          )}
+          <Btn onClick={() => setShowSkins((v) => !v)}><Icon name="sparkles" className="h-4 w-4" /></Btn>
+        </div>
       </div>
 
       {/* Result modal */}

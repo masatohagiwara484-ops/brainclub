@@ -19,7 +19,11 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { haptics } from '../../lib/haptics';
 import { makeRng } from '../../lib/daily';
 
-const COLORS = {
+export type StickerPalette = {
+  right: number; left: number; up: number; down: number; front: number; back: number;
+};
+
+const DEFAULT_COLORS = {
   right: 0xff3b30, // +X red
   left: 0xff9500, // -X orange
   up: 0xffffff, // +Y white
@@ -48,6 +52,8 @@ export type CubeStats = { moves: number; seconds: number; running: boolean };
 export type CubeOptions = {
   onStats?: (s: CubeStats) => void;
   onSolved?: (s: CubeStats) => void;
+  /** Optional skin: sticker colors per face (lib/gameSkins CUBE_STICKERS). */
+  stickers?: Partial<StickerPalette>;
 };
 
 type Move = { axis: Axis; layer: number; dir: number };
@@ -81,9 +87,12 @@ export class CubeEngine {
   private opts: CubeOptions;
   private disposed = false;
 
+  private colors: Record<keyof typeof DEFAULT_COLORS, number>;
+
   constructor(canvas: HTMLCanvasElement, opts: CubeOptions = {}) {
     this.canvas = canvas;
     this.opts = opts;
+    this.colors = { ...DEFAULT_COLORS, ...(opts.stickers ?? {}) };
 
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -234,7 +243,7 @@ export class CubeEngine {
             if (face === 'front' && z === n - 1) show = true;
             if (face === 'back' && z === 0) show = true;
             return new THREE.MeshStandardMaterial({
-              color: show ? COLORS[face] : COLORS.inside,
+              color: show ? this.colors[face] : this.colors.inside,
               roughness: 0.45,
               metalness: 0.0,
             });
@@ -373,7 +382,7 @@ export class CubeEngine {
     });
     if (best < 0.9) return null;
     const col = (mesh.material as THREE.MeshStandardMaterial[])[bestIdx].color.getHex();
-    if (col === COLORS.inside) return null;
+    if (col === this.colors.inside) return null;
     return col;
   }
 
