@@ -1,11 +1,26 @@
 {
-  "selector": { "hint": "Drag to explore · tap to play", "play": "Play", "loading": "Loading…" },
-  "countdown": { "go": "GO!" },
+  "selector": {
+    "hint": "Drag to explore · tap to play",
+    "play": "Play",
+    "loading": "Loading…"
+  },
+  "countdown": {
+    "go": "GO!"
+  },
   "app": {
     "name": "BrainClub",
     "tagline": "A worldwide club of brain games. Train your mind, every day."
   },
-  "nav": { "home": "Home", "score": "Score", "leaderboard": "Ranks", "subscription": "Premium", "settings": "Settings", "back": "Back", "profile": "Profile", "tabs": "Main navigation" },
+  "nav": {
+    "home": "Home",
+    "score": "Score",
+    "leaderboard": "Ranks",
+    "subscription": "Premium",
+    "settings": "Settings",
+    "back": "Back",
+    "profile": "Profile",
+    "tabs": "Main navigation"
+  },
   "leaderboard": {
     "title": "Leaderboard",
     "sub": "Compete on today's boards and climb the global ladder.",
@@ -74,8 +89,18 @@
     "compare": "Compare plans",
     "feature": "Feature",
     "plans": {
-      "plus": { "name": "Plus", "price": "$4.99", "per": "per month", "tagline": "Ad-free + every skin" },
-      "pro": { "name": "Pro", "price": "$9.99", "per": "per month", "tagline": "Everything, plus pro stats" }
+      "plus": {
+        "name": "Plus",
+        "price": "$4.99",
+        "per": "per month",
+        "tagline": "Ad-free + every skin"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "$9.99",
+        "per": "per month",
+        "tagline": "Everything, plus pro stats"
+      }
     },
     "skins": {
       "default": "Classic Blue",
@@ -272,7 +297,12 @@
     "winnerIs": "{{color}} got all four home",
     "share": "Share",
     "again": "Play again",
-    "colors": { "0": "Red", "1": "Green", "2": "Yellow", "3": "Blue" },
+    "colors": {
+      "0": "Red",
+      "1": "Green",
+      "2": "Yellow",
+      "3": "Blue"
+    },
     "help": "Roll a 6 to bring a token out, then race all four around the board and up your colour's lane to the centre. Land on an opponent (off a ★ safe cell) to send it back home. Roll a 6, capture, or finish a token for another roll. First to get all four home wins."
   },
   "yacht": {
@@ -544,7 +574,11 @@
     "plays": "Plays",
     "play": "Play to grow your brain profile."
   },
-  "share": { "shared": "Shared!", "copied": "Copied to clipboard!", "failed": "Could not share." },
+  "share": {
+    "shared": "Shared!",
+    "copied": "Copied to clipboard!",
+    "failed": "Could not share."
+  },
   "result": {
     "brainBoosted": "BRAIN BOOSTED!",
     "newBest": "New Personal Best!",
@@ -555,32 +589,140 @@
     "share": "Share Result"
   },
   "games": {
-    "cube": { "name": "Rubik's Cube 3D", "tagline": "Spatial reasoning · 2×2 to 5×5" },
-    "sudoku": { "name": "Sudoku", "tagline": "Logic · infinite puzzles" },
-    "wordle": { "name": "Word Guess", "tagline": "Vocabulary · daily" },
-    "colorclash": { "name": "Color Clash", "tagline": "Reflex · Stroop test" },
-    "solitaire": { "name": "Solitaire", "tagline": "Card sorting · relaxing" },
-    "watersort": { "name": "Water Sort", "tagline": "Color logic · satisfying" },
-    "gomoku": { "name": "Gomoku", "tagline": "Five in a row · quick" },
-    "hex": { "name": "Hex", "tagline": "Strategy · connect your sides" },
-    "ludo": { "name": "Ludo", "tagline": "Race · roll & capture" },
-    "yacht": { "name": "Yacht", "tagline": "Dice · build the best hand" },
-    "blackjack": { "name": "Blackjack", "tagline": "Cards · beat the dealer" },
-    "poker": { "name": "Texas Hold'em", "tagline": "Poker · read & bet" },
-    "tetris": { "name": "Tetris", "tagline": "Blocks · clear the lines" },
-    "memory": { "name": "Memory Match", "tagline": "Recall · focus" },
-    "reaction": { "name": "Reaction", "tagline": "Reflex · how fast are you?" },
-    "simon": { "name": "Echo", "tagline": "Memory · repeat the tune" },
-    "memorygrid": { "name": "Memory Grid", "tagline": "Memory · recall the lights" },
-    "whack": { "name": "Mole Tap", "tagline": "Reflex · 30-second rush" },
-    "schulte": { "name": "Schulte Table", "tagline": "Focus · find in order" },
-    "2048": { "name": "2048", "tagline": "Logic · merge to 2048" },
-    "slide": { "name": "Slide Puzzle", "tagline": "Logic · order the tiles" },
-    "lightsout": { "name": "Lights Out", "tagline": "Logic · switch them off" },
-    "mastermind": { "name": "Code Break", "tagline": "Logic · crack the code" },
-    "minesweeper": { "name": "Minesweeper", "tagline": "Logic · clear the field" },
-    "flood": { "name": "Flood It", "tagline": "Logic · one color wins" },
-    "pegsolitaire": { "name": "Peg Solitaire", "tagline": "Logic · leave one peg" },
-    "chess": { "name": "Chess", "tagline": "Strategy · classic" }
+    "cube": {
+      "name": "Rubik's Cube 3D",
+      "tagline": "Spatial reasoning · 2×2 to 5×5"
+    },
+    "sudoku": {
+      "name": "Sudoku",
+      "tagline": "Logic · infinite puzzles"
+    },
+    "wordle": {
+      "name": "Word Guess",
+      "tagline": "Vocabulary · daily"
+    },
+    "colorclash": {
+      "name": "Color Clash",
+      "tagline": "Reflex · Stroop test"
+    },
+    "solitaire": {
+      "name": "Solitaire",
+      "tagline": "Card sorting · relaxing"
+    },
+    "watersort": {
+      "name": "Water Sort",
+      "tagline": "Color logic · satisfying"
+    },
+    "gomoku": {
+      "name": "Gomoku",
+      "tagline": "Five in a row · quick"
+    },
+    "hex": {
+      "name": "Hex",
+      "tagline": "Strategy · connect your sides"
+    },
+    "ludo": {
+      "name": "Ludo",
+      "tagline": "Race · roll & capture"
+    },
+    "yacht": {
+      "name": "Yacht",
+      "tagline": "Dice · build the best hand"
+    },
+    "blackjack": {
+      "name": "Blackjack",
+      "tagline": "Cards · beat the dealer"
+    },
+    "poker": {
+      "name": "Texas Hold'em",
+      "tagline": "Poker · read & bet"
+    },
+    "tetris": {
+      "name": "Tetris",
+      "tagline": "Blocks · clear the lines"
+    },
+    "memory": {
+      "name": "Memory Match",
+      "tagline": "Recall · focus"
+    },
+    "reaction": {
+      "name": "Reaction",
+      "tagline": "Reflex · how fast are you?"
+    },
+    "simon": {
+      "name": "Echo",
+      "tagline": "Memory · repeat the tune"
+    },
+    "memorygrid": {
+      "name": "Memory Grid",
+      "tagline": "Memory · recall the lights"
+    },
+    "whack": {
+      "name": "Mole Tap",
+      "tagline": "Reflex · 30-second rush"
+    },
+    "schulte": {
+      "name": "Schulte Table",
+      "tagline": "Focus · find in order"
+    },
+    "2048": {
+      "name": "2048",
+      "tagline": "Logic · merge to 2048"
+    },
+    "slide": {
+      "name": "Slide Puzzle",
+      "tagline": "Logic · order the tiles"
+    },
+    "lightsout": {
+      "name": "Lights Out",
+      "tagline": "Logic · switch them off"
+    },
+    "mastermind": {
+      "name": "Code Break",
+      "tagline": "Logic · crack the code"
+    },
+    "minesweeper": {
+      "name": "Minesweeper",
+      "tagline": "Logic · clear the field"
+    },
+    "flood": {
+      "name": "Flood It",
+      "tagline": "Logic · one color wins"
+    },
+    "pegsolitaire": {
+      "name": "Peg Solitaire",
+      "tagline": "Logic · leave one peg"
+    },
+    "chess": {
+      "name": "Chess",
+      "tagline": "Strategy · full rules + online"
+    }
+  },
+  "chess": {
+    "you": "You",
+    "ai": "AI",
+    "yourTurn": "Your move",
+    "aiTurn": "Thinking…",
+    "check": "Check!",
+    "gameOver": "Game over",
+    "youWin": "Checkmate — You Win!",
+    "youLose": "You Lose",
+    "draw": "Draw",
+    "newGame": "New Game",
+    "undo": "Undo",
+    "share": "Share",
+    "again": "Play Again"
+  },
+  "skins": {
+    "title": "Skins",
+    "classic": "Classic",
+    "crystal": "Crystal",
+    "diamond": "Diamond",
+    "baroque": "Baroque",
+    "cyberpunk": "Cyberpunk",
+    "darkneon": "Dark Neon",
+    "matrix": "Matrix",
+    "dragon": "Dragon",
+    "fire": "Fire"
   }
 }

@@ -377,7 +377,20 @@ export const GAMES: GameDef[] = [
     axes: { logic: 1 },
     ...lazyGame(() => import('./pegsolitaire/PegSolitaireGame')),
   },
-  { id: 'chess', nameKey: 'games.chess.name', taglineKey: 'games.chess.tagline', route: '/play/chess', category: 'recommended', emoji: '♟️', gradient: 'from-slate-500 to-slate-700', available: false },
+  {
+    id: 'chess',
+    nameKey: 'games.chess.name',
+    taglineKey: 'games.chess.tagline',
+    route: '/play/chess',
+    category: 'must-have',
+    emoji: '♟️',
+    gradient: 'from-slate-500 to-slate-700',
+    available: true,
+    hasDifficulty: true,
+    online: true,
+    axes: { logic: 0.9, memory: 0.1 },
+    ...lazyGame(() => import('./chess/ChessGame')),
+  },
 ];
 
 export function getGame(id: string): GameDef | undefined {

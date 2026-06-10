@@ -1,11 +1,26 @@
 {
-  "selector": { "hint": "ドラッグで探す · タップでプレイ", "play": "プレイ", "loading": "読み込み中…" },
-  "countdown": { "go": "GO!" },
+  "selector": {
+    "hint": "ドラッグで探す · タップでプレイ",
+    "play": "プレイ",
+    "loading": "読み込み中…"
+  },
+  "countdown": {
+    "go": "GO!"
+  },
   "app": {
     "name": "BrainClub",
     "tagline": "世界の脳トレが集まるクラブ。毎日、頭を動かそう。"
   },
-  "nav": { "home": "ホーム", "score": "スコア", "leaderboard": "ランク", "subscription": "サブスク", "settings": "設定", "back": "戻る", "profile": "プロフィール", "tabs": "メインナビゲーション" },
+  "nav": {
+    "home": "ホーム",
+    "score": "スコア",
+    "leaderboard": "ランク",
+    "subscription": "サブスク",
+    "settings": "設定",
+    "back": "戻る",
+    "profile": "プロフィール",
+    "tabs": "メインナビゲーション"
+  },
   "leaderboard": {
     "title": "リーダーボード",
     "sub": "今日のボードで競い、グローバル・ランキングを駆け上がろう。",
@@ -74,8 +89,18 @@
     "compare": "プランを比較",
     "feature": "特典",
     "plans": {
-      "plus": { "name": "Plus", "price": "¥600", "per": "月額", "tagline": "広告なし＋全スキン" },
-      "pro": { "name": "Pro", "price": "¥1,200", "per": "月額", "tagline": "全部入り＋詳細統計" }
+      "plus": {
+        "name": "Plus",
+        "price": "¥600",
+        "per": "月額",
+        "tagline": "広告なし＋全スキン"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "¥1,200",
+        "per": "月額",
+        "tagline": "全部入り＋詳細統計"
+      }
     },
     "skins": {
       "default": "クラシックブルー",
@@ -272,7 +297,12 @@
     "winnerIs": "{{color}}が4つともゴール",
     "share": "シェア",
     "again": "もう一度",
-    "colors": { "0": "赤", "1": "緑", "2": "黄", "3": "青" },
+    "colors": {
+      "0": "赤",
+      "1": "緑",
+      "2": "黄",
+      "3": "青"
+    },
     "help": "6を出すと駒が出せます。盤を一周し、自分の色のレーンから中央のゴールへ進めましょう。相手の駒に止まると（★安全マス以外）振り出しに戻せます。6・捕獲・ゴールでもう一度振れます。先に4つともゴールさせたら勝ち。"
   },
   "yacht": {
@@ -544,7 +574,11 @@
     "plays": "プレイ数",
     "play": "遊ぶほど脳のプロフィールが育ちます。"
   },
-  "share": { "shared": "シェアしました！", "copied": "コピーしました！", "failed": "シェアできませんでした。" },
+  "share": {
+    "shared": "シェアしました！",
+    "copied": "コピーしました！",
+    "failed": "シェアできませんでした。"
+  },
   "result": {
     "brainBoosted": "脳がブースト！",
     "newBest": "自己ベスト更新！",
@@ -555,32 +589,140 @@
     "share": "結果をシェア"
   },
   "games": {
-    "cube": { "name": "ルービックキューブ 3D", "tagline": "空間認識 · 2×2〜5×5" },
-    "sudoku": { "name": "ナンプレ", "tagline": "論理 · 無限の問題" },
-    "wordle": { "name": "単語当て", "tagline": "語彙 · 毎日" },
-    "colorclash": { "name": "カラークラッシュ", "tagline": "反射神経 · ストループ" },
-    "solitaire": { "name": "ソリティア", "tagline": "カード整理 · ゆったり" },
-    "watersort": { "name": "色水ソート", "tagline": "色の論理 · 爽快" },
-    "gomoku": { "name": "五目並べ", "tagline": "五目 · サクッと" },
-    "hex": { "name": "ヘックス", "tagline": "戦略 · 辺をつなぐ" },
-    "ludo": { "name": "ルドー", "tagline": "すごろく · 出して捕る" },
-    "yacht": { "name": "ヨット", "tagline": "サイコロ · 役を作る" },
-    "blackjack": { "name": "ブラックジャック", "tagline": "カード · 21を狙え" },
-    "poker": { "name": "テキサスポーカー", "tagline": "ポーカー · 読み合い" },
-    "tetris": { "name": "テトリス", "tagline": "ブロック · 列を消せ" },
-    "memory": { "name": "神経衰弱", "tagline": "記憶 · 集中" },
-    "reaction": { "name": "反応速度", "tagline": "反射 · 速さ勝負" },
-    "simon": { "name": "エコー", "tagline": "記憶 · 音をまねる" },
-    "memorygrid": { "name": "記憶グリッド", "tagline": "記憶 · 光を再現" },
-    "whack": { "name": "モグラたたき", "tagline": "反射 · 30秒勝負" },
-    "schulte": { "name": "シュルテ表", "tagline": "集中 · 順番に探す" },
-    "2048": { "name": "2048", "tagline": "論理 · 合体して2048" },
-    "slide": { "name": "スライドパズル", "tagline": "論理 · 数字を並べる" },
-    "lightsout": { "name": "ライツアウト", "tagline": "論理 · 全部消す" },
-    "mastermind": { "name": "コードブレイク", "tagline": "論理 · 暗号を解け" },
-    "minesweeper": { "name": "マインスイーパー", "tagline": "論理 · 地雷を避けて" },
-    "flood": { "name": "フラッドイット", "tagline": "論理 · 一色にする" },
-    "pegsolitaire": { "name": "ペグソリティア", "tagline": "論理 · 1個だけ残す" },
-    "chess": { "name": "チェス", "tagline": "戦略 · 王道" }
+    "cube": {
+      "name": "ルービックキューブ 3D",
+      "tagline": "空間認識 · 2×2〜5×5"
+    },
+    "sudoku": {
+      "name": "ナンプレ",
+      "tagline": "論理 · 無限の問題"
+    },
+    "wordle": {
+      "name": "単語当て",
+      "tagline": "語彙 · 毎日"
+    },
+    "colorclash": {
+      "name": "カラークラッシュ",
+      "tagline": "反射神経 · ストループ"
+    },
+    "solitaire": {
+      "name": "ソリティア",
+      "tagline": "カード整理 · ゆったり"
+    },
+    "watersort": {
+      "name": "色水ソート",
+      "tagline": "色の論理 · 爽快"
+    },
+    "gomoku": {
+      "name": "五目並べ",
+      "tagline": "五目 · サクッと"
+    },
+    "hex": {
+      "name": "ヘックス",
+      "tagline": "戦略 · 辺をつなぐ"
+    },
+    "ludo": {
+      "name": "ルドー",
+      "tagline": "すごろく · 出して捕る"
+    },
+    "yacht": {
+      "name": "ヨット",
+      "tagline": "サイコロ · 役を作る"
+    },
+    "blackjack": {
+      "name": "ブラックジャック",
+      "tagline": "カード · 21を狙え"
+    },
+    "poker": {
+      "name": "テキサスポーカー",
+      "tagline": "ポーカー · 読み合い"
+    },
+    "tetris": {
+      "name": "テトリス",
+      "tagline": "ブロック · 列を消せ"
+    },
+    "memory": {
+      "name": "神経衰弱",
+      "tagline": "記憶 · 集中"
+    },
+    "reaction": {
+      "name": "反応速度",
+      "tagline": "反射 · 速さ勝負"
+    },
+    "simon": {
+      "name": "エコー",
+      "tagline": "記憶 · 音をまねる"
+    },
+    "memorygrid": {
+      "name": "記憶グリッド",
+      "tagline": "記憶 · 光を再現"
+    },
+    "whack": {
+      "name": "モグラたたき",
+      "tagline": "反射 · 30秒勝負"
+    },
+    "schulte": {
+      "name": "シュルテ表",
+      "tagline": "集中 · 順番に探す"
+    },
+    "2048": {
+      "name": "2048",
+      "tagline": "論理 · 合体して2048"
+    },
+    "slide": {
+      "name": "スライドパズル",
+      "tagline": "論理 · 数字を並べる"
+    },
+    "lightsout": {
+      "name": "ライツアウト",
+      "tagline": "論理 · 全部消す"
+    },
+    "mastermind": {
+      "name": "コードブレイク",
+      "tagline": "論理 · 暗号を解け"
+    },
+    "minesweeper": {
+      "name": "マインスイーパー",
+      "tagline": "論理 · 地雷を避けて"
+    },
+    "flood": {
+      "name": "フラッドイット",
+      "tagline": "論理 · 一色にする"
+    },
+    "pegsolitaire": {
+      "name": "ペグソリティア",
+      "tagline": "論理 · 1個だけ残す"
+    },
+    "chess": {
+      "name": "チェス",
+      "tagline": "戦略 · 完全ルール＋オンライン"
+    }
+  },
+  "chess": {
+    "you": "あなた",
+    "ai": "AI",
+    "yourTurn": "あなたの番",
+    "aiTurn": "思考中…",
+    "check": "チェック！",
+    "gameOver": "対局終了",
+    "youWin": "チェックメイト — 勝利！",
+    "youLose": "敗北",
+    "draw": "引き分け",
+    "newGame": "新しい対局",
+    "undo": "待った",
+    "share": "シェア",
+    "again": "もう一局"
+  },
+  "skins": {
+    "title": "スキン",
+    "classic": "クラシック",
+    "crystal": "クリスタル",
+    "diamond": "ダイヤモンド",
+    "baroque": "バロック",
+    "cyberpunk": "サイバーパンク",
+    "darkneon": "ダークネオン",
+    "matrix": "マトリックス",
+    "dragon": "ドラゴン",
+    "fire": "ファイア"
   }
 }

@@ -8,5 +8,5 @@ export const DARK_GAMES = new Set<string>([
   'memory', 'mastermind', '2048', 'slide',
   'flood', 'minesweeper', 'pegsolitaire', 'reaction', 'colorclash',
   'cube', 'wordle', 'watersort', 'solitaire', 'gomoku',
-  'hex', 'ludo', 'yacht', 'blackjack', 'poker', 'tetris',
+  'hex', 'ludo', 'yacht', 'blackjack', 'poker', 'tetris', 'chess',
 ]);
