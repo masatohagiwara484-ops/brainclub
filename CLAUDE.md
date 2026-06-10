@@ -143,10 +143,10 @@ src/games/types.ts         GameProps.online（OnlineController：moves権威/sen
 - **デイリークエスト＋ストリークシールド ✅**: `lib/quests.ts`=全員同一の3クエスト/日(7テンプレからseed抽選)、`synapse.recordPlay`→`notePlay`で自動進捗、3完=Perfect Dayで`bumpStreak`。有料特典=月2回まで1日欠席を自動ブリッジ(`applyStreakShield`、DailyRitualでマウント時適用)。
 - **プロフィール2.0 ✅**: `components/ProfileCard.tsx`(バナー+フレーム付アバター+6統計+バッジ壁) + `lib/cosmetics.ts`(FRAMES=レート枠・plan制→将来単品課金、badges()=実績判定)。Profileページ先頭に表示。
 - **Liquid Glass ✅**: `.glass-panel`を液体ガラス化(blur20+saturate160%+光を受けるグラデ枠+鏡面ストリーク、2レイヤーbgなので.holo-borderと共存)。
-- **【未実装・次の設計】対戦拡張**:
-  - **Tetris等リアルタイム対戦(相手画面)**: matchesの`moves`は使わず、同じ`match:{id}`チャンネルの**broadcast**で `{board:圧縮文字列(200セル→RLE), score, lines}` をロック毎に送信→相手はミニ盤に描画。ガベージ=クリア行数-1を相手に送り下から挿入。勝敗=トップアウトで`record_match_result`。
-  - **4人対戦(ludo/blackjack/poker)**: `online-v2.sql`案=matchesに`players uuid[]`+`match_size int`+`seat_of()`、`find_match(p_game,p_size)`がキューからsize-1人原子取得。クライアントは`OnlineController`を`seats[]`対応へ拡張。ターン検証=`record_move`が`jsonb_array_length(moves) % match_size`で判定(脱落者スキップはゲーム側でno-op move)。
-  - **全2P/4PゲームのDifficultyScreenモード選択**: registry.onlineを対象ゲームに付与すれば既存の「🌐 Play Online」が自動表示(配線済みのパターン)。
+- **テトリス・リアルタイム対戦 ✅**: `realtime.ts`の`versusChannel(matchId)`=broadcastレーン(`{kind:'state'|'garbage'|'dead'}`)。両者**同一7-bag**(matchIdをFNVハッシュ→シード)、固定速度Lv3。ロック毎に`encodeBoard`(200桁文字列)で盤面ミラー→相手はサイドレールのミニ盤(`OppBoard`)に描画。攻撃=2/3/4列消しで1/2/4行のガベージ(`addGarbage`穴1つ・受信側決定的乱数)、自分の次ロック時に下から挿入。トップアウト→`dead`送信+敗北報告(Elo冪等)。ポーズ不可。`verify-tetris`にガベージ/攻撃表のassert追加済。
+- **キューブ特殊形状 ✅**: `cubeEngine`の`CubeOptions.shape`('classic'|'pillow'|'sphere'|'gem')。pillow/sphere=セグメント付きBoxGeometryの頂点を球へlerp(**6マテリアルグループが保持される**のでステッカー機構無傷)、gem=クリアコートのMeshPhysicalMaterial。`gameSkins.CUBE_SHAPES`(plus:pillow/pro:sphere,gem)+`useCubeShape`、CubeGameに形状チップ(ロック→paywall)。
+- **4人対戦 基盤 ✅(SQL+クライアント。ゲーム配線は次)**: `supabase/online-v2.sql`(**Supabaseで要実行・online.sqlの後**)=matchesに`players uuid[]`+`match_size`(1v1行はバックフィル)、RLS=`any(players)`、`find_match_n(game,size)`が size-1人を`SKIP LOCKED`で原子取得し座席シャッフル、`record_move`はN人ターン検証(`players[1+len(moves)%size]`・脱落者はゲーム側no-op move)、`record_match_result`は**勝者がK/(size-1)で各敗者とペアワイズElo**。クライアント=`realtime.ts`の`findMatchN`/`waitForAnyMatch`(カラムフィルタ無し=**RLSゲートで自分の試合だけ届く**=全座席が発見可能)/`seatOfN`/`turnSeatN`。
+  - **次のゲーム配線手順(ludo 4P例)**: ①registryに`online:true` ②OnlineGamePage/OnlineLobbyを`match_size`対応(ロビーに2人/4人選択→`findMatchN`+`waitForAnyMatch`) ③LudoGameに`online`分岐: 盤面=movesから純導出(1手={dice,token}…サイコロはmatchIdシードの決定的乱数で両者一致させる) ④脱落/切断=該当seatをAIに委譲 or no-op。
 
 ## 🗺 ロードマップ（0.1→1→10→100）
 - **0.1→1（〜2週間）**: 安定・公開・計測・シェアできる土台。キューブ修正済み✅／Vercelデプロイ／PWA／計測／X・Substack開始。← **今ここ**

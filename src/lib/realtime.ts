@@ -16,6 +16,9 @@ export type Match = {
   status: MatchStatus;
   p1: string;
   p2: string | null;
+  /** v2: seat order for N-player matches (online-v2.sql); [p1,p2] for 1v1. */
+  players?: string[];
+  match_size?: number;
   first_player: Seat;
   moves: unknown[];
   winner: string | null;
@@ -123,6 +126,46 @@ export async function fetchMatch(matchId: string): Promise<Match | null> {
   if (!supabase) return null;
   const { data } = await supabase.from('matches').select('*').eq('id', matchId).maybeSingle();
   return (data as Match) ?? null;
+}
+
+// ---- N-player matches (online-v2.sql) ----------------------------------------
+
+/** Seat number (1-based) of a user in an N-player match. */
+export function seatOfN(m: Match, uid: string): number {
+  const i = (m.players ?? [m.p1, m.p2]).indexOf(uid);
+  return i < 0 ? 0 : i + 1;
+}
+
+/** Whose seat moves next in an N-player match (eliminated seats no-op). */
+export function turnSeatN(moveCount: number, size: number): number {
+  return 1 + (moveCount % size);
+}
+
+/** Queue for an N-player match; returns the match if the table just filled. */
+export async function findMatchN(game: string, size: number): Promise<Match | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('find_match_n', { p_game: game, p_size: size });
+  if (error) throw error;
+  return (data as Match) ?? null;
+}
+
+/**
+ * Discover any new match that includes me. No column filter — Realtime
+ * delivery is RLS-gated, so the only INSERTs I can receive are my own matches
+ * (works for every seat of an N-player pairing, unlike the p1 filter).
+ */
+export function waitForAnyMatch(onMatched: (m: Match) => void): Unsub {
+  if (!supabase) return () => {};
+  const client = supabase;
+  const ch = client
+    .channel(`lobby-any:${Math.random().toString(36).slice(2)}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'matches' },
+      (payload) => onMatched(payload.new as Match),
+    )
+    .subscribe();
+  return () => void client.removeChannel(ch);
 }
 
 // ---- realtime versus (Tetris-style) ------------------------------------------
