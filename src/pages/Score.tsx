@@ -3,6 +3,7 @@ import { useSynapse, synapseScore, levelProgress, AXES } from '../lib/synapse';
 import { tierForScore } from '../lib/tiers';
 import SynapseRadar from '../components/SynapseRadar';
 import TierPyramid from '../components/TierPyramid';
+import { Icon } from '../components/Icons';
 import { GAME_BG } from '../components/GameShell';
 
 // The Score tab: a headline (Synapse Score + tier badge + level), the tier
@@ -18,18 +19,18 @@ export default function Score() {
 
   return (
     <div className="h-full overflow-y-auto text-white" style={{ background: GAME_BG }}>
-      <div className="mx-auto max-w-md px-5 py-6">
-        <h1 className="font-cyber text-2xl">{t('score.title')}</h1>
+      <div className="mx-auto max-w-md px-5 py-6 pb-12">
+        <h1 className="font-display text-2xl text-iris">{t('score.title')}</h1>
         <p className="mt-1 text-sm text-white/60">{t('score.sub')}</p>
 
         {/* Headline: score + tier + level */}
-        <div className="mt-5 rounded-3xl border border-white/10 bg-white/[0.05] p-5 shadow-elevated">
+        <div className="glass-panel mt-5 rounded-panel p-5">
           <div className="flex items-end justify-between">
             <div>
-              <div className="font-dot text-[10px] font-semibold uppercase tracking-wide text-white/40">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
                 {t('synapse.score')}
               </div>
-              <div className="text-5xl font-black leading-none tabular-nums text-accent-cyan">{score}</div>
+              <div className="font-display text-5xl leading-none tabular-nums text-accent-cyan">{score}</div>
               <span
                 className="mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold text-white"
                 style={{ background: tier.color }}
@@ -39,7 +40,7 @@ export default function Score() {
             </div>
             <div className="text-right">
               <div className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2.5 py-1 text-sm font-bold text-success">
-                ⚡ {t('synapse.level')} {profile.level}
+                <Icon name="zap" className="h-4 w-4" /> {t('synapse.level')} {profile.level}
               </div>
               <div className="ml-auto mt-2 h-1.5 w-28 overflow-hidden rounded-full bg-white/15">
                 <div className="h-full rounded-full bg-success transition-all" style={{ width: `${pct}%` }} />
@@ -58,7 +59,7 @@ export default function Score() {
 
         {/* Radar + per-axis breakdown */}
         {hasPlays ? (
-          <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.05] p-5 shadow-elevated">
+          <div className="glass-panel mt-4 rounded-panel p-5">
             <div className="flex justify-center">
               <SynapseRadar profile={profile} radius={92} />
             </div>
@@ -80,7 +81,10 @@ export default function Score() {
             </div>
           </div>
         ) : (
-          <p className="mt-6 text-center text-sm text-white/50">{t('synapse.play')}</p>
+          <div className="mt-6 flex flex-col items-center gap-2 rounded-panel border border-dashed border-white/15 py-10 text-center">
+            <Icon name="score" className="h-8 w-8 text-white/30" />
+            <p className="text-sm text-white/50">{t('synapse.play')}</p>
+          </div>
         )}
 
         <p className="mt-6 text-center text-[11px] leading-snug text-white/30">{t('score.disclaimer')}</p>

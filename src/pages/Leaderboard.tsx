@@ -7,6 +7,8 @@ import { useCloud } from '../lib/cloud';
 import { useDailyBoard, useLadder, useEloLadder } from '../lib/leaderboard';
 import { tierForScore } from '../lib/tiers';
 import { eloRank } from '../lib/elo';
+import { Icon } from '../components/Icons';
+import { SkeletonList } from '../components/Skeleton';
 import { GAME_BG } from '../components/GameShell';
 
 // The Leaderboard tab: a daily board (per game + difficulty, same seed for all
@@ -27,18 +29,20 @@ export default function Leaderboard() {
 
   return (
     <div className="h-full overflow-y-auto text-white" style={{ background: GAME_BG }}>
-      <div className="mx-auto max-w-md px-5 py-6">
-        <h1 className="font-cyber text-2xl">{t('leaderboard.title')}</h1>
+      <div className="mx-auto max-w-md px-5 py-6 pb-12">
+        <h1 className="font-display text-2xl text-iris">{t('leaderboard.title')}</h1>
         <p className="mt-1 text-sm text-white/60">{t('leaderboard.sub')}</p>
 
         {/* View switch */}
-        <div className="mt-4 grid grid-cols-3 gap-1 rounded-2xl bg-white/[0.06] p-1">
+        <div className="mt-4 grid grid-cols-3 gap-1 rounded-2xl bg-white/[0.05] p-1">
           {(['today', 'global', 'ranked'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`rounded-xl py-2 text-sm font-bold transition ${
-                view === v ? 'bg-primary text-white shadow-premium' : 'text-white/55'
+              className={`min-h-[44px] rounded-xl py-2 text-sm font-bold transition ${
+                view === v
+                  ? 'bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta text-white shadow-glow-sm'
+                  : 'text-white/55 hover:text-white/80'
               }`}
             >
               {t(`leaderboard.${v}`)}
@@ -50,8 +54,9 @@ export default function Leaderboard() {
         {cloud.status !== 'disabled' && !signedIn && (
           <Link
             to="/profile"
-            className="mt-4 block rounded-2xl border border-accent-cyan/30 bg-accent-cyan/10 p-3 text-center text-sm font-semibold text-accent-cyan"
+            className="mt-4 flex min-h-[44px] items-center justify-center gap-2 rounded-2xl border border-accent-cyan/30 bg-accent-cyan/10 p-3 text-center text-sm font-semibold text-accent-cyan"
           >
+            <Icon name="signin" className="h-4 w-4" />
             {t('leaderboard.signInToCompete')}
           </Link>
         )}
@@ -116,6 +121,16 @@ const RANK_COLOR: Record<string, string> = {
 const rowCls = (you: boolean) =>
   `flex items-center gap-3 rounded-xl px-3 py-2.5 ${you ? 'bg-accent-cyan/15 ring-1 ring-accent-cyan/40' : 'bg-white/[0.04]'}`;
 
+// A designed empty state: an icon + one line of guidance, never a bare sentence.
+function EmptyBoard({ message }: { message: string }) {
+  return (
+    <div className="mt-8 flex flex-col items-center gap-2 rounded-panel border border-dashed border-white/15 py-10 text-center">
+      <Icon name="trophy" className="h-8 w-8 text-white/25" />
+      <p className="px-6 text-sm text-white/50">{message}</p>
+    </div>
+  );
+}
+
 function rankBadge(rank: number) {
   const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
   return (
@@ -127,8 +142,8 @@ function DailyBoard({ gameId, difficulty, youId }: { gameId: string; difficulty:
   const { t } = useTranslation();
   const { rows, loading } = useDailyBoard(gameId, difficulty);
 
-  if (loading) return <p className="mt-6 text-center text-sm text-white/40">…</p>;
-  if (rows.length === 0) return <p className="mt-8 text-center text-sm text-white/45">{t('leaderboard.empty')}</p>;
+  if (loading) return <SkeletonList className="mt-4" rows={6} />;
+  if (rows.length === 0) return <EmptyBoard message={t('leaderboard.empty')} />;
 
   return (
     <div className="mt-4 space-y-1.5">
@@ -153,8 +168,8 @@ function RankedLadder({ youId }: { youId?: string }) {
   const { t } = useTranslation();
   const { rows, loading } = useEloLadder();
 
-  if (loading) return <p className="mt-6 text-center text-sm text-white/40">…</p>;
-  if (rows.length === 0) return <p className="mt-8 text-center text-sm text-white/45">{t('leaderboard.empty')}</p>;
+  if (loading) return <SkeletonList className="mt-4" rows={6} />;
+  if (rows.length === 0) return <EmptyBoard message={t('leaderboard.empty')} />;
 
   return (
     <div className="mt-4 space-y-1.5">
@@ -182,8 +197,8 @@ function GlobalLadder({ youId }: { youId?: string }) {
   const { t } = useTranslation();
   const { rows, loading } = useLadder();
 
-  if (loading) return <p className="mt-6 text-center text-sm text-white/40">…</p>;
-  if (rows.length === 0) return <p className="mt-8 text-center text-sm text-white/45">{t('leaderboard.empty')}</p>;
+  if (loading) return <SkeletonList className="mt-4" rows={6} />;
+  if (rows.length === 0) return <EmptyBoard message={t('leaderboard.empty')} />;
 
   return (
     <div className="mt-4 space-y-1.5">

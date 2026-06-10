@@ -108,10 +108,12 @@ const ICONS: Record<IconName, LucideIcon> = {
 export function Icon({
   name,
   className = 'h-6 w-6',
+  style,
 }: {
   name: IconName;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   const C = ICONS[name];
-  return <C className={className} strokeWidth={2} aria-hidden focusable={false} />;
+  return <C className={className} style={style} strokeWidth={2} aria-hidden focusable={false} />;
 }
