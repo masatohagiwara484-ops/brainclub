@@ -762,5 +762,12 @@
     "badgeFirstWin": "初勝利",
     "badgeWins25": "25勝",
     "badgeMaster": "マスター"
+  },
+  "rarity": {
+    "common": "コモン",
+    "rare": "レア",
+    "epic": "エピック",
+    "legendary": "レジェンダリー",
+    "mythic": "ミシック"
   }
 }

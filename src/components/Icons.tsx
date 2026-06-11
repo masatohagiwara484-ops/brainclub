@@ -37,6 +37,12 @@ import {
   Pause,
   Volume2,
   Languages,
+  Lock,
+  Gift,
+  Ticket,
+  MessageSquareText,
+  Hash,
+  ChevronRight,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -70,7 +76,13 @@ export type IconName =
   | 'arrowRight'
   | 'pause'
   | 'sound'
-  | 'language';
+  | 'language'
+  | 'lock'
+  | 'gift'
+  | 'ticket'
+  | 'emote'
+  | 'hash'
+  | 'chevronRight';
 
 const ICONS: Record<IconName, LucideIcon> = {
   home: House,
@@ -103,6 +115,12 @@ const ICONS: Record<IconName, LucideIcon> = {
   pause: Pause,
   sound: Volume2,
   language: Languages,
+  lock: Lock,
+  gift: Gift,
+  ticket: Ticket,
+  emote: MessageSquareText,
+  hash: Hash,
+  chevronRight: ChevronRight,
 };
 
 export function Icon({

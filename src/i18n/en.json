@@ -762,5 +762,12 @@
     "badgeFirstWin": "First Win",
     "badgeWins25": "25 Wins",
     "badgeMaster": "Master"
+  },
+  "rarity": {
+    "common": "Common",
+    "rare": "Rare",
+    "epic": "Epic",
+    "legendary": "Legendary",
+    "mythic": "Mythic"
   }
 }
