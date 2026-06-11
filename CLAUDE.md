@@ -148,6 +148,17 @@ src/games/types.ts         GameProps.online（OnlineController：moves権威/sen
 - **4人対戦 基盤 ✅(SQL+クライアント。ゲーム配線は次)**: `supabase/online-v2.sql`(**Supabaseで要実行・online.sqlの後**)=matchesに`players uuid[]`+`match_size`(1v1行はバックフィル)、RLS=`any(players)`、`find_match_n(game,size)`が size-1人を`SKIP LOCKED`で原子取得し座席シャッフル、`record_move`はN人ターン検証(`players[1+len(moves)%size]`・脱落者はゲーム側no-op move)、`record_match_result`は**勝者がK/(size-1)で各敗者とペアワイズElo**。クライアント=`realtime.ts`の`findMatchN`/`waitForAnyMatch`(カラムフィルタ無し=**RLSゲートで自分の試合だけ届く**=全座席が発見可能)/`seatOfN`/`turnSeatN`。
   - **次のゲーム配線手順(ludo 4P例)**: ①registryに`online:true` ②OnlineGamePage/OnlineLobbyを`match_size`対応(ロビーに2人/4人選択→`findMatchN`+`waitForAnyMatch`) ③LudoGameに`online`分岐: 盤面=movesから純導出(1手={dice,token}…サイコロはmatchIdシードの決定的乱数で両者一致させる) ④脱落/切断=該当seatをAIに委譲 or no-op。
 
+## 🎟 CR/BS課金バッチ2026-07（レアリティ＋コスメ拡充＋ブレインパス = 実装済✅）
+> クラロワ/ブロスタ参照。方針=**HOLO（深宇宙＋ガラス）にCR/BS要素を注入**（明色全面塗替えはしない）。レアリティ×プラン両軸。
+- **レアリティ基盤 ✅**: `lib/rarity.ts`(common→rare→epic→legendary→mythic、色/グラデ/グロー共通。mythicは虹スイープ)。`lib/inventory.ts`=統一所持(プラン解放 OR 個別grant〔パス/購入/実績〕)、`isUnlocked(unlock,plan,id)`/`grantItem`/`useInventory`。`RarityTile`=全ピッカー共通スウォッチ(フォイル光沢legendary+/ロック/選択)。CSS=`.btn-chunky`(CR立体ボタン)、`.rarity-tile/.rarity-shine`、`reward-pop/reward-rays`(報酬演出)。
+- **ネームプレート ✅**: `lib/nameplates.ts`(9種・common→mythic)。`NamePlate`コンポ(アバター+名前+称号+末尾)をProfileCardバナー/将来リーダーボード/HUDで再利用。
+- **称号(Titles) ✅**: `lib/titles.ts`(11種=実績8〔streak/level/rank/wins〕+課金3)。名前下に表示。
+- **プロフィール・ロッカー ✅**: `CosmeticLocker`(プレート/称号/フレームのタブ式ピッカー、RarityTile、ロック→paywall)。ProfileCardが装備プレートをバナー化＋称号行＋ロッカー内蔵。
+- **数独スキン ✅**: `gameSkins.SUDOKU_THEMES`(7種・盤/罫線/数字色/選択/ツイン強調)。SudokuGameはinline styleでテーマ適用＋`SudokuSkinPicker`(ミニ3×3プレビュー)。
+- **キューブ特殊形状 ✅(既出)** + 各解放判定(`frameUnlocked/themeUnlocked/shapeUnlocked`)を**インベントリOR**に統一→パス報酬で実際に解放。
+- **ブレインパス ✅(継続課金の核)**: `lib/brainPass.ts`=月替りシーズン(YYYY-MM)、15ティア×(無料/プレミアム)報酬を全コスメカタログから配布。XPは`recordPlay`で+22/play。`claimReward`がinventoryへgrant。プレミアム枠=Proプラン or `buyPass()`(モック)。`pages/BrainPass.tsx`(/pass)=ティアバー＋2トラック横スクロール梯子、`RewardReveal`(宝箱演出)。Home/Premium/結果画面に導線(`PassChip`で毎ゲーム後にループ強化)。
+- **未実装(次の候補)**: 実課金(Stripe)、オンライン中のエモート(versusChannelで配線可)、リーダーボード行へのネームプレート適用、ジェム等のソフト通貨。
+
 ## 🗺 ロードマップ（0.1→1→10→100）
 - **0.1→1（〜2週間）**: 安定・公開・計測・シェアできる土台。キューブ修正済み✅／Vercelデプロイ／PWA／計測／X・Substack開始。← **今ここ**
 - **1→10（〜2-3ヶ月）**: デイリー習慣＋必須ゲーム追加（軽い順: 五目→ナンプレ→ソリティア→色水ソート→単語当て）＋ストリーク/実績＋リワード広告/広告除去/コスメ＋全ゲームにシェアグリッド。初収益。
