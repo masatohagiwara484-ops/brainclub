@@ -769,5 +769,36 @@
     "epic": "エピック",
     "legendary": "レジェンダリー",
     "mythic": "ミシック"
+  },
+  "locker": {
+    "title": "ロッカー",
+    "plates": "プレート",
+    "titles": "称号",
+    "frames": "フレーム",
+    "noTitle": "称号なし"
+  },
+  "plates": {
+    "default": "スタンダード",
+    "ocean": "タイダル",
+    "sunset": "エンバー",
+    "forest": "ヴァーダント",
+    "royal": "ロイヤル",
+    "cyber": "オーバーライド",
+    "gold": "ゴールデン",
+    "dragon": "ドラゴンファイア",
+    "mythic": "ホログラム"
+  },
+  "titles": {
+    "rookie": "ルーキー",
+    "devoted": "求道者",
+    "unstoppable": "アンストッパブル",
+    "scholar": "学者",
+    "genius": "認定の天才",
+    "duelist": "決闘者",
+    "gladiator": "グラディエーター",
+    "grandmaster": "グランドマスター",
+    "vip": "VIP",
+    "legend": "生ける伝説",
+    "mythic": "ミシックの者"
   }
 }

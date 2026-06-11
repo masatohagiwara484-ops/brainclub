@@ -1,13 +1,15 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCloud } from '../lib/cloud';
 import { useSynapse, synapseScore } from '../lib/synapse';
 import { getStreak } from '../lib/storage';
 import { tierForScore } from '../lib/tiers';
 import { eloRank, isPlacement, PLACEMENT_GAMES } from '../lib/elo';
-import { FRAMES, frameUnlocked, getEquippedFrame, equipFrame, badges } from '../lib/cosmetics';
-import { useMonetization } from '../lib/monetization';
+import { getEquippedFrame, badges } from '../lib/cosmetics';
+import { useEquippedPlate } from '../lib/nameplates';
+import { useEquippedTitle, getTitle } from '../lib/titles';
+import { rarityMeta } from '../lib/rarity';
 import { Icon, type IconName } from './Icons';
+import CosmeticLocker from './CosmeticLocker';
 import { cn } from '../lib/cn';
 
 // The identity card (chess.com / Clash-Royale style): framed avatar, name,
@@ -16,9 +18,7 @@ import { cn } from '../lib/cn';
 export default function ProfileCard() {
   const { t } = useTranslation();
   const cloud = useCloud();
-  const m = useMonetization();
   const profile = useSynapse();
-  const [, bump] = useState(0);
 
   const acc = cloud.account;
   const name = acc?.username ?? t('cosmetics.guest');
@@ -27,6 +27,8 @@ export default function ProfileCard() {
   const tier = tierForScore(score);
   const streak = getStreak();
   const frame = getEquippedFrame();
+  const plate = useEquippedPlate();
+  const equippedTitle = getTitle(useEquippedTitle());
   const games = (acc?.wins ?? 0) + (acc?.losses ?? 0);
   const wall = badges(acc ? { wins: acc.wins, losses: acc.losses } : undefined);
 
@@ -53,9 +55,11 @@ export default function ProfileCard() {
 
   return (
     <div className="glass-panel overflow-hidden rounded-panel">
-      {/* banner */}
-      <div className="h-16 bg-gradient-to-r from-iris-cyan/30 via-iris-violet/30 to-iris-magenta/30" />
-      <div className="-mt-9 px-4 pb-4">
+      {/* banner = equipped name plate */}
+      <div className="h-20" style={{ background: plate.bg }}>
+        <span aria-hidden className="block h-full w-full bg-gradient-to-b from-white/15 to-transparent" />
+      </div>
+      <div className="-mt-10 px-4 pb-4">
         {/* framed avatar */}
         <div
           className="grid h-[76px] w-[76px] place-items-center rounded-full p-[3px]"
@@ -72,6 +76,11 @@ export default function ProfileCard() {
             {t(tier.nameKey)}
           </span>
         </div>
+        {equippedTitle && (
+          <div className="mt-0.5 text-xs font-bold" style={{ color: rarityMeta(equippedTitle.rarity).color }}>
+            {t(equippedTitle.nameKey)}
+          </div>
+        )}
 
         {/* stat grid */}
         <div className="mt-3 grid grid-cols-3 gap-2">
@@ -84,40 +93,12 @@ export default function ProfileCard() {
           ))}
         </div>
 
-        {/* frames (the storefront) */}
+        {/* cosmetics locker (plates / titles / frames) */}
         <div className="mt-4">
-          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
-            {t('cosmetics.frames')}
+          <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+            <Icon name="sparkles" className="h-3.5 w-3.5" /> {t('locker.title')}
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {FRAMES.map((f) => {
-              const unlocked = frameUnlocked(f, m.getPlan());
-              const active = frame.id === f.id;
-              return (
-                <button
-                  key={f.id}
-                  onClick={() => {
-                    if (!unlocked) return m.openPaywall();
-                    equipFrame(f.id);
-                    bump((x) => x + 1);
-                  }}
-                  aria-label={t(f.nameKey)}
-                  className={cn(
-                    'tap-target relative grid h-12 w-12 shrink-0 place-items-center rounded-full p-[3px] transition',
-                    active && 'ring-2 ring-iris-violet',
-                  )}
-                  style={{ background: f.ring }}
-                >
-                  <span className="grid h-full w-full place-items-center rounded-full bg-space-2 text-lg">{avatar}</span>
-                  {!unlocked && (
-                    <span className="absolute inset-0 grid place-items-center rounded-full bg-black/50">
-                      <Icon name={f.tier === 'pro' ? 'crown' : 'diamond'} className="h-4 w-4 text-amber-300" />
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          <CosmeticLocker avatar={avatar} />
         </div>
 
         {/* badge wall */}

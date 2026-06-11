@@ -769,5 +769,36 @@
     "epic": "Epic",
     "legendary": "Legendary",
     "mythic": "Mythic"
+  },
+  "locker": {
+    "title": "Locker",
+    "plates": "Plates",
+    "titles": "Titles",
+    "frames": "Frames",
+    "noTitle": "No title"
+  },
+  "plates": {
+    "default": "Standard",
+    "ocean": "Tidal",
+    "sunset": "Ember",
+    "forest": "Verdant",
+    "royal": "Royal",
+    "cyber": "Override",
+    "gold": "Golden",
+    "dragon": "Dragonfire",
+    "mythic": "Hologram"
+  },
+  "titles": {
+    "rookie": "Rookie",
+    "devoted": "The Devoted",
+    "unstoppable": "Unstoppable",
+    "scholar": "Scholar",
+    "genius": "Certified Genius",
+    "duelist": "Duelist",
+    "gladiator": "Gladiator",
+    "grandmaster": "Grandmaster",
+    "vip": "VIP",
+    "legend": "Living Legend",
+    "mythic": "Mythic One"
   }
 }
