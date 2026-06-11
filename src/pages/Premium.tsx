@@ -7,7 +7,7 @@
 // subscribe / cancel) so ads and cosmetic unlocks react instantly.
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useMonetization, PLANS, ALL_FEATURES, planHas } from '../lib/monetization';
 import { Icon } from '../components/Icons';
 import { GAME_BG } from '../components/GameShell';
@@ -69,7 +69,7 @@ export default function Premium() {
                 <button
                   disabled={current}
                   onClick={() => m.subscribe(p.id)}
-                  className="mt-4 min-h-[44px] w-full rounded-xl px-3 py-2.5 text-sm font-bold text-white shadow disabled:opacity-60"
+                  className="btn-chunky mt-4 min-h-[44px] w-full px-3 py-2.5 text-sm disabled:opacity-60"
                   style={{ background: current ? '#475569' : p.accent }}
                 >
                   {current ? t('monet.currentPlan') : t('monet.choose', { plan: t(`${p.i18n}.name`) })}
@@ -91,6 +91,21 @@ export default function Premium() {
         ) : (
           <p className="mt-3 text-center text-[11px] text-white/40">{t('monet.mockNote')}</p>
         )}
+
+        {/* Brain Pass cross-sell */}
+        <Link
+          to="/pass"
+          className="mt-5 flex items-center gap-3 overflow-hidden rounded-panel bg-gradient-to-r from-amber-500/25 via-iris-violet/25 to-iris-magenta/25 p-3.5 ring-1 ring-white/15 transition active:scale-[0.98]"
+        >
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-glow-sm">
+            <Icon name="ticket" className="h-7 w-7 text-white" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="font-display text-base text-white">{t('pass.title')}</div>
+            <div className="truncate text-xs text-white/55">{t('pass.bannerSub')}</div>
+          </div>
+          <Icon name="chevronRight" className="h-5 w-5 shrink-0 text-white/50" />
+        </Link>
 
         {/* Comparison table */}
         <h2 className="font-display mt-7 mb-2 text-xs uppercase tracking-[0.16em] text-white/40">

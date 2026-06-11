@@ -8,6 +8,8 @@ import { sound } from '../lib/sound';
 import { haptics } from '../lib/haptics';
 import { useSynapse, synapseScore, AXES, type Axis } from '../lib/synapse';
 import { tierProgress } from '../lib/tiers';
+import { useBrainPass, XP_PER_TIER, XP_PER_PLAY, MAX_TIER } from '../lib/brainPass';
+import { Link } from 'react-router-dom';
 import { Icon } from './Icons';
 
 // ============================================================================
@@ -122,6 +124,35 @@ function ActionButton({
       {share && <Icon name="share" className="h-5 w-5" />}
       {label}
     </motion.button>
+  );
+}
+
+// A compact Brain Pass progress strip shown on every result — "+22 XP" plus the
+// season tier bar, one tap into the ladder. The XP was already banked by
+// recordPlay; this just celebrates it.
+function PassChip() {
+  const { t } = useTranslation();
+  const { tier, xpInTier } = useBrainPass();
+  return (
+    <Link
+      to="/pass"
+      className="mt-4 flex items-center gap-2.5 rounded-2xl bg-white/[0.05] px-3 py-2.5 ring-1 ring-white/10"
+    >
+      <Icon name="ticket" className="h-4 w-4 shrink-0 text-iris-violet" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wide">
+          <span className="text-white/55">{t('pass.tier', { n: tier })}</span>
+          <span className="text-emerald-400">+{XP_PER_PLAY} XP</span>
+        </div>
+        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-iris-cyan via-iris-violet to-iris-magenta"
+            style={{ width: `${tier >= MAX_TIER ? 100 : (xpInTier / XP_PER_TIER) * 100}%` }}
+          />
+        </div>
+      </div>
+      <Icon name="chevronRight" className="h-4 w-4 shrink-0 text-white/40" />
+    </Link>
   );
 }
 
@@ -392,6 +423,11 @@ export default function GameResultScreen({
               </div>
             </motion.div>
           )}
+
+          {/* Brain Pass progress — reinforces the season loop on every result. */}
+          <motion.div variants={item}>
+            <PassChip />
+          </motion.div>
 
           {/* Footnote. */}
           {note != null && <motion.p variants={item} className="mt-3 text-xs text-white/35">{note}</motion.p>}
