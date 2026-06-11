@@ -824,5 +824,18 @@
     "tapToClose": "Tap to continue",
     "banner": "Brain Pass",
     "bannerSub": "Season rewards — claim now"
+  },
+  "chest": {
+    "title": "Daily Chest",
+    "day": "Day {{n}}",
+    "dayShort": "D{{n}}",
+    "open": "Open today's chest",
+    "xpReward": "+{{n}} Pass XP"
+  },
+  "boost": {
+    "pitch": "Watch an ad → 2× Pass XP for 30 min",
+    "active": "2× XP boost active!",
+    "watch": "Watch ({{n}} left)",
+    "playing": "Playing…"
   }
 }

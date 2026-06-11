@@ -824,5 +824,18 @@
     "tapToClose": "タップで続ける",
     "banner": "ブレインパス",
     "bannerSub": "シーズン報酬 — 今すぐ受け取ろう"
+  },
+  "chest": {
+    "title": "デイリー宝箱",
+    "day": "{{n}}日目",
+    "dayShort": "{{n}}日",
+    "open": "今日の宝箱を開ける",
+    "xpReward": "+{{n}} パスXP"
+  },
+  "boost": {
+    "pitch": "広告を見る → 30分間パスXP 2倍",
+    "active": "XP 2倍ブースト中！",
+    "watch": "視聴（残り{{n}}）",
+    "playing": "再生中…"
   }
 }

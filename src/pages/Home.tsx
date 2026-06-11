@@ -5,6 +5,7 @@ import BrainFieldBg from '../components/BrainFieldBg';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { Link } from 'react-router-dom';
 import DailyRitual from '../components/DailyRitual';
+import DailyChest from '../components/DailyChest';
 import GameTile from '../components/GameTile';
 import { Skeleton } from '../components/Skeleton';
 import { Icon } from '../components/Icons';
@@ -42,6 +43,9 @@ export default function Home() {
 
         {/* Brain Pass banner — the season reward hook. */}
         <PassBanner />
+
+        {/* Daily chest + rewarded boost — the CR/BS login loop. */}
+        <DailyChest />
 
         {/* The daily ritual — the habit loop front and center. */}
         <DailyRitual />
