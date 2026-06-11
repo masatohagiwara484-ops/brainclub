@@ -10,6 +10,9 @@ import { recordPlay, difficultyQuality, clamp01, XP_WEIGHT } from '../../lib/syn
 import { getGame } from '../registry';
 import GameResultScreen from '../../components/GameResultScreen';
 import GameShell, { ShellButton } from '../../components/GameShell';
+import SudokuSkinPicker from '../../components/SudokuSkinPicker';
+import { useSudokuTheme } from '../../lib/gameSkins';
+import { Icon } from '../../components/Icons';
 
 const AXES = getGame('sudoku')?.axes ?? {};
 // Target solve times (seconds) per difficulty — beating them nudges quality up.
@@ -86,6 +89,8 @@ function findConflicts(values: Grid): Set<number> {
 
 export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
   const { t } = useTranslation();
+  const sudoku = useSudokuTheme();
+  const [showSkins, setShowSkins] = useState(false);
 
   const [data, setData] = useState<Puzzle | null>(null);
   const [values, setValues] = useState<Grid>([]);
@@ -275,16 +280,31 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
     <GameShell
       difficulty={difficulty}
       stat={<>⏱ {fmt(seconds)}</>}
-      action={<ShellButton onClick={() => generate(difficulty)}>{t('sudoku.newGame')}</ShellButton>}
+      action={
+        <div className="flex gap-2">
+          <ShellButton onClick={() => setShowSkins((v) => !v)} ariaLabel={t('skins.title')}>
+            <Icon name="sparkles" className="h-4 w-4" />
+          </ShellButton>
+          <ShellButton onClick={() => generate(difficulty)}>{t('sudoku.newGame')}</ShellButton>
+        </div>
+      }
     >
       {/* Board */}
+      {showSkins && (
+        <div className="mb-2 w-full max-w-md rounded-panel glass-panel p-2">
+          <SudokuSkinPicker onPick={() => setShowSkins(false)} />
+        </div>
+      )}
       <div className="relative mt-2 w-full max-w-md">
         {!data ? (
           <div className="grid aspect-square place-items-center text-white/50">
             {t('sudoku.generating')}
           </div>
         ) : (
-          <div className="grid aspect-square grid-cols-9 overflow-hidden rounded-2xl border-2 border-white/20 bg-slate-900/50 shadow-elevated ring-1 ring-white/5">
+          <div
+            className="grid aspect-square grid-cols-9 overflow-hidden rounded-2xl border-2 shadow-elevated"
+            style={{ background: sudoku.boardBg, borderColor: sudoku.lineBold }}
+          >
             {values.map((v, i) => {
               const r = Math.floor(i / N);
               const c = i % N;
@@ -293,26 +313,20 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
               const inLine = r === selRow || c === selCol;
               const sameVal = v !== 0 && v === highlightVal;
               const conflict = conflicts.has(i);
-
-              const borders = [
-                'border-white/10',
-                c % 3 === 0 && c !== 0 ? 'border-l-2 border-l-white/30' : '',
-                r % 3 === 0 && r !== 0 ? 'border-t-2 border-t-white/30' : '',
-              ].join(' ');
-
-              // Twin cells glow WARM (orange) so they pop against the navy theme.
-              let bg = 'bg-transparent';
-              if (isSel) bg = 'bg-primary/40';
-              else if (sameVal) bg = 'bg-orange-500/30 ring-1 ring-inset ring-orange-400/60';
-              else if (inLine) bg = 'bg-white/[0.06]';
-
-              const text = conflict
-                ? 'text-rose-400'
-                : isGiven
-                  ? 'text-white'
-                  : 'text-accent-cyan';
-
               const glowing = glow.cells.has(i);
+
+              // Cell + border colors come from the active Sudoku theme.
+              const style: React.CSSProperties = {
+                borderColor: sudoku.line,
+                borderLeftColor: c % 3 === 0 && c !== 0 ? sudoku.lineBold : undefined,
+                borderLeftWidth: c % 3 === 0 && c !== 0 ? 2 : undefined,
+                borderTopColor: r % 3 === 0 && r !== 0 ? sudoku.lineBold : undefined,
+                borderTopWidth: r % 3 === 0 && r !== 0 ? 2 : undefined,
+                color: conflict ? '#fb7185' : isGiven ? sudoku.given : sudoku.user,
+              };
+              if (isSel) style.background = sudoku.selBg;
+              else if (sameVal) { style.background = sudoku.twinBg; style.boxShadow = `inset 0 0 0 1px ${sudoku.twinRing}`; }
+              else if (inLine) style.background = 'rgba(255,255,255,0.06)';
 
               return (
                 <button
@@ -322,7 +336,8 @@ export default function SudokuGame({ difficulty = 'easy' }: GameProps) {
                     setActiveDigit(null); // selecting a cell hands highlight back to its own value
                   }}
                   data-evolve={glowing ? 'unit' : undefined}
-                  className={`flex aspect-square items-center justify-center border text-lg font-semibold sm:text-xl ${borders} ${bg} ${text} ${
+                  style={style}
+                  className={`flex aspect-square items-center justify-center border text-lg font-semibold sm:text-xl ${
                     isGiven ? 'font-bold' : ''
                   } ${glowing ? 'fx-glow fx-pop z-10' : ''}`}
                 >

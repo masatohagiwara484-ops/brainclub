@@ -52,6 +52,56 @@ export const CUBE_STICKERS: Record<string, { up: number; down: number; front: nu
   fire: { right: 0xfb923c, left: 0x7c2d12, up: 0xfed7aa, down: 0xf97316, front: 0xdc2626, back: 0x431407 },
 };
 
+// ---- Sudoku themes (number grid, not a board of stones) -----------------------
+import type { Rarity } from './rarity';
+import type { Unlock } from './inventory';
+
+export type SudokuTheme = {
+  id: string;
+  nameKey: string;
+  rarity: Rarity;
+  unlock: Unlock;
+  boardBg: string;
+  line: string;
+  lineBold: string;
+  given: string; // clue number color
+  user: string; // entered number color
+  selBg: string; // selected cell
+  twinBg: string; // same-value highlight
+  twinRing: string;
+};
+
+export const SUDOKU_THEMES: SudokuTheme[] = [
+  { id: 'classic', nameKey: 'sudokuSkins.classic', rarity: 'common', unlock: { plan: 'free' }, boardBg: 'rgba(15,23,42,0.5)', line: 'rgba(255,255,255,0.10)', lineBold: 'rgba(255,255,255,0.30)', given: '#ffffff', user: '#67e8f9', selBg: 'rgba(99,102,241,0.40)', twinBg: 'rgba(249,115,22,0.30)', twinRing: 'rgba(251,146,60,0.6)' },
+  { id: 'ocean', nameKey: 'sudokuSkins.ocean', rarity: 'rare', unlock: { plan: 'free' }, boardBg: 'rgba(8,47,73,0.5)', line: 'rgba(125,211,252,0.14)', lineBold: 'rgba(125,211,252,0.4)', given: '#e0f2fe', user: '#38bdf8', selBg: 'rgba(14,165,233,0.4)', twinBg: 'rgba(250,204,21,0.28)', twinRing: 'rgba(253,224,71,0.6)' },
+  { id: 'sakura', nameKey: 'sudokuSkins.sakura', rarity: 'rare', unlock: { plan: 'plus' }, boardBg: 'rgba(76,5,45,0.45)', line: 'rgba(244,114,182,0.16)', lineBold: 'rgba(244,114,182,0.45)', given: '#fce7f3', user: '#f9a8d4', selBg: 'rgba(236,72,153,0.4)', twinBg: 'rgba(56,189,248,0.28)', twinRing: 'rgba(125,211,252,0.6)' },
+  { id: 'forest', nameKey: 'sudokuSkins.forest', rarity: 'epic', unlock: { plan: 'plus' }, boardBg: 'rgba(5,46,22,0.5)', line: 'rgba(74,222,128,0.16)', lineBold: 'rgba(74,222,128,0.45)', given: '#dcfce7', user: '#4ade80', selBg: 'rgba(34,197,94,0.38)', twinBg: 'rgba(250,204,21,0.28)', twinRing: 'rgba(253,224,71,0.6)' },
+  { id: 'royal', nameKey: 'sudokuSkins.royal', rarity: 'epic', unlock: { plan: 'pro' }, boardBg: 'rgba(46,16,101,0.5)', line: 'rgba(216,180,254,0.18)', lineBold: 'rgba(216,180,254,0.5)', given: '#f5f3ff', user: '#c4b5fd', selBg: 'rgba(168,85,247,0.4)', twinBg: 'rgba(251,191,36,0.3)', twinRing: 'rgba(253,224,71,0.6)' },
+  { id: 'gold', nameKey: 'sudokuSkins.gold', rarity: 'legendary', unlock: { plan: 'pro' }, boardBg: 'rgba(41,25,5,0.55)', line: 'rgba(251,191,36,0.18)', lineBold: 'rgba(251,191,36,0.55)', given: '#fef9c3', user: '#fbbf24', selBg: 'rgba(245,158,11,0.4)', twinBg: 'rgba(56,189,248,0.28)', twinRing: 'rgba(125,211,252,0.6)' },
+  { id: 'hologram', nameKey: 'sudokuSkins.hologram', rarity: 'mythic', unlock: { plan: 'pro' }, boardBg: 'rgba(14,18,38,0.6)', line: 'rgba(129,140,248,0.2)', lineBold: 'rgba(232,121,249,0.55)', given: '#ecfeff', user: '#e879f9', selBg: 'rgba(129,140,248,0.45)', twinBg: 'rgba(34,211,238,0.3)', twinRing: 'rgba(34,211,238,0.7)' },
+];
+
+export function getSudokuTheme(id: string): SudokuTheme {
+  return SUDOKU_THEMES.find((th) => th.id === id) ?? SUDOKU_THEMES[0];
+}
+export function getSudokuSkinId(): string {
+  return getSetting<string>('skin:sudoku', 'classic');
+}
+export function setSudokuSkin(id: string): void {
+  setSetting('skin:sudoku', id);
+  for (const l of listeners) l();
+}
+export function useSudokuTheme(): SudokuTheme {
+  const [, force] = useReducer((x: number) => x + 1, 0);
+  useEffect(() => {
+    listeners.push(force);
+    return () => {
+      listeners = listeners.filter((l) => l !== force);
+    };
+  }, []);
+  return getSudokuTheme(getSudokuSkinId());
+}
+
 /** Premium cube SHAPES (geometry, not color) — the second cube storefront. */
 export type CubeShapeDef = { id: 'classic' | 'pillow' | 'sphere' | 'gem'; nameKey: string; tier: SkinTier };
 export const CUBE_SHAPES: CubeShapeDef[] = [

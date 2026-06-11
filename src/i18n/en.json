@@ -800,5 +800,14 @@
     "vip": "VIP",
     "legend": "Living Legend",
     "mythic": "Mythic One"
+  },
+  "sudokuSkins": {
+    "classic": "Classic",
+    "ocean": "Ocean",
+    "sakura": "Sakura",
+    "forest": "Forest",
+    "royal": "Royal",
+    "gold": "Gold",
+    "hologram": "Hologram"
   }
 }

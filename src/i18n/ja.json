@@ -800,5 +800,14 @@
     "vip": "VIP",
     "legend": "生ける伝説",
     "mythic": "ミシックの者"
+  },
+  "sudokuSkins": {
+    "classic": "クラシック",
+    "ocean": "オーシャン",
+    "sakura": "サクラ",
+    "forest": "フォレスト",
+    "royal": "ロイヤル",
+    "gold": "ゴールド",
+    "hologram": "ホログラム"
   }
 }
