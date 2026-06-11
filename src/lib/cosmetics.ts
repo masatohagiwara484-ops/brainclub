@@ -7,6 +7,7 @@ import { getSetting, setSetting, getStreak } from './storage';
 import { getProfile, synapseScore } from './synapse';
 import { tierForScore } from './tiers';
 import { PLAN_RANK, type Plan } from './monetization';
+import { hasItem } from './inventory';
 
 export type Frame = {
   id: string;
@@ -26,7 +27,7 @@ export const FRAMES: Frame[] = [
 ];
 
 const TIER_RANK = { free: 0, plus: 1, pro: 2 } as const;
-export const frameUnlocked = (f: Frame, plan: Plan): boolean => PLAN_RANK[plan] >= TIER_RANK[f.tier];
+export const frameUnlocked = (f: Frame, plan: Plan): boolean => PLAN_RANK[plan] >= TIER_RANK[f.tier] || hasItem(`frame-${f.id}`);
 
 export function getEquippedFrame(): Frame {
   const id = getSetting<string>('frame', 'none');

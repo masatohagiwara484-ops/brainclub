@@ -809,5 +809,17 @@
     "royal": "ロイヤル",
     "gold": "ゴールド",
     "hologram": "ホログラム"
+  },
+  "pass": {
+    "title": "ブレインパス",
+    "tier": "ティア {{n}}",
+    "maxed": "MAX — 全ティア達成",
+    "earnHint": "プレイでXP獲得 — どのゲームでもパスが進みます。",
+    "unlockPremium": "プレミアムパスを解放",
+    "freeTrack": "無料",
+    "premiumTrack": "プレミアム",
+    "tapToClose": "タップで続ける",
+    "banner": "ブレインパス",
+    "bannerSub": "シーズン報酬 — 今すぐ受け取ろう"
   }
 }

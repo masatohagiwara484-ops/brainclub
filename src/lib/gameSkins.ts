@@ -7,6 +7,7 @@
 import { useEffect, useReducer } from 'react';
 import { getSetting, setSetting } from './storage';
 import { PLAN_RANK, type Plan } from './monetization';
+import { hasItem } from './inventory';
 
 export type SkinTier = 'free' | 'plus' | 'pro';
 
@@ -112,7 +113,7 @@ export const CUBE_SHAPES: CubeShapeDef[] = [
 ];
 
 export function shapeUnlocked(shape: CubeShapeDef, plan: Plan): boolean {
-  return PLAN_RANK[plan] >= TIER_RANK[shape.tier];
+  return PLAN_RANK[plan] >= TIER_RANK[shape.tier] || hasItem(`cube-${shape.id}`);
 }
 
 export function getCubeShape(): CubeShapeDef {
@@ -140,7 +141,7 @@ export function useCubeShape(): CubeShapeDef {
 const TIER_RANK: Record<SkinTier, number> = { free: 0, plus: 1, pro: 2 };
 
 export function themeUnlocked(theme: BoardTheme, plan: Plan): boolean {
-  return PLAN_RANK[plan] >= TIER_RANK[theme.tier];
+  return PLAN_RANK[plan] >= TIER_RANK[theme.tier] || hasItem(`board-${theme.id}`);
 }
 
 export function getTheme(id: string): BoardTheme {

@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { GAMES, type GameCategory } from '../games/registry';
 import BrainFieldBg from '../components/BrainFieldBg';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { Link } from 'react-router-dom';
 import DailyRitual from '../components/DailyRitual';
 import GameTile from '../components/GameTile';
 import { Skeleton } from '../components/Skeleton';
+import { Icon } from '../components/Icons';
+import { useBrainPass, MAX_TIER } from '../lib/brainPass';
 
 // Home 2.0 — a structured, scrollable landing built on two pillars:
 //   1. HERO: the holographic card deck (swipe → tap → play) as the emotional
@@ -37,6 +40,9 @@ export default function Home() {
           </ErrorBoundary>
         </section>
 
+        {/* Brain Pass banner — the season reward hook. */}
+        <PassBanner />
+
         {/* The daily ritual — the habit loop front and center. */}
         <DailyRitual />
 
@@ -59,6 +65,30 @@ export default function Home() {
         })}
       </div>
     </div>
+  );
+}
+
+// The Brain Pass entry banner — season tier + a one-tap route into the ladder.
+function PassBanner() {
+  const { t } = useTranslation();
+  const { tier } = useBrainPass();
+  return (
+    <Link
+      to="/pass"
+      className="mx-4 flex items-center gap-3 overflow-hidden rounded-panel bg-gradient-to-r from-amber-500/20 via-iris-violet/20 to-iris-magenta/20 p-3 ring-1 ring-white/15 transition active:scale-[0.98]"
+    >
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-glow-sm">
+        <Icon name="ticket" className="h-6 w-6 text-white" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="font-display text-sm text-white">{t('pass.banner')}</div>
+        <div className="truncate text-[11px] text-white/55">{t('pass.bannerSub')}</div>
+      </div>
+      <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-xs font-extrabold tabular-nums text-white">
+        {t('pass.tier', { n: tier })}/{MAX_TIER}
+      </span>
+      <Icon name="chevronRight" className="h-5 w-5 shrink-0 text-white/50" />
+    </Link>
   );
 }
 

@@ -17,6 +17,7 @@
 // asserted by scripts/verify-synapse.mjs without a TS runtime.
 
 import { notePlay } from './quests';
+import { addPassXp, XP_PER_PLAY } from './brainPass';
 import { useEffect, useReducer } from 'react';
 import { getSetting, setSetting } from './storage';
 import type { Difficulty } from './difficulty';
@@ -174,6 +175,7 @@ export type PlayResult = {
 export function recordPlay(input: PlayInput): PlayResult {
   // Feed the daily-quest engine (retention loop) — fire and forget.
   try { notePlay(input.gameId, input.quality); } catch { /* quests never break play */ }
+  try { addPassXp(XP_PER_PLAY); } catch { /* pass never breaks play */ }
   const prev = getProfile();
   const profile = applyPlay(prev, input.axes, input.quality, input.weight ?? 1);
   setSetting(STORE_KEY, profile);

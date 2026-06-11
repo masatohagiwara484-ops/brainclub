@@ -5,6 +5,7 @@ import SplashScreen from './components/SplashScreen';
 import Home from './pages/Home';
 import GamePage from './pages/GamePage';
 import OnlineGamePage from './pages/OnlineGamePage';
+import BrainPass from './pages/BrainPass';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Score from './pages/Score';
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/score" element={<Score />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/premium" element={<Premium />} />
+          <Route path="/pass" element={<BrainPass />} />
           <Route path="/settings" element={<Settings />} />
           <Route
             path="/labs/selector"

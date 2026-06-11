@@ -809,5 +809,17 @@
     "royal": "Royal",
     "gold": "Gold",
     "hologram": "Hologram"
+  },
+  "pass": {
+    "title": "Brain Pass",
+    "tier": "Tier {{n}}",
+    "maxed": "MAX — all tiers reached",
+    "earnHint": "Earn XP by playing — every game advances your pass.",
+    "unlockPremium": "Unlock Premium Pass",
+    "freeTrack": "Free",
+    "premiumTrack": "Premium",
+    "tapToClose": "Tap to continue",
+    "banner": "Brain Pass",
+    "bannerSub": "Season rewards — claim now"
   }
 }
