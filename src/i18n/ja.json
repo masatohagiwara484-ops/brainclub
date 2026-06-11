@@ -730,7 +730,10 @@
     "shapeClassic": "クラシック",
     "shapePillow": "ピロー",
     "shapeSphere": "スフィア",
-    "shapeGem": "クリスタル"
+    "shapeGem": "クリスタル",
+    "sakura": "サクラ",
+    "aurora": "オーロラ",
+    "obsidian": "オブシディアン"
   },
   "quests": {
     "title": "デイリークエスト",

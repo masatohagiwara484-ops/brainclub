@@ -730,7 +730,10 @@
     "shapeClassic": "Classic",
     "shapePillow": "Pillow",
     "shapeSphere": "Sphere",
-    "shapeGem": "Crystal"
+    "shapeGem": "Crystal",
+    "sakura": "Sakura",
+    "aurora": "Aurora",
+    "obsidian": "Obsidian"
   },
   "quests": {
     "title": "Daily Quests",

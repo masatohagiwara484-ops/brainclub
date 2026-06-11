@@ -22,6 +22,7 @@ import GameResultScreen from '../../components/GameResultScreen';
 import SkinPicker from '../../components/SkinPicker';
 import { Icon } from '../../components/Icons';
 import type { GameProps } from '../types';
+import { drawPiece, paintBoardDecor } from './chessArt';
 
 const AXES = getGame('chess')?.axes ?? {};
 
@@ -146,14 +147,21 @@ export default function ChessGame({ difficulty = 'medium', online }: GameProps) 
 
     const sqAt = (r: number, c: number) => (flip ? (7 - r) * 8 + (7 - c) : r * 8 + c);
 
+    // squares
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        ctx.fillStyle = (r + c) % 2 === 0 ? theme.boardA : theme.boardB;
+        ctx.fillRect(ox + c * cell, oy + r * cell, cell, cell);
+      }
+    }
+    // theme decor (neon circuits / code rain / gold inlay…) under the action
+    paintBoardDecor(ctx, theme.id, ox, oy, size);
+    // last-move + selection + check tints
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const sq = sqAt(r, c);
         const x = ox + c * cell;
         const y = oy + r * cell;
-        ctx.fillStyle = (r + c) % 2 === 0 ? theme.boardA : theme.boardB;
-        ctx.fillRect(x, y, cell, cell);
-        // last-move + selection + check tints
         if (lastMove && (sq === lastMove.f || sq === lastMove.t)) {
           ctx.fillStyle = `${theme.glow}3d`;
           ctx.fillRect(x, y, cell, cell);
@@ -191,23 +199,13 @@ export default function ChessGame({ difficulty = 'medium', online }: GameProps) 
       }
     }
 
-    // pieces
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = `${cell * 0.78}px serif`;
+    // pieces — the original vector set (chessArt.ts)
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const sq = sqAt(r, c);
         const v = s.board[sq];
         if (!v) continue;
-        const x = ox + c * cell + cell / 2;
-        const y = oy + r * cell + cell / 2 + cell * 0.04;
-        const [hi, main] = v > 0 ? theme.light : theme.dark;
-        ctx.fillStyle = main;
-        ctx.strokeStyle = v > 0 ? 'rgba(0,0,0,0.55)' : hi;
-        ctx.lineWidth = Math.max(1, cell * 0.03);
-        ctx.strokeText(GLYPH[Math.abs(v)], x, y);
-        ctx.fillText(GLYPH[Math.abs(v)], x, y);
+        drawPiece(ctx, Math.abs(v), v > 0, ox + c * cell + cell / 2, oy + r * cell + cell / 2, cell, theme);
       }
     }
   }, [s, theme, selected, legal, lastMove, checked, myColor, version]); // eslint-disable-line react-hooks/exhaustive-deps

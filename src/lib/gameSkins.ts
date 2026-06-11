@@ -38,6 +38,9 @@ export const BOARD_THEMES: BoardTheme[] = [
   { id: 'matrix', nameKey: 'skins.matrix', tier: 'pro', boardA: '#03110a', boardB: '#062114', line: 'rgba(74,222,128,0.45)', frame: '#15803d', light: ['#bbf7d0', '#22c55e'], dark: ['#166534', '#021407'], glow: '#4ade80' },
   { id: 'dragon', nameKey: 'skins.dragon', tier: 'pro', boardA: '#3b1212', boardB: '#561a1a', line: 'rgba(245,197,66,0.5)', frame: '#b45309', light: ['#fde68a', '#d97706'], dark: ['#7f1d1d', '#1c0505'], glow: '#f59e0b' },
   { id: 'fire', nameKey: 'skins.fire', tier: 'plus', boardA: '#2a1206', boardB: '#451a03', line: 'rgba(251,146,60,0.5)', frame: '#9a3412', light: ['#fed7aa', '#fb923c'], dark: ['#7c2d12', '#190701'], glow: '#fb923c' },
+  { id: 'sakura', nameKey: 'skins.sakura', tier: 'plus', boardA: '#fdf2f8', boardB: '#f9c8dd', line: 'rgba(157,23,77,0.4)', frame: '#be5f8a', light: ['#ffffff', '#fbcfe8'], dark: ['#9d2456', '#4c0524'], glow: '#f472b6' },
+  { id: 'aurora', nameKey: 'skins.aurora', tier: 'pro', boardA: '#0b1b2a', boardB: '#143247', line: 'rgba(103,232,249,0.3)', frame: '#155e75', light: ['#a5f3fc', '#22d3ee'], dark: ['#a78bfa', '#3b0764'], glow: '#818cf8' },
+  { id: 'obsidian', nameKey: 'skins.obsidian', tier: 'pro', boardA: '#101014', boardB: '#1c1c24', line: 'rgba(255,255,255,0.16)', frame: '#2d2d3a', light: ['#f4f4f5', '#a1a1aa'], dark: ['#52525b', '#09090b'], glow: '#e4e4e7' },
 ];
 
 /** Cube sticker palettes (U D F B L R) keyed by the same theme ids. */
@@ -51,6 +54,9 @@ export const CUBE_STICKERS: Record<string, { up: number; down: number; front: nu
   matrix: { right: 0x22c55e, left: 0x166534, up: 0xbbf7d0, down: 0x4ade80, front: 0x86efac, back: 0x052e16 },
   dragon: { right: 0xdc2626, left: 0x7f1d1d, up: 0xfde68a, down: 0xf59e0b, front: 0xb45309, back: 0x450a0a },
   fire: { right: 0xfb923c, left: 0x7c2d12, up: 0xfed7aa, down: 0xf97316, front: 0xdc2626, back: 0x431407 },
+  sakura: { right: 0xf472b6, left: 0x9d2456, up: 0xfdf2f8, down: 0xf9a8d4, front: 0xbe185d, back: 0x4c0524 },
+  aurora: { right: 0x22d3ee, left: 0x3b0764, up: 0xa5f3fc, down: 0x818cf8, front: 0xa78bfa, back: 0x0b1b2a },
+  obsidian: { right: 0xa1a1aa, left: 0x27272a, up: 0xf4f4f5, down: 0x52525b, front: 0x71717a, back: 0x09090b },
 };
 
 // ---- Sudoku themes (number grid, not a board of stones) -----------------------
